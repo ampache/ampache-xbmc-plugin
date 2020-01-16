@@ -1,4 +1,5 @@
 import time
+import datetime
 import xbmcaddon
 
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
@@ -26,3 +27,11 @@ def check_tokenexp():
     if int(time.time()) > tokenexp:
         return True
     return False
+
+def get_time(time_offset):
+    d = datetime.date.today()
+    dt = datetime.timedelta(days=time_offset)
+    nd = d + dt
+    return nd.isoformat()
+
+

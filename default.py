@@ -1,8 +1,6 @@
 import sys
 import os
-import re
 import random,xbmcplugin,xbmcgui,urllib
-import datetime
 import xml.etree.ElementTree as ET
 import xbmcaddon
 
@@ -11,6 +9,7 @@ from resources.lib import json_storage
 from resources.lib import servers_manager
 from resources.lib import gui
 from resources.lib import utils
+from resources.lib import art
 
 # Shared resources
 
@@ -20,48 +19,7 @@ ampache_addon_path =  ampache.getAddonInfo('path').decode('utf-8')
 ampache_dir = xbmc.translatePath( ampache_addon_path )
 BASE_RESOURCE_PATH = os.path.join( ampache_dir, 'resources' )
 mediaDir = os.path.join( BASE_RESOURCE_PATH , 'media' )
-user_dir = xbmc.translatePath( ampache.getAddonInfo('profile')).decode('utf-8')
-user_mediaDir = os.path.join( user_dir , 'media' )
-cacheDir = os.path.join( user_mediaDir , 'cache' )
 imagepath = os.path.join( mediaDir ,'images')
-
-def cacheArt(url):
-        ampacheConnect = ampache_connect.AmpacheConnect()
-	strippedAuth = url.split('&')
-	imageID = re.search(r"id=(\d+)", strippedAuth[0])
-        #security check:
-        #also nexcloud server doesn't send images
-        if imageID == None:
-            raise NameError
-        
-        imageNamePng = imageID.group(1) + ".png"
-        imageNameJpg = imageID.group(1) + ".jpg"
-        pathPng = os.path.join( cacheDir , imageNamePng )
-        pathJpg = os.path.join( cacheDir , imageNameJpg )
-	if os.path.exists( pathPng ):
-                #xbmc.log("AmpachePlugin::CacheArt: png cached",xbmc.LOGDEBUG)
-		return pathPng
-        elif os.path.exists( pathJpg ):
-                #xbmc.log("AmpachePlugin::CacheArt: jpg cached",xbmc.LOGDEBUG)
-		return pathJpg
-	else:
-                #xbmc.log("AmpachePlugin::CacheArt: File needs fetching ",xbmc.LOGDEBUG)
-                headers,contents = ampacheConnect.handle_request(url)
-		if headers.maintype == 'image':
-			extension = headers['content-type']
-			tmpExt = extension.split("/")
-			if tmpExt[1] == "jpeg":
-				fname = imageNameJpg
-			else:
-				fname = imageID.group(1) + '.' + tmpExt[1]
-                        pathJpg = os.path.join( cacheDir , fname )
-			open( pathJpg, 'wb').write(contents)
-                        #xbmc.log("AmpachePlugin::CacheArt: Cached " + str(fname), xbmc.LOGDEBUG )
-			return pathJpg
-		else:
-                        xbmc.log("AmpachePlugin::CacheArt: It didnt work", xbmc.LOGDEBUG )
-                        raise NameError
-			#return False
 
 #return album and artist name, only album could be confusing
 def get_album_artist_name(node):
@@ -69,23 +27,6 @@ def get_album_artist_name(node):
     fullname += " - "
     fullname += node.findtext("artist").encode("utf-8")
     return fullname
-
-def get_artLabels(albumArt):
-    art_labels = {
-            'banner' : albumArt, 
-            'thumb': albumArt, 
-            'icon': albumArt,
-            'fanart': albumArt
-            }
-    return art_labels
-
-def get_art(node):
-    try:
-        albumArt = cacheArt(node.findtext("art"))
-    except NameError:
-        albumArt = "DefaultFolder.png"
-    #xbmc.log("AmpachePlugin::get_art: albumArt - " + str(albumArt), xbmc.LOGDEBUG )
-    return albumArt
 
 def get_infolabels(object_type , node):
     infoLabels = None
@@ -126,9 +67,9 @@ def get_infolabels(object_type , node):
 
 #handle albumArt and song info
 def fillListItemWithSongInfo(liz,node):
-    albumArt = get_art(node)
+    albumArt = art.get_art(node)
     liz.setLabel(unicode(node.findtext("title")))
-    liz.setArt( get_artLabels(albumArt) )
+    liz.setArt( art.get_artLabels(albumArt) )
     #needed by play_track to play the song, added here to uniform api
     liz.setPath(node.findtext("url"))
     liz.setInfo( type="music", infoLabels=get_infolabels("songs", node) )
@@ -217,7 +158,7 @@ def addDir(name,object_id,mode,iconImage=None,elem=None,infoLabels=None):
     
     liz=xbmcgui.ListItem(name)
     liz.setInfo( type="Music", infoLabels=infoLabels )
-    liz.setArt(  get_artLabels(iconImage) )
+    liz.setArt(  art.get_artLabels(iconImage) )
     liz.setProperty('IsPlayable', 'false')
 
     try:
@@ -252,7 +193,7 @@ def addItem( object_type, mode , elem, useCacheArt=True):
                 continue
             fullname = get_album_artist_name(node)
             if useCacheArt:
-                image = get_art(node)
+                image = art.get_art(node)
             addDir(fullname,node.attrib["id"],mode,image,node,infoLabels=get_infolabels("albums",node))
     elif object_type == 'artists':
         for node in elem.iter('artist'):
@@ -265,12 +206,6 @@ def addItem( object_type, mode , elem, useCacheArt=True):
             addDir(node.findtext("name").encode("utf-8"),node.attrib["id"],mode,image,node)
     elif object_type == 'songs':
         addSongLinks(elem)
-
-def get_time(time_offset):
-    d = datetime.date.today()
-    dt = datetime.timedelta(days=time_offset)
-    nd = d + dt
-    return nd.isoformat()
 
 def get_items(object_type, object_id=None, add=None,
         thisFilter=None,limit=5000,useCacheArt=True, object_subtype=None, exact=None ):
@@ -406,11 +341,11 @@ def get_recent(object_type,object_id,object_subtype=None):
         xbmc.log(update[:10],xbmc.LOGNOTICE)
         get_items(object_type=object_type,add=update[:10],object_subtype=object_subtype)
     elif object_id == 9999997:
-        get_items(object_type=object_type,add=get_time(-7),object_subtype=object_subtype)
+        get_items(object_type=object_type,add=utils.get_time(-7),object_subtype=object_subtype)
     elif object_id == 9999996:
-        get_items(object_type=object_type,add=get_time(-30),object_subtype=object_subtype)
+        get_items(object_type=object_type,add=utils.get_time(-30),object_subtype=object_subtype)
     elif object_id == 9999995:
-        get_items(object_type=object_type,add=get_time(-90),object_subtype=object_subtype)
+        get_items(object_type=object_type,add=utils.get_time(-90),object_subtype=object_subtype)
 
 def get_random(object_type):
     xbmc.log("AmpachePlugin::get_random: object_type " + object_type, xbmc.LOGDEBUG)
