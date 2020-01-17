@@ -66,7 +66,7 @@ class AmpacheConnect():
                 response = urllib2.urlopen(req, timeout=400)
                 xbmc.log("AmpachePlugin::handle_request: nossl",xbmc.LOGDEBUG)
         except:
-            xbmc.log("AmpachePlugin::handle_request ConnectionError",xbmc.LOGDEBUG)
+            xbmc.log("AmpachePlugin::handle_request: ConnectionError",xbmc.LOGWARNING)
             xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
         headers = response.headers
@@ -88,7 +88,7 @@ class AmpacheConnect():
         try:
             headers,contents = self.handle_request(myURL)
         except self.ConnectionError:
-            xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
+            xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGWARNING)
             raise self.ConnectionError
         xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
         tree=ET.XML(contents)

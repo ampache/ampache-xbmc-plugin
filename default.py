@@ -5,7 +5,6 @@ import xml.etree.ElementTree as ET
 import xbmcaddon
 
 from resources.lib import ampache_connect
-from resources.lib import json_storage
 from resources.lib import servers_manager
 from resources.lib import gui
 from resources.lib import utils
