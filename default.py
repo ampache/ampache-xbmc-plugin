@@ -15,7 +15,7 @@ from resources.lib import art
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
 ampache_addon_path =  ampache.getAddonInfo('path').decode('utf-8')
-ampache_dir = xbmc.translatePath( ampache_addon_path )
+ampache_dir = xbmc.translatePath( ampache_addon_path ).decode('utf-8')
 BASE_RESOURCE_PATH = os.path.join( ampache_dir, 'resources' )
 mediaDir = os.path.join( BASE_RESOURCE_PATH , 'media' )
 imagepath = os.path.join( mediaDir ,'images')
@@ -213,7 +213,7 @@ def get_items(object_type, object_id=None, add=None,
         xbmc.log("AmpachePlugin::get_items: object_type " + object_type, xbmc.LOGDEBUG)
     else:
         #should be not possible
-        xbmc.log("AmpachePlugin::get_items: object_type set to None" , xbmc.LOGDEBUG)
+        xbmc.log("AmpachePlugin::get_items: object_type set to None" , xbmc.LOGERROR)
         return
     
     if object_subtype:
