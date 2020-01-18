@@ -128,7 +128,7 @@ def addSongLinks(elem):
         it.append(tu)
     
     ok=xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(elem))
-    xbmc.log("AmpachePlugin::addSongLinks " + str(ok), xbmc.LOGDEBUG)
+    #@xbmc.log("AmpachePlugin::addSongLinks " + str(ok), xbmc.LOGDEBUG)
     return ok
 
 # The function that actually plays an Ampache URL by using setResolvedUrl. 
@@ -464,7 +464,7 @@ if (__name__ == '__main__'):
     except:
             pass
 
-    servers_manager.initialiseServer()
+    servers_manager.initializeServer()
     
     ampacheConnect = ampache_connect.AmpacheConnect()
 
