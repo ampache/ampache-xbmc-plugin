@@ -36,7 +36,7 @@ def get_infolabels(object_type , node):
             'Artist' : unicode(node.findtext("artist")),
             'Discnumber' : unicode(node.findtext("disk")),
             'Year' : node.findtext("year") ,
-            'Rating' : node.findtext("preciserating"),
+            'UserRating' : node.findtext("preciserating"),
             'Mediatype' : 'album'
         }
  
@@ -45,7 +45,7 @@ def get_infolabels(object_type , node):
         infoLabels = {
             'Title' : unicode(node.findtext("name")) ,
             'Artist' : unicode(node.findtext("name")),
-            'Rating' : node.findtext("preciserating"),
+            'UserRating' : int(float(node.findtext("averagerating")) *2 ),
             'Mediatype' : 'artist'
         }
 
@@ -58,7 +58,7 @@ def get_infolabels(object_type , node):
             'Duration' : node.findtext("time"),
             'Year' : node.findtext("year") ,
             'Tracknumber' : node.findtext("track"),
-            'Rating' : node.findtext("preciserating"),
+            'UserRating' : int(float(node.findtext("averagerating")) *2 ),
             'Mediatype' : 'song'
         }
 
