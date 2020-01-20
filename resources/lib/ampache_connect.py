@@ -28,6 +28,7 @@ class AmpacheConnect():
         self.exact=None 
         self.mode=None
         self.id=None
+        self.rating=None
   
     def get_user_pwd_login_url(self,nTime):
         myTimeStamp = str(nTime)
@@ -171,5 +172,7 @@ class AmpacheConnect():
             thisURL += '&exact=' + self.exact
         if self.id:
             thisURL += '&id=' + self.id
+        if self.rating:
+            thisURL += '&rating=' + self.rating
         return thisURL
 

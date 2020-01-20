@@ -29,6 +29,11 @@ def get_album_artist_name(node):
 
 def get_infolabels(object_type , node):
     infoLabels = None
+    avgRating = node.findtext("averagerating")
+    if avgRating:
+        avgRating = int(float(avgRating)*2)
+    else:
+        avgRating = 0
     if object_type == 'albums':
         infoLabels = {
             'Title' : unicode(node.findtext("name")) ,
@@ -36,7 +41,7 @@ def get_infolabels(object_type , node):
             'Artist' : unicode(node.findtext("artist")),
             'Discnumber' : unicode(node.findtext("disk")),
             'Year' : node.findtext("year") ,
-            'UserRating' : int(float(node.findtext("averagerating")) *2 ),
+            'UserRating' : avgRating,
             'Mediatype' : 'album'
         }
  
@@ -45,7 +50,7 @@ def get_infolabels(object_type , node):
         infoLabels = {
             'Title' : unicode(node.findtext("name")) ,
             'Artist' : unicode(node.findtext("name")),
-            'UserRating' : int(float(node.findtext("averagerating")) *2 ),
+            'UserRating' : avgRating,
             'Mediatype' : 'artist'
         }
 
@@ -58,7 +63,7 @@ def get_infolabels(object_type , node):
             'Duration' : node.findtext("time"),
             'Year' : node.findtext("year") ,
             'Tracknumber' : node.findtext("track"),
-            'UserRating' : int(float(node.findtext("averagerating")) *2 ),
+            'UserRating' : avgRating,
             'Mediatype' : 'song'
         }
 
@@ -122,7 +127,8 @@ def addSongLinks(elem):
             liz.addContextMenuItems(cm)
 
         song_url = node.findtext("url")
-        track_parameters = { "mode": 9, "song_url" : song_url}
+        song_id = int(node.attrib["id"])
+        track_parameters = { "mode": 9, "song_url" : song_url, "object_id" : song_id}
         url = sys.argv[0] + '?' + urllib.urlencode(track_parameters)
         tu= (url,liz)
         it.append(tu)
@@ -132,7 +138,7 @@ def addSongLinks(elem):
     return ok
 
 # The function that actually plays an Ampache URL by using setResolvedUrl. 
-def play_track(song_url):
+def play_track(object_id,song_url):
     #check if the connection is expired, initialise the connect class only if
     #refresh is needed to speed up the play 
     if utils.check_tokenexp():
@@ -145,6 +151,7 @@ def play_track(song_url):
             return
     liz = xbmcgui.ListItem()
     liz.setPath(song_url)
+    #rating = xbmc.getInfoLabel('ListItem.UserRating')
     xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
 
 # Main function for adding xbmc plugin elements
@@ -632,7 +639,7 @@ if (__name__ == '__main__'):
     #   play track mode  ( mode set in add_links function )
 
     elif mode==9:
-        play_track(song_url)
+        play_track(object_id, song_url)
 
     # mode 12 : artist_songs
     elif mode==12:
