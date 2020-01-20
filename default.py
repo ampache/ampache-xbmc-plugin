@@ -36,7 +36,7 @@ def get_infolabels(object_type , node):
             'Artist' : unicode(node.findtext("artist")),
             'Discnumber' : unicode(node.findtext("disk")),
             'Year' : node.findtext("year") ,
-            'UserRating' : node.findtext("preciserating"),
+            'UserRating' : int(float(node.findtext("averagerating")) *2 ),
             'Mediatype' : 'album'
         }
  
