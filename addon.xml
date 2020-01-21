@@ -6,6 +6,9 @@
 	<extension point="xbmc.service" library="resources/lib/service.py" start="login" />
   <extension point="xbmc.python.module" library="resources/lib/"/>
   <extension point="xbmc.addon.metadata">
+		<assets>
+			<icon>icon.png</icon>
+		</assets>
     <summary lang="en">Stream music from Ampache XML-API</summary>
     <summary lang="de">Streame Musik von der Ampache XML-API</summary>
     <summary lang="it">Streaming Musicale l'XML-API di Ampache</summary>
