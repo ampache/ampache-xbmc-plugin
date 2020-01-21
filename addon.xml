@@ -6,9 +6,13 @@
 	<extension point="xbmc.service" library="resources/lib/service.py" start="login" />
   <extension point="xbmc.python.module" library="resources/lib/"/>
   <extension point="xbmc.addon.metadata">
+   <extension point="xbmc.addon.metadata">
 		<assets>
 			<icon>icon.png</icon>
 		</assets>
+    <forum>https://forum.kodi.tv/showthread.php?tid=230736</forum>
+    <website>http://ampache.org/</website>
+    </extension>
     <summary lang="en">Stream music from Ampache XML-API</summary>
     <summary lang="de">Streame Musik von der Ampache XML-API</summary>
     <summary lang="it">Streaming Musicale l'XML-API di Ampache</summary>
