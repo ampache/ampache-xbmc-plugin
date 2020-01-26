@@ -14,7 +14,8 @@
     <forum>https://forum.kodi.tv/showthread.php?tid=230736</forum>
     <website>http://ampache.org/</website>
 		<assets>
-			<icon>icon.png</icon>
+			<icon>resources/icon.png</icon>
+      <fanart>resources/fanart.jpg</fanart>
 		</assets>
   </extension>
 </addon>
