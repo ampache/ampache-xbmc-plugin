@@ -1,7 +1,11 @@
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import hashlib
 import ssl
 import socket
-import time, urllib,urllib2
+import time, urllib.request, urllib.parse, urllib.error,urllib.request,urllib.error,urllib.parse
 import xbmc, xbmcaddon
 import sys
 import xml.etree.ElementTree as ET
@@ -9,7 +13,7 @@ import xml.etree.ElementTree as ET
 from resources.lib import json_storage
 from resources.lib import utils
 
-class AmpacheConnect():
+class AmpacheConnect(object):
     
     class ConnectionError(Exception):
         pass
@@ -58,16 +62,16 @@ class AmpacheConnect():
         xbmc.log("AmpachePlugin::handle_request: url " + url, xbmc.LOGDEBUG)
         ssl_certs_str = self._ampache.getSetting("disable_ssl_certs")
         try:
-            req = urllib2.Request(url)
+            req = urllib.request.Request(url)
             if utils.strBool_to_bool(ssl_certs_str):
                 gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-                response = urllib2.urlopen(req, context=gcontext, timeout=400)
+                response = urllib.request.urlopen(req, context=gcontext, timeout=400)
                 xbmc.log("AmpachePlugin::handle_request: ssl",xbmc.LOGDEBUG)
             else:
-                response = urllib2.urlopen(req, timeout=400)
+                response = urllib.request.urlopen(req, timeout=400)
                 xbmc.log("AmpachePlugin::handle_request: nossl",xbmc.LOGDEBUG)
         except:
-            xbmc.log("AmpachePlugin::handle_request: ConnectionError",xbmc.LOGWARNING)
+            xbmc.log("AmpachePlugin::handle_request: ConnectionError",xbmc.LOGDEBUG)
             xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
         headers = response.headers
@@ -89,7 +93,7 @@ class AmpacheConnect():
         try:
             headers,contents = self.handle_request(myURL)
         except self.ConnectionError:
-            xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGWARNING)
+            xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
             raise self.ConnectionError
         xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
         tree=ET.XML(contents)
@@ -161,7 +165,7 @@ class AmpacheConnect():
         thisURL += '&limit=' +str(self.limit)
         thisURL += '&offset=' +str(self.offset)
         if self.filter:
-            thisURL += '&filter=' +urllib.quote_plus(str(self.filter))
+            thisURL += '&filter=' +urllib.parse.quote_plus(str(self.filter))
         if self.add:
             thisURL += '&add=' + self.add
         if self.type:

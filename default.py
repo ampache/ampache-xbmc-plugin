@@ -1,6 +1,10 @@
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
 import sys
 import os
-import random,xbmcplugin,xbmcgui,urllib
+import random,xbmcplugin,xbmcgui,urllib.request,urllib.parse,urllib.error
 import xml.etree.ElementTree as ET
 import xbmcaddon
 
@@ -36,10 +40,10 @@ def get_infolabels(object_type , node):
         avgRating = 0
     if object_type == 'albums':
         infoLabels = {
-            'Title' : unicode(node.findtext("name")) ,
-            'Album' : unicode(node.findtext("name")) ,
-            'Artist' : unicode(node.findtext("artist")),
-            'Discnumber' : unicode(node.findtext("disk")),
+            'Title' : str(node.findtext("name")) ,
+            'Album' : str(node.findtext("name")) ,
+            'Artist' : str(node.findtext("artist")),
+            'Discnumber' : str(node.findtext("disk")),
             'Year' : node.findtext("year") ,
             'UserRating' : avgRating,
             'Mediatype' : 'album'
@@ -48,17 +52,17 @@ def get_infolabels(object_type , node):
     elif object_type == 'artists':
         
         infoLabels = {
-            'Title' : unicode(node.findtext("name")) ,
-            'Artist' : unicode(node.findtext("name")),
+            'Title' : str(node.findtext("name")) ,
+            'Artist' : str(node.findtext("name")),
             'UserRating' : avgRating,
             'Mediatype' : 'artist'
         }
 
     elif object_type == 'songs':
         infoLabels = {
-            'Title' : unicode(node.findtext("title")) ,
-            'Artist' : unicode(node.findtext("artist")),
-            'Album' :  unicode(node.findtext("album")),
+            'Title' : str(node.findtext("title")) ,
+            'Artist' : str(node.findtext("artist")),
+            'Album' :  str(node.findtext("album")),
             'Size' : node.findtext("size") ,
             'Duration' : node.findtext("time"),
             'Year' : node.findtext("year") ,
@@ -72,7 +76,7 @@ def get_infolabels(object_type , node):
 #handle albumArt and song info
 def fillListItemWithSongInfo(liz,node):
     albumArt = art.get_art(node)
-    liz.setLabel(unicode(node.findtext("title")))
+    liz.setLabel(str(node.findtext("title")))
     liz.setArt( art.get_artLabels(albumArt) )
     #needed by play_track to play the song, added here to uniform api
     liz.setPath(node.findtext("url"))
@@ -116,7 +120,7 @@ def addSongLinks(elem):
         
         try:
             song_elem = node.find("song")
-            song_title = unicode(node.findtext("title"))
+            song_title = str(node.findtext("title"))
             cm.append( ( "Search all songs with this title",
             "Container.Update(%s?title=%s&mode=17&win_id=%s)" % (
                 sys.argv[0],song_title, curr_win_id ) ) )
@@ -128,8 +132,8 @@ def addSongLinks(elem):
 
         song_url = node.findtext("url")
         song_id = int(node.attrib["id"])
-        track_parameters = { "mode": 9, "song_url" : song_url, "object_id" : song_id}
-        url = sys.argv[0] + '?' + urllib.urlencode(track_parameters)
+        track_parameters = { "mode": 45, "song_url" : song_url, "object_id" : song_id}
+        url = sys.argv[0] + '?' + urllib.parse.urlencode(track_parameters)
         tu= (url,liz)
         it.append(tu)
     
@@ -176,7 +180,7 @@ def addDir(name,object_id,mode,iconImage=None,elem=None,infoLabels=None):
     except:
         pass
 
-    u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+    u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)
     xbmc.log("AmpachePlugin::addDir name " + name + " url " + u, xbmc.LOGDEBUG)
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
     #xbmc.log("AmpachePlugin::addDir ok " + str(ok), xbmc.LOGDEBUG)
@@ -397,7 +401,7 @@ def get_random(object_type):
             return
     
     else: 
-        seq = random.sample(xrange(items),random_items)
+        seq = random.sample(range(items),random_items)
         xbmc.log("AmpachePlugin::get_random: seq " + str(seq), xbmc.LOGDEBUG )
         elements = []
         for item_id in seq:
@@ -441,7 +445,7 @@ if (__name__ == '__main__'):
     song_url=None
     
     try:
-            name=urllib.unquote_plus(params["name"])
+            name=urllib.parse.unquote_plus(params["name"])
             xbmc.log("AmpachePlugin::name " + name, xbmc.LOGDEBUG)
     except:
             pass
@@ -461,12 +465,12 @@ if (__name__ == '__main__'):
     except:
             pass
     try:
-            title=urllib.unquote_plus(params["title"])
+            title=urllib.parse.unquote_plus(params["title"])
             xbmc.log("AmpachePlugin::title " + title, xbmc.LOGDEBUG)
     except:
             pass
     try:
-            song_url=urllib.unquote_plus(params["song_url"])
+            song_url=urllib.parse.unquote_plus(params["song_url"])
             xbmc.log("AmpachePlugin::song_url " + song_url, xbmc.LOGDEBUG)
     except:
             pass
@@ -636,11 +640,6 @@ if (__name__ == '__main__'):
     #elif mode==8:
     #end old mode
 
-    #   play track mode  ( mode set in add_links function )
-
-    elif mode==9:
-        play_track(object_id, song_url)
-
     # mode 12 : artist_songs
     elif mode==12:
         get_items(object_type="songs",object_id=object_id,object_subtype="artist_songs" )
@@ -770,6 +769,13 @@ if (__name__ == '__main__'):
     
     elif mode==44:
         servers_manager.switchServer()
+        
+    #   play track mode  ( mode set in add_links function )
+    #mode 45 to avoid endDirectory
+    elif mode==45:
+        play_track(object_id, song_url)
+
+
             
     if mode < 40:
         xbmc.log("AmpachePlugin::endOfDirectory " + sys.argv[1],  xbmc.LOGDEBUG)

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import xbmc,xbmcgui
 
@@ -145,7 +146,6 @@ def modifyServer():
         return
     while True:
         key = showServerData(serverData["servers"][i])
-        print key
         if key == False:
             break
         elif key == "use_api_key":
@@ -158,7 +158,7 @@ def modifyServer():
             value = utils.int_to_strBool(value_int)
         else:
             value = gui.getFilterFromUser(key)
-        if value <> False:
+        if value != False:
             serverData["servers"][i][key] = value
     xbmc.executebuiltin("PlayerControl(Stop)")
     jsStorServer.save(serverData)

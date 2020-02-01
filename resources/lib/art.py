@@ -32,9 +32,9 @@ def cacheArt(url):
                 ampacheConnect = ampache_connect.AmpacheConnect()
                 #xbmc.log("AmpachePlugin::CacheArt: File needs fetching ",xbmc.LOGDEBUG)
                 headers,contents = ampacheConnect.handle_request(url)
-		if headers.maintype == 'image':
-			extension = headers['content-type']
-			tmpExt = extension.split("/")
+		extension = headers['content-type']
+		tmpExt = extension.split("/")
+		if tmpExt[0] == 'image':
 			if tmpExt[1] == "jpeg":
 				fname = imageNameJpg
 			else:

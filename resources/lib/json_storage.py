@@ -1,3 +1,4 @@
+from builtins import object
 import json
 import os
 import xbmc
@@ -5,7 +6,7 @@ import xbmcaddon
 import xbmcvfs
 from copy import deepcopy
 
-class JsonStorage():
+class JsonStorage(object):
 
     def __init__(self,filename):
         ampache = xbmcaddon.Addon("plugin.audio.ampache")
