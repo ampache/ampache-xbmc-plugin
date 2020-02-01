@@ -1,10 +1,14 @@
+from future.utils import PY2
 import xbmc
 import os
 import xbmcaddon
  
+ampache = xbmcaddon.Addon()
+
 if __name__ == '__main__':
-    ampache = xbmcaddon.Addon("plugin.audio.ampache")
-    base_dir = xbmc.translatePath( ampache.getAddonInfo('profile')).decode('utf-8')
+    base_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
+    if PY2:
+        base_dir = base_dir.decode('utf-8')
     mediaDir = os.path.join( base_dir , 'media' )
     cacheDir = os.path.join( mediaDir , 'cache' )
   

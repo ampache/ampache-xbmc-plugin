@@ -1,4 +1,5 @@
 from future import standard_library
+from future.utils import PY2
 standard_library.install_aliases()
 from builtins import str
 from builtins import range
@@ -16,13 +17,16 @@ from resources.lib import art
 
 # Shared resources
 
-ampache = xbmcaddon.Addon("plugin.audio.ampache")
+#addon name : plugin.audio.ampache
+ampache = xbmcaddon.Addon()
 
-ampache_addon_path =  ampache.getAddonInfo('path').decode('utf-8')
-ampache_dir = xbmc.translatePath( ampache_addon_path ).decode('utf-8')
-BASE_RESOURCE_PATH = os.path.join( ampache_dir, 'resources' )
-mediaDir = os.path.join( BASE_RESOURCE_PATH , 'media' )
-imagepath = os.path.join( mediaDir ,'images')
+#ampache_addon_path =  ampache.getAddonInfo('path')
+#ampache_dir = xbmc.translatePath( ampache_addon_path )
+#if PY2:
+#    ampache_dir = ampache_dir.decode('utf-8')
+#BASE_RESOURCE_PATH = os.path.join( ampache_dir, 'resources' )
+#mediaDir = os.path.join( BASE_RESOURCE_PATH , 'media' )
+#imagepath = os.path.join( mediaDir ,'images')
 
 #return album and artist name, only album could be confusing
 def get_album_artist_name(node):
@@ -777,6 +781,6 @@ if (__name__ == '__main__'):
 
 
             
-    if mode < 40:
+    if mode == None or mode < 40:
         xbmc.log("AmpachePlugin::endOfDirectory " + sys.argv[1],  xbmc.LOGDEBUG)
         xbmcplugin.endOfDirectory(int(sys.argv[1]))

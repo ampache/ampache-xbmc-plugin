@@ -19,7 +19,7 @@ class AmpacheConnect(object):
         pass
     
     def __init__(self):
-        self._ampache = xbmcaddon.Addon("plugin.audio.ampache")
+        self._ampache = xbmcaddon.Addon()
         jsStorServer = json_storage.JsonStorage("servers.json")
         serverStorage = jsStorServer.getData()
         self._connectionData = serverStorage["servers"][serverStorage["current_server"]]

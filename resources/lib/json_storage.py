@@ -1,4 +1,5 @@
 from builtins import object
+from future.utils import PY2
 import json
 import os
 import xbmc
@@ -9,8 +10,10 @@ from copy import deepcopy
 class JsonStorage(object):
 
     def __init__(self,filename):
-        ampache = xbmcaddon.Addon("plugin.audio.ampache")
-        base_dir = xbmc.translatePath( ampache.getAddonInfo('profile')).decode('utf-8')
+        ampache = xbmcaddon.Addon()
+        base_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
+        if PY2:
+            base_dir = base_dir.decode('utf-8')
         self._filename = os.path.join(base_dir, filename)
         self._data = dict()
         self.load()
