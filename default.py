@@ -224,7 +224,7 @@ def get_items(object_type, object_id=None, add=None,
         xbmc.log("AmpachePlugin::get_items: object_type " + object_type, xbmc.LOGDEBUG)
     else:
         #should be not possible
-        xbmc.log("AmpachePlugin::get_items: object_type set to None" , xbmc.LOGERROR)
+        xbmc.log("AmpachePlugin::get_items: object_type set to None" , xbmc.LOGDEBUG)
         return
     
     if object_subtype:
