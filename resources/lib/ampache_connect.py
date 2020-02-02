@@ -1,4 +1,5 @@
 from future import standard_library
+from future.utils import PY2
 standard_library.install_aliases()
 from builtins import str
 from builtins import object
@@ -42,10 +43,13 @@ class AmpacheConnect(object):
         else:
             sdf = ""
         hasher = hashlib.new('sha256')
+        sdf = sdf.encode()
         hasher.update(sdf)
         myKey = hasher.hexdigest()
         hasher = hashlib.new('sha256')
-        hasher.update(myTimeStamp + myKey)
+        timeK = myTimeStamp + myKey
+        timeK = timeK.encode()
+        hasher.update(timeK)
         myPassphrase = hasher.hexdigest()
         myURL = self._connectionData["url"] + '/server/xml.server.php?action=handshake&auth='
         myURL += myPassphrase + "&timestamp=" + myTimeStamp
@@ -97,7 +101,6 @@ class AmpacheConnect(object):
             raise self.ConnectionError
         xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
         tree=ET.XML(contents)
-        xbmc.log("AmpachePlugin::AMPACHECONNECT contents " + contents,xbmc.LOGDEBUG)
         errormess = tree.findtext('error')
         if errormess:
             errornode = tree.find("error")
@@ -131,8 +134,6 @@ class AmpacheConnect(object):
         except self.ConnectionError:
             raise self.ConnectionError
         contents = contents.replace("\0", "")
-        #code useful for debugging/parser needed
-        xbmc.log("AmpachePlugin::ampache_http_request: contents " + contents, xbmc.LOGDEBUG)
         #parser = ET.XMLParser(recover=True)
         #tree=ET.XML(contents, parser = parser)
         tree=ET.XML(contents)
