@@ -9,7 +9,9 @@ if __name__ == '__main__':
     base_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
     if PY2:
         base_dir = base_dir.decode('utf-8')
-    ampache.setSetting("api-version","350001")
+    #hack to force the creation of profile directory if don't exists
+    if not os.path.isdir(base_dir):
+        ampache.setSetting("api-version","350001")
     mediaDir = os.path.join( base_dir , 'media' )
     cacheDir = os.path.join( mediaDir , 'cache' )
 
