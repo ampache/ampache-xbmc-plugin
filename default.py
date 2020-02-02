@@ -188,7 +188,7 @@ def addDir(name,object_id,mode,iconImage=None,elem=None,infoLabels=None):
         pass
 
     u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)
-    xbmc.log("AmpachePlugin::addDir url" + u, xbmc.LOGDEBUG)
+    xbmc.log("AmpachePlugin::addDir url " + u, xbmc.LOGDEBUG)
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
     #xbmc.log("AmpachePlugin::addDir ok " + str(ok), xbmc.LOGDEBUG)
     return ok
