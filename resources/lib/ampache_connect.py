@@ -133,7 +133,8 @@ class AmpacheConnect(object):
             headers,contents  = self.handle_request(thisURL)
         except self.ConnectionError:
             raise self.ConnectionError
-        contents = contents.replace("\0", "")
+        if PY2:
+            contents = contents.replace("\0", "")
         #parser = ET.XMLParser(recover=True)
         #tree=ET.XML(contents, parser = parser)
         tree=ET.XML(contents)
@@ -154,7 +155,7 @@ class AmpacheConnect(object):
     
     def build_ampache_url(self,action):
         if utils.check_tokenexp():
-            xbmc.log("refreshing token...", xbmc.LOGNOTICE )
+            xbmc.log("refreshing token...", xbmc.LOGDEBUG )
             try:
                 #elem non used
                 elem = self.AMPACHECONNECT()

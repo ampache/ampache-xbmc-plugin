@@ -31,7 +31,10 @@ ampache = xbmcaddon.Addon()
 #return album and artist name, only album could be confusing
 def get_album_artist_name(node):
     fullname = node.findtext("name").encode("utf-8")
-    fullname += " - "
+    if PY2:
+        fullname += " - "
+    else:
+        fullname += b" - "
     fullname += node.findtext("artist").encode("utf-8")
     return fullname
 
@@ -185,7 +188,7 @@ def addDir(name,object_id,mode,iconImage=None,elem=None,infoLabels=None):
         pass
 
     u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)
-    xbmc.log("AmpachePlugin::addDir name " + name + " url " + u, xbmc.LOGDEBUG)
+    xbmc.log("AmpachePlugin::addDir name " + str(name) + " url " + u, xbmc.LOGDEBUG)
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
     #xbmc.log("AmpachePlugin::addDir ok " + str(ok), xbmc.LOGDEBUG)
     return ok
@@ -325,7 +328,7 @@ def get_stats(object_type, object_subtype=None, limit=5000 ):
     xbmcplugin.setContent(int(sys.argv[1]), object_type)
 
     action = 'stats'
-    if(ampache.getSetting("api-version")) < 400001:
+    if(int(ampache.getSetting("api-version"))) < 400001:
         amtype = object_subtype
         thisFilter = None
     else:
