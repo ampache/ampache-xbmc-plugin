@@ -12,7 +12,7 @@ import xbmcaddon
 from resources.lib import ampache_connect
 from resources.lib import servers_manager
 from resources.lib import gui
-from resources.lib import utils
+from resources.lib import utils as ut
 from resources.lib import art
 
 # Shared resources
@@ -149,7 +149,7 @@ def addSongLinks(elem):
 def play_track(object_id,song_url):
     #check if the connection is expired, initialise the connect class only if
     #refresh is needed to speed up the play 
-    if utils.check_tokenexp():
+    if ut.check_tokenexp():
         ampConn = ampache_connect.AmpacheConnect()
         xbmc.log("refreshing token...", xbmc.LOGNOTICE )
         try:
@@ -355,11 +355,11 @@ def get_recent(object_type,object_id,object_subtype=None):
         xbmc.log(update[:10],xbmc.LOGNOTICE)
         get_items(object_type=object_type,add=update[:10],object_subtype=object_subtype)
     elif object_id == 9999997:
-        get_items(object_type=object_type,add=utils.get_time(-7),object_subtype=object_subtype)
+        get_items(object_type=object_type,add=ut.get_time(-7),object_subtype=object_subtype)
     elif object_id == 9999996:
-        get_items(object_type=object_type,add=utils.get_time(-30),object_subtype=object_subtype)
+        get_items(object_type=object_type,add=ut.get_time(-30),object_subtype=object_subtype)
     elif object_id == 9999995:
-        get_items(object_type=object_type,add=utils.get_time(-90),object_subtype=object_subtype)
+        get_items(object_type=object_type,add=ut.get_time(-90),object_subtype=object_subtype)
 
 def get_random(object_type):
     xbmc.log("AmpachePlugin::get_random: object_type " + object_type, xbmc.LOGDEBUG)
@@ -489,12 +489,12 @@ if (__name__ == '__main__'):
         except:
             elem = ET.Element("")
         
-        addDir("Search...",None,4,"DefaultFolder.png")
-        addDir("Quick access...",None,25,"DefaultFolder.png")
-        addDir("Explore...",None,23,"DefaultFolder.png")
-        addDir("Library...",None,24,"DefaultFolder.png")
-        addDir("Switch server",None,44,"DefaultFolder.png")
-        addDir("Settings",None,40,"DefaultFolder.png")
+        addDir(ut.tString(30101),None,4)
+        addDir(ut.tString(30102),None,25)
+        addDir(ut.tString(30103),None,23)
+        addDir(ut.tString(30104),None,24)
+        addDir(ut.tString(30023),None,44)
+        addDir(ut.tString(30105),None,40)
         
     #   artist list ( called from main screen  ( mode None ) , search
     #   screen ( mode 4 ) and recent ( mode 5 )  )
@@ -579,7 +579,8 @@ if (__name__ == '__main__'):
 
     elif mode==4:      
         dialog = xbmcgui.Dialog()
-        ret = dialog.contextmenu(['Artist', 'Album', 'Song','Playlist','All','Tag'])
+        ret = dialog.contextmenu([ut.tString(30106),ut.tString(30107),ut.tString(30108),\
+                                  ut.tString(30109),ut.tString(30110),ut.tString(30111)])
         endDir = False
         if ret == 0:
             endDir = do_search("artists")
@@ -592,7 +593,7 @@ if (__name__ == '__main__'):
         elif ret == 4:
             endDir = do_search("songs","search_songs")
         elif ret == 5:
-            ret2 = dialog.contextmenu(['Artist tag', 'Album tag', 'Song tag'])        
+            ret2 = dialog.contextmenu([ut.tString(30112),ut.tString(30113),ut.tString(30114)])
             if ret2 == 0:
                 endDir = do_search("tags","tag_artists")
             elif ret2 == 1:
@@ -708,9 +709,10 @@ if (__name__ == '__main__'):
         else:
             get_items(object_type = "tags", object_subtype="tag_songs")
 
+    #Quick access
     elif mode==23:
-        addDir("Recent...",None,5,"DefaultFolder.png")
-        addDir("Random...",None,7,"DefaultFolder.png")
+        addDir("Recent...",None,5)
+        addDir("Random...",None,7)
         if(int(ampache.getSetting("api-version"))) >= 400001:
             addDir("Hightest Rated...",9999993,30)
             addDir("Frequent...",9999992,31)
@@ -719,10 +721,10 @@ if (__name__ == '__main__'):
             addDir("Newest...",9999989,34)
 
     elif mode==24:
-        addDir("Artists (" + ampache.getSetting("artists")+ ")",None,1,"DefaultFolder.png")
-        addDir("Albums (" + ampache.getSetting("albums") + ")",None,2,"DefaultFolder.png")
-        addDir("Playlists (" + ampache.getSetting("playlists")+ ")",None,13,"DefaultFolder.png")
-        addDir("Tags",None,18,"DefaultFolder.png")
+        addDir(ut.tString(30115) +" (" + ampache.getSetting("artists")+ ")",None,1)
+        addDir(ut.tString(30116) + " (" + ampache.getSetting("albums") + ")",None,2)
+        addDir(ut.tString(30118) + " (" + ampache.getSetting("playlists")+ ")",None,13)
+        addDir(ut.tString(30119),None,18)
     
     elif mode==25:
         addDir("Recent Albums...",9999997,6,"DefaultFolder.png")

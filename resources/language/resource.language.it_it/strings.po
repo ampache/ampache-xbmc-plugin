@@ -1,0 +1,133 @@
+# Kodi Media Center language file
+# Addon Name: Ampache plugin
+# Addon id: plugin.audio.ampache
+# Addon Provider: lusum
+msgid ""
+msgstr ""
+"Project-Id-Version: XBMC Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2020-02-02 17:41+0100\n"
+"Last-Translator: \n"
+"Language-Team: English (http://www.transifex.com/projects/p/xbmc-addons/"
+"language/en/)\n"
+"Language: it_IT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.2.4\n"
+
+msgctxt "#30001"
+msgid "General"
+msgstr "Generale"
+
+msgctxt "#30002"
+msgid "Servers"
+msgstr "Server"
+
+msgctxt "#30010"
+msgid "Random Items"
+msgstr "Numero elementi casuali"
+
+msgctxt "#30011"
+msgid "Disable Ssl certs"
+msgstr "Disabilita i certificati Ssl"
+
+# empty string with id 32003
+msgctxt "#30012"
+msgid "Api Version"
+msgstr "Versione dell'Api"
+
+msgctxt "#30020"
+msgid "Add Server"
+msgstr "Aggiungi Server"
+
+msgctxt "#30021"
+msgid "Remove Server"
+msgstr "Rimuovi Server"
+
+msgctxt "#30022"
+msgid "Modify Server"
+msgstr "Modifica Server"
+
+msgctxt "#30023"
+msgid "Switch Server"
+msgstr "Cambia Server"
+
+# code
+msgctxt "#30101"
+msgid "Search..."
+msgstr "Ricerca..."
+
+msgctxt "#30102"
+msgid "Quick access..."
+msgstr "Accesso Veloce..."
+
+msgctxt "#30103"
+msgid "Explore..."
+msgstr "Esplora..."
+
+msgctxt "#30104"
+msgid "Library..."
+msgstr "Libreria..."
+
+msgctxt "#30105"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#30106"
+msgid "Artist"
+msgstr "Artista"
+
+msgctxt "#30107"
+msgid "Album"
+msgstr ""
+
+msgctxt "#30108"
+msgid "Song"
+msgstr "Canzone"
+
+msgctxt "#30109"
+msgid "Playlist"
+msgstr ""
+
+msgctxt "#30110"
+msgid "All"
+msgstr "Tutto"
+
+msgctxt "#30111"
+msgid "Tag"
+msgstr ""
+
+msgctxt "#30112"
+msgid "Artist tag"
+msgstr ""
+
+msgctxt "#30113"
+msgid "Album tag"
+msgstr ""
+
+msgctxt "#30114"
+msgid "Song tag"
+msgstr ""
+
+msgctxt "#30115"
+msgid "Artists"
+msgstr "Artisti"
+
+msgctxt "#30116"
+msgid "Albums"
+msgstr "Album"
+
+msgctxt "#30117"
+msgid "Songs"
+msgstr "Canzoni"
+
+msgctxt "#30118"
+msgid "Playlists"
+msgstr ""
+
+msgctxt "#30119"
+msgid "Tags"
+msgstr ""

@@ -1,0 +1,133 @@
+# Kodi Media Center language file
+# Addon Name: Ampache plugin
+# Addon id: plugin.audio.ampache
+# Addon Provider: lusum
+msgid ""
+msgstr ""
+"Project-Id-Version: XBMC Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2020-02-02 17:44+0100\n"
+"Language-Team: English (http://www.transifex.com/projects/p/xbmc-addons/language/en/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.2.4\n"
+"Last-Translator: \n"
+"Language: de_DE\n"
+
+# settings
+msgctxt "#30001"
+msgid "General"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Servers"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Random Items"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Disable Ssl certs"
+msgstr ""
+
+# empty string with id 32003
+msgctxt "#30012"
+msgid "Api Version"
+msgstr ""
+
+msgctxt "#30020"
+msgid "Add Server"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Remove Server"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Modify Server"
+msgstr ""
+
+msgctxt "#30023"
+msgid "Switch Server"
+msgstr ""
+
+# code
+msgctxt "#30101"
+msgid "Search..."
+msgstr ""
+
+msgctxt "#30102"
+msgid "Quick access..."
+msgstr ""
+
+msgctxt "#30103"
+msgid "Explore..."
+msgstr ""
+
+msgctxt "#30104"
+msgid "Library..."
+msgstr ""
+
+msgctxt "#30105"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#30106"
+msgid "Artist"
+msgstr ""
+
+msgctxt "#30107"
+msgid "Album"
+msgstr ""
+
+msgctxt "#30108"
+msgid "Song"
+msgstr ""
+
+msgctxt "#30109"
+msgid "Playlist"
+msgstr ""
+
+msgctxt "#30110"
+msgid "All"
+msgstr ""
+
+msgctxt "#30111"
+msgid "Tag"
+msgstr ""
+
+msgctxt "#30112"
+msgid "Artist tag"
+msgstr ""
+
+msgctxt "#30113"
+msgid "Album tag"
+msgstr ""
+
+msgctxt "#30114"
+msgid "Song tag"
+msgstr ""
+
+msgctxt "#30115"
+msgid "Artists"
+msgstr ""
+
+msgctxt "#30116"
+msgid "Albums"
+msgstr ""
+
+msgctxt "#30117"
+msgid "Songs"
+msgstr ""
+
+msgctxt "#30118"
+msgid "Playlists"
+msgstr ""
+
+msgctxt "#30119"
+msgid "Tags"
+msgstr ""

@@ -2,7 +2,7 @@ import time
 import datetime
 import xbmcaddon
 
-ampache = xbmcaddon.Addon("plugin.audio.ampache")
+ampache = xbmcaddon.Addon()
 
 def int_to_strBool(s):
     if s == 1:
@@ -34,4 +34,7 @@ def get_time(time_offset):
     nd = d + dt
     return nd.isoformat()
 
+#return the translated String
+def tString(code):
+    return ampache.getLocalizedString(code)
 
