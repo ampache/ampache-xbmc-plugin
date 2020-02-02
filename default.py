@@ -727,7 +727,9 @@ if (__name__ == '__main__'):
         addDir(ut.tString(30115) +" (" + ampache.getSetting("artists")+ ")",None,1)
         addDir(ut.tString(30116) + " (" + ampache.getSetting("albums") + ")",None,2)
         addDir(ut.tString(30118) + " (" + ampache.getSetting("playlists")+ ")",None,13)
-        addDir(ut.tString(30119),None,18)
+        apiVersion = int(ampache.getSetting("api-version"))
+        if(apiVersion < 400003 and apiVersion >= 380001):
+            addDir(ut.tString(30119),None,18)
     
     elif mode==25:
         addDir("Recent Albums...",9999997,6,"DefaultFolder.png")

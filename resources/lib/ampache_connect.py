@@ -81,6 +81,11 @@ class AmpacheConnect(object):
         headers = response.headers
         contents = response.read()
         response.close()
+        try:
+            strCont = contents.decode()
+            xbmc.log("AmpachePlugin::handle_request: Contents " + strCont,xbmc.LOGDEBUG)
+        except:
+            pass
         return headers,contents
 
     def AMPACHECONNECT(self):
