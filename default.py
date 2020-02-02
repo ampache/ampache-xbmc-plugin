@@ -233,7 +233,7 @@ def get_items(object_type, object_id=None, add=None,
         #should be not possible
         xbmc.log("AmpachePlugin::get_items: object_type set to None" , xbmc.LOGDEBUG)
         return
-    
+
     if object_subtype:
         xbmc.log("AmpachePlugin::get_items: object_subtype " + object_subtype, xbmc.LOGDEBUG)
     if object_id:
@@ -506,8 +506,11 @@ if (__name__ == '__main__'):
         #artist, album, songs, playlist follow the same structure
         #search function
         num_items = (int(ampache.getSetting("random_items"))*3)+3
+        #get all artists
+        if object_id == None:
+            get_items("artists", limit=None, useCacheArt=False)
         #recent function
-        if object_id > 9999994 and object_id < 9999999:
+        elif object_id > 9999994 and object_id < 9999999:
             get_recent( "artists", object_id )
         elif object_id == 9999994:
             #removed cause nasty recursive call using some commands in web interface
@@ -523,16 +526,16 @@ if (__name__ == '__main__'):
             get_stats(object_type="artists",object_subtype="forgotten",limit=num_items)
         elif object_id == 9999989:
             get_stats(object_type="artists",object_subtype="newest",limit=num_items)
-        #get all artists
-        else:
-            get_items("artists", limit=None, useCacheArt=False)
            
     #   albums list ( called from main screen ( mode None ) , search
     #   screen ( mode 4 ) and recent ( mode 5 )  )
 
     elif mode==2:
         num_items = (int(ampache.getSetting("random_items"))*3)+3
-        if object_id > 9999994 and object_id < 9999999:
+        #get all albums
+        if object_id == None:
+            get_items("albums", limit=None, useCacheArt=False)
+        elif object_id > 9999994 and object_id < 9999999:
             get_recent( "albums", object_id )
         elif object_id == 9999994:
             #removed cause nasty recursive call using some commands in web interface
@@ -550,9 +553,6 @@ if (__name__ == '__main__'):
             get_stats(object_type="albums",object_subtype="newest",limit=num_items)
         elif object_id:
             get_items(object_type="albums",object_id=object_id,object_subtype="artist_albums")
-        #get all albums
-        else:
-            get_items("albums", limit=None, useCacheArt=False)
 
     #   song mode ( called from search screen ( mode 4 ) and recent ( mode 5 )  )
             
@@ -576,7 +576,6 @@ if (__name__ == '__main__'):
             get_stats(object_type="songs",object_subtype="newest",limit=num_items)
         else:
             get_items(object_type="songs",object_id=object_id,object_subtype="album_songs")
-
 
     # search screen ( called from main screen )
 
@@ -655,16 +654,16 @@ if (__name__ == '__main__'):
     #   playlist full list ( called from main screen )
 
     elif mode==13:
-            if object_id > 9999994 and object_id < 9999999:
-                get_recent( "playlists", object_id )
-            elif object_id == 9999994:
-                #removed cause nasty recursive call using some commands in web interface
-                #addDir("Refresh..",9999994,2,os.path.join(imagepath, 'refresh_icon.png'))
-                get_random('playlists')
-            elif object_id:
-                get_items(object_type="playlists",object_id=object_id)
-            else:
-                get_items(object_type="playlists")
+        if object_id == None:
+            get_items(object_type="playlists")
+        elif object_id > 9999994 and object_id < 9999999:
+            get_recent( "playlists", object_id )
+        elif object_id == 9999994:
+            #removed cause nasty recursive call using some commands in web interface
+            #addDir("Refresh..",9999994,2,os.path.join(imagepath, 'refresh_icon.png'))
+            get_random('playlists')
+        elif object_id:
+            get_items(object_type="playlists",object_id=object_id)
 
     #   playlist song mode
 
@@ -723,6 +722,7 @@ if (__name__ == '__main__'):
             addDir("Forgotten...",9999990,33)
             addDir("Newest...",9999989,34)
 
+    #Library
     elif mode==24:
         addDir(ut.tString(30115) +" (" + ampache.getSetting("artists")+ ")",None,1)
         addDir(ut.tString(30116) + " (" + ampache.getSetting("albums") + ")",None,2)
