@@ -136,7 +136,7 @@ def addSongLinks(elem):
         try:
             artist_elem = node.find("artist")
             artist_id = int(artist_elem.attrib["id"])
-            cm.append( ( "Show artist from this song",
+            cm.append( ( ut.tString(30138),
             "Container.Update(%s?object_id=%s&mode=15&win_id=%s)" % (
                 sys.argv[0],artist_id, curr_win_id ) ) )
         except:
@@ -145,7 +145,7 @@ def addSongLinks(elem):
         try:
             album_elem = node.find("album")
             album_id = int(album_elem.attrib["id"])
-            cm.append( ( "Show album from this song",
+            cm.append( ( ut.tString(30139),
             "Container.Update(%s?object_id=%s&mode=16&win_id=%s)" % (
                 sys.argv[0],album_id, curr_win_id ) ) )
         except:
@@ -154,7 +154,7 @@ def addSongLinks(elem):
         try:
             song_elem = node.find("song")
             song_title = str(node.findtext("title"))
-            cm.append( ( "Search all songs with this title",
+            cm.append( ( ut.tString(30140),
             "Container.Update(%s?title=%s&mode=17&win_id=%s)" % (
                 sys.argv[0],song_title, curr_win_id ) ) )
         except:
@@ -208,7 +208,7 @@ def addDir(name,object_id,mode,iconImage=None,elem=None,infoLabels=None):
         artist_elem = elem.find("artist")
         artist_id = int(artist_elem.attrib["id"]) 
         cm = []
-        cm.append( ( "Show all albums from artist", "Container.Update(%s?object_id=%s&mode=2)" % ( sys.argv[0],artist_id ) ) )
+        cm.append( ( ut.tString(30141), "Container.Update(%s?object_id=%s&mode=2)" % ( sys.argv[0],artist_id ) ) )
         liz.addContextMenuItems(cm)
     except:
         pass
@@ -728,9 +728,9 @@ if (__name__ == '__main__'):
             mode = 100
 
     elif mode==18:
-        addDir("Artist tags...",object_id,19)
-        addDir("Album tags...",object_id,20)
-        addDir("Song tags...",object_id,21)
+        addDir(ut.tString(30142),object_id,19)
+        addDir(ut.tString(30143),object_id,20)
+        addDir(ut.tString(30144),object_id,21)
 
     elif mode==19:
         if object_id == 9999999:
@@ -786,8 +786,8 @@ if (__name__ == '__main__'):
             addDir(ut.tString(30119),None,18)
     
     elif mode==25:
-        addDir(ut.tString(30127),9999997,6,"DefaultFolder.png")
-        addDir(ut.tString(30135),9999994,2,"DefaultFolder.png")
+        addDir(ut.tString(30127),9999997,6)
+        addDir(ut.tString(30135),9999994,2)
         if(int(ampache.getSetting("api-version"))) >= 400001:
             addDir("Newest Albums...",9999989,2)
             addDir("Frequent Albums...",9999992,2)

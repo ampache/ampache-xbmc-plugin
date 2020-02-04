@@ -201,10 +201,38 @@ msgid "Random Albums..."
 msgstr ""
 
 msgctxt "#30136"
-msgid ("Random Songs..."
+msgid "Random Songs..."
 msgstr ""
 
 msgctxt "#30137"
 msgid "Random Playlists..."
+msgstr ""
+
+msgctxt "#30138"
+msgid "Show artist from this song"
+msgstr ""
+
+msgctxt "#30139"
+msgid "Show album from this song"
+msgstr ""
+
+msgctxt "#30140"
+msgid "Search all songs with this title"
+msgstr ""
+
+msgctxt "#30141"
+msgid "Show all albums from artist"
+msgstr ""
+
+msgctxt "#30142"
+msgid "Artist tags..."
+msgstr ""
+
+msgctxt "#30143"
+msgid "Album tags..."
+msgstr ""
+
+msgctxt "#30144"
+msgid "Song tags..."
 msgstr ""
 
