@@ -34,10 +34,12 @@ msgctxt "#30011"
 msgid "Disable Ssl certs"
 msgstr ""
 
-# empty string with id 32003
-
 msgctxt "#30012"
 msgid "Api Version"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Old search gui (web controller friendly)"
 msgstr ""
 
 msgctxt "#30020"
@@ -134,9 +136,75 @@ msgctxt "#30119"
 msgid "Tags"
 msgstr ""
 
+msgctxt "#30120"
+msgid "Search Artists..."
+msgstr ""
 
+msgctxt "#30121"
+msgid "Search Albums..."
+msgstr ""
 
+msgctxt "#30122"
+msgid "Search Songs..."
+msgstr ""
 
+msgctxt "#30123"
+msgid "Search Playlists..."
+msgstr ""
 
+msgctxt "#30124"
+msgid "Search All..."
+msgstr ""
 
+msgctxt "#30125"
+msgid "Search Tags..."
+msgstr ""
+
+msgctxt "#30126"
+msgid "Recent Artists..."
+msgstr ""
+
+msgctxt "#30127"
+msgid "Recent Albums..."
+msgstr ""
+
+msgctxt "#30128"
+msgid "Recent Songs..."
+msgstr ""
+
+msgctxt "#30129"
+msgid "Recent Playlists..."
+msgstr ""
+
+msgctxt "#30130"
+msgid "Last Update"
+msgstr ""
+
+msgctxt "#30131"
+msgid "1 Week"
+msgstr ""
+
+msgctxt "#30132"
+msgid "1 Month"
+msgstr ""
+
+msgctxt "#30133"
+msgid "3 Months"
+msgstr ""
+
+msgctxt "#30134"
+msgid "Random Artists..."
+msgstr ""
+
+msgctxt "#30135"
+msgid "Random Albums..."
+msgstr ""
+
+msgctxt "#30136"
+msgid ("Random Songs..."
+msgstr ""
+
+msgctxt "#30137"
+msgid "Random Playlists..."
+msgstr ""
 

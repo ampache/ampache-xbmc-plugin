@@ -28,6 +28,32 @@ ampache = xbmcaddon.Addon()
 #mediaDir = os.path.join( BASE_RESOURCE_PATH , 'media' )
 #imagepath = os.path.join( mediaDir ,'images')
 
+def searchGui():
+    dialog = xbmcgui.Dialog()
+    ret = dialog.contextmenu([ut.tString(30106),ut.tString(30107),ut.tString(30108),\
+                              ut.tString(30109),ut.tString(30110),ut.tString(30111)])
+    endDir = False
+    if ret == 0:
+        endDir = do_search("artists")
+    elif ret == 1:
+        endDir = do_search("albums")
+    elif ret == 2:
+        endDir = do_search("songs")
+    elif ret == 3:
+        endDir = do_search("playlists")
+    elif ret == 4:
+        endDir = do_search("songs","search_songs")
+    elif ret == 5:
+        ret2 = dialog.contextmenu([ut.tString(30112),ut.tString(30113),ut.tString(30114)])
+        if ret2 == 0:
+            endDir = do_search("tags","tag_artists")
+        elif ret2 == 1:
+            endDir = do_search("tags","tag_albums")
+        elif ret2 == 2:
+            endDir = do_search("tags","tag_songs")
+
+    return endDir
+
 #return album and artist name, only album could be confusing
 def get_album_artist_name(node):
     fullname = node.findtext("name").encode("utf-8")
@@ -509,6 +535,11 @@ if (__name__ == '__main__'):
         #get all artists
         if object_id == None:
             get_items("artists", limit=None, useCacheArt=False)
+        elif object_id == 9999999:
+            endDir = do_search("artists")
+            if endDir == False:
+                #no end directory item
+                mode = 100
         #recent function
         elif object_id > 9999994 and object_id < 9999999:
             get_recent( "artists", object_id )
@@ -528,13 +559,18 @@ if (__name__ == '__main__'):
             get_stats(object_type="artists",object_subtype="newest",limit=num_items)
            
     #   albums list ( called from main screen ( mode None ) , search
-    #   screen ( mode 4 ) and recent ( mode 5 )  )
+    #   screen ( mode 4 ) and recent ( mode 5 )
 
     elif mode==2:
         num_items = (int(ampache.getSetting("random_items"))*3)+3
         #get all albums
         if object_id == None:
             get_items("albums", limit=None, useCacheArt=False)
+        elif object_id == 9999999:
+            endDir = do_search("albums")
+            if endDir == False:
+                #no end directory item
+                mode = 100
         elif object_id > 9999994 and object_id < 9999999:
             get_recent( "albums", object_id )
         elif object_id == 9999994:
@@ -560,6 +596,11 @@ if (__name__ == '__main__'):
         num_items = (int(ampache.getSetting("random_items"))*3)+3
         if object_id > 9999994 and object_id < 9999999:
             get_recent( "songs", object_id )
+        elif object_id == 9999999:
+            endDir = do_search("songs")
+            if endDir == False:
+                #no end directory item
+                mode = 100
         elif object_id == 9999994:
             #removed cause nasty recursive call using some commands in web interface
             #addDir("Refresh..",9999994,2,os.path.join(imagepath, 'refresh_icon.png'))
@@ -579,41 +620,27 @@ if (__name__ == '__main__'):
 
     # search screen ( called from main screen )
 
-    elif mode==4:      
-        dialog = xbmcgui.Dialog()
-        ret = dialog.contextmenu([ut.tString(30106),ut.tString(30107),ut.tString(30108),\
-                                  ut.tString(30109),ut.tString(30110),ut.tString(30111)])
-        endDir = False
-        if ret == 0:
-            endDir = do_search("artists")
-        elif ret == 1:
-            endDir = do_search("albums")
-        elif ret == 2:
-            endDir = do_search("songs")
-        elif ret == 3:
-            endDir = do_search("playlists")
-        elif ret == 4:
-            endDir = do_search("songs","search_songs")
-        elif ret == 5:
-            ret2 = dialog.contextmenu([ut.tString(30112),ut.tString(30113),ut.tString(30114)])
-            if ret2 == 0:
-                endDir = do_search("tags","tag_artists")
-            elif ret2 == 1:
-                endDir = do_search("tags","tag_albums")
-            elif ret2 == 2:
-                endDir = do_search("tags","tag_songs")
-
-        if endDir == False:
-            #no end directory item
-            mode = 100 
+    elif mode==4:
+        if not (ut.strBool_to_bool(ampache.getSetting("old-search-gui"))):
+            endDir = searchGui()
+            if endDir == False:
+                #no end directory item
+                mode = 100
+        else:
+            addDir(ut.tString(30120),9999999,1)
+            addDir(ut.tString(30121),9999999,2)
+            addDir(ut.tString(30122),9999999,3)
+            addDir(ut.tString(30123),9999999,13)
+            addDir(ut.tString(30124),9999999,11)
+            addDir(ut.tString(30125),9999999,18)
 
     # recent additions screen ( called from main screen )
 
     elif mode==5:
-        addDir("Recent Artists...",9999998,6,"DefaultFolder.png")
-        addDir("Recent Albums...",9999997,6,"DefaultFolder.png")
-        addDir("Recent Songs...",9999996,6,"DefaultFolder.png")
-        addDir("Recent Playlists...",9999995,6,"DefaultFolder.png")
+        addDir(ut.tString(30126),9999998,6)
+        addDir(ut.tString(30127),9999997,6)
+        addDir(ut.tString(30128),9999996,6)
+        addDir(ut.tString(30129),9999995,6)
 
     #   screen with recent time possibilities ( subscreen of recent artists,
     #   recent albums, recent songs ) ( called from mode 5 )
@@ -627,18 +654,18 @@ if (__name__ == '__main__'):
         elif object_id == 9999995:
             mode_new = 13
         
-        addDir("Last Update",9999998,mode_new,"DefaultFolder.png")
-        addDir("1 Week",9999997,mode_new,"DefaultFolder.png")
-        addDir("1 Month",9999996,mode_new,"DefaultFolder.png")
-        addDir("3 Months",9999995,mode_new,"DefaultFolder.png")
+        addDir(ut.tString(30130),9999998,mode_new)
+        addDir(ut.tString(30131),9999997,mode_new)
+        addDir(ut.tString(30132),9999996,mode_new)
+        addDir(ut.tString(30133),9999995,mode_new)
 
     # general random mode screen ( called from main screen )
 
     elif mode==7:
-        addDir("Random Artists...",9999994,1,"DefaultFolder.png")
-        addDir("Random Albums...",9999994,2,"DefaultFolder.png")
-        addDir("Random Songs...",9999994,3,"DefaultFolder.png")
-        addDir("Random Playlists...",9999994,13,"DefaultFolder.png")
+        addDir(ut.tString(30134),9999994,1)
+        addDir(ut.tString(30135),9999994,2)
+        addDir(ut.tString(30136),9999994,3)
+        addDir(ut.tString(30137),9999994,13)
 
     #old mode 
     #
@@ -646,6 +673,13 @@ if (__name__ == '__main__'):
     #   7  )
     #elif mode==8:
     #end old mode
+
+    # mode 11 : search all
+    elif mode==11:
+        endDir = do_search("songs","search_songs")
+        if endDir == False:
+            #no end directory item
+            mode = 100
 
     # mode 12 : artist_songs
     elif mode==12:
@@ -656,6 +690,11 @@ if (__name__ == '__main__'):
     elif mode==13:
         if object_id == None:
             get_items(object_type="playlists")
+        elif object_id == 9999999:
+            endDir = do_search("playlists")
+            if endDir == False:
+                #no end directory item
+                mode = 100
         elif object_id > 9999994 and object_id < 9999999:
             get_recent( "playlists", object_id )
         elif object_id == 9999994:
@@ -686,7 +725,7 @@ if (__name__ == '__main__'):
         endDir = do_search("songs",thisFilter=title)
         if endDir == False:
             #no end directory item
-            mode = 100 
+            mode = 100
 
     elif mode==18:
         addDir("Artist tags...",object_id,19)
@@ -694,19 +733,34 @@ if (__name__ == '__main__'):
         addDir("Song tags...",object_id,21)
 
     elif mode==19:
-        if object_id:
+        if object_id == 9999999:
+            endDir = do_search("tags","tag_artists")
+            if endDir == False:
+                #no end directory item
+                mode = 100
+        elif object_id:
             get_items(object_type="artists", object_subtype="tag_artists",object_id=object_id)
         else:
             get_items(object_type = "tags", object_subtype="tag_artists")
 
     elif mode==20:
-        if object_id:
+        if object_id == 9999999:
+            endDir = do_search("tags","tag_albums")
+            if endDir == False:
+                #no end directory item
+                mode = 100
+        elif object_id:
             get_items(object_type="albums", object_subtype="tag_albums",object_id=object_id)
         else:
             get_items(object_type = "tags", object_subtype="tag_albums")
 
     elif mode==21:
-        if object_id:
+        if object_id == 9999999:
+            endDir = do_search("tags","tag_songs")
+            if endDir == False:
+                #no end directory item
+                mode = 100
+        elif object_id:
             get_items(object_type="songs", object_subtype="tag_songs",object_id=object_id)
         else:
             get_items(object_type = "tags", object_subtype="tag_songs")
@@ -732,8 +786,8 @@ if (__name__ == '__main__'):
             addDir(ut.tString(30119),None,18)
     
     elif mode==25:
-        addDir("Recent Albums...",9999997,6,"DefaultFolder.png")
-        addDir("Random Albums...",9999994,2,"DefaultFolder.png")
+        addDir(ut.tString(30127),9999997,6,"DefaultFolder.png")
+        addDir(ut.tString(30135),9999994,2,"DefaultFolder.png")
         if(int(ampache.getSetting("api-version"))) >= 400001:
             addDir("Newest Albums...",9999989,2)
             addDir("Frequent Albums...",9999992,2)
@@ -786,8 +840,6 @@ if (__name__ == '__main__'):
     elif mode==45:
         play_track(object_id, song_url)
 
-
-            
     if mode == None or mode < 40:
         xbmc.log("AmpachePlugin::endOfDirectory " + sys.argv[1],  xbmc.LOGDEBUG)
         xbmcplugin.endOfDirectory(int(sys.argv[1]))
