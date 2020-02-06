@@ -236,3 +236,146 @@ msgctxt "#30144"
 msgid "Song tags..."
 msgstr ""
 
+msgctxt "#30145"
+msgid "Recent..."
+msgstr ""
+
+msgctxt "#30146"
+msgid "Random..."
+msgstr ""
+
+msgctxt "#30147"
+msgid "Server playlist..."
+msgstr ""
+
+msgctxt "#30148"
+msgid "Hightest Rated..."
+msgstr ""
+
+msgctxt "#30149"
+msgid "Hightest Rated Artists..."
+msgstr ""
+
+msgctxt "#30150"
+msgid "Hightest Rated Albums..."
+msgstr ""
+
+msgctxt "#30151"
+msgid "Hightest Rated Songs..."
+msgstr ""
+
+msgctxt "#30152"
+msgid "Frequent Artists..."
+msgstr ""
+
+msgctxt "#30153"
+msgid "Frequent Albums..."
+msgstr ""
+
+msgctxt "#30154"
+msgid "Frequent Songs..."
+msgstr ""
+
+msgctxt "#30155"
+msgid "Flagged Artists..."
+msgstr ""
+
+msgctxt "#30156"
+msgid "Flagged Albums..."
+msgstr ""
+
+msgctxt "#30157"
+msgid "Flagged Songs..."
+msgstr ""
+
+msgctxt "#30158"
+msgid "Forgotten Artists..."
+msgstr ""
+
+msgctxt "#30159"
+msgid "Forgotten Albums..."
+msgstr ""
+
+msgctxt "#30160"
+msgid "Forgotten Songs..."
+msgstr ""
+
+msgctxt "#30161"
+msgid "Newest Artists..."
+msgstr ""
+
+msgctxt "#30162"
+msgid "Newest Albums..."
+msgstr ""
+
+msgctxt "#30163"
+msgid "Newest Songs..."
+msgstr ""
+
+msgctxt "#30164"
+msgid "Frequent..."
+msgstr ""
+
+msgctxt "#30165"
+msgid "Flagged..."
+msgstr ""
+
+msgctxt "#30166"
+msgid "Forgotten..."
+msgstr ""
+
+msgctxt "#30167"
+msgid "Newest..."
+msgstr ""
+
+msgctxt "#30168"
+msgid "Modify the data, cancel to exit"
+msgstr ""
+
+msgctxt "#30169"
+msgid "Choose a default server"
+msgstr ""
+
+msgctxt "#30170"
+msgid "Enter the Name"
+msgstr ""
+
+msgctxt "#30171"
+msgid "Enter the url of the server"
+msgstr ""
+
+msgctxt "#30172"
+msgid "Use api Key?"
+msgstr ""
+
+msgctxt "#30173"
+msgid "Do you want to use an api-key?"
+msgstr ""
+
+msgctxt "#30174"
+msgid "Enter the Api key"
+msgstr ""
+
+msgctxt "#30175"
+msgid "Enter the username"
+msgstr ""
+
+msgctxt "#30176"
+msgid "Use password?"
+msgstr ""
+
+msgctxt "#30177"
+msgid "The server needs a password?"
+msgstr ""
+
+msgctxt "#30178"
+msgid "Enter the password"
+msgstr ""
+
+msgctxt "#30179"
+msgid "Choose a server to remove"
+msgstr ""
+
+msgctxt "#30180"
+msgid "Modify a server"
+msgstr ""

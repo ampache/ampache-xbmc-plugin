@@ -727,6 +727,7 @@ if (__name__ == '__main__'):
             #no end directory item
             mode = 100
 
+    #tags
     elif mode==18:
         addDir(ut.tString(30142),object_id,19)
         addDir(ut.tString(30143),object_id,20)
@@ -767,14 +768,14 @@ if (__name__ == '__main__'):
 
     #Quick access
     elif mode==23:
-        addDir("Recent...",None,5)
-        addDir("Random...",None,7)
+        addDir(ut.tString(30145),None,5)
+        addDir(ut.tString(30146),None,7)
         if(int(ampache.getSetting("api-version"))) >= 400001:
-            addDir("Hightest Rated...",9999993,30)
-            addDir("Frequent...",9999992,31)
-            addDir("Flagged...",9999991,32)
-            addDir("Forgotten...",9999990,33)
-            addDir("Newest...",9999989,34)
+            addDir(ut.tString(30148),9999993,30)
+            addDir(ut.tString(30164),9999992,31)
+            addDir(ut.tString(30165),9999991,32)
+            addDir(ut.tString(30166),9999990,33)
+            addDir(ut.tString(30167),9999989,34)
 
     #Library
     elif mode==24:
@@ -789,34 +790,39 @@ if (__name__ == '__main__'):
         addDir(ut.tString(30127),9999997,6)
         addDir(ut.tString(30135),9999994,2)
         if(int(ampache.getSetting("api-version"))) >= 400001:
-            addDir("Newest Albums...",9999989,2)
-            addDir("Frequent Albums...",9999992,2)
-        addDir("Server playlist...",9999994,3,"DefaultFolder.png")
+            addDir(ut.tString(30162),9999989,2)
+            addDir(ut.tString(30153),9999992,2)
+        addDir(ut.tString(30147),9999994,3)
 
+    #hightest
     elif mode==30:
-        addDir("Hightest Rated Artists...",9999993,1)
-        addDir("Hightest Rated Albums...",9999993,2)
-        addDir("Hightest Rated Songs...",9999993,3)
+        addDir(ut.tString(30149),9999993,1)
+        addDir(ut.tString(30150),9999993,2)
+        addDir(ut.tString(30151),9999993,3)
 
+    #frequent
     elif mode==31:
-        addDir("Frequent Artists...",9999992,1)
-        addDir("Frequent Albums...",9999992,2)
-        addDir("Frequent Songs...",9999992,3)
-
-    elif mode==32:
-        addDir("Flagged Albums...",9999991,2)
-        addDir("Flagged Songs...",9999991,3)
-        addDir("Flagged Artists...",9999991,1)
-
-    elif mode==33:
-        addDir("Forgotten Artists...",9999990,1)
-        addDir("Forgotten Albums...",9999990,2)
-        addDir("Forgotten Songs...",9999990,3)
+        addDir(ut.tString(30152),9999992,1)
+        addDir(ut.tString(30153),9999992,2)
+        addDir(ut.tString(30154),9999992,3)
     
+    #flagged
+    elif mode==32:
+        addDir(ut.tString(30155),9999991,1)
+        addDir(ut.tString(30156),9999991,2)
+        addDir(ut.tString(30157),9999991,3)
+
+    #forgotten
+    elif mode==33:
+        addDir(ut.tString(30158),9999990,1)
+        addDir(ut.tString(30159),9999990,2)
+        addDir(ut.tString(30160),9999990,3)
+    
+    #newest
     elif mode==34:
-        addDir("Newest Artists...",9999989,1)
-        addDir("Newest Albums...",9999989,2)
-        addDir("Newest Songs...",9999989,3)
+        addDir(ut.tString(30161),9999989,1)
+        addDir(ut.tString(30162),9999989,2)
+        addDir(ut.tString(30163),9999989,3)
     
     elif mode==40:
         ampache.openSettings()

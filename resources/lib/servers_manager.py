@@ -3,7 +3,7 @@ from __future__ import print_function
 import xbmc,xbmcgui
 
 from resources.lib import gui
-from resources.lib import utils
+from resources.lib import utils as ut
 from resources.lib import json_storage
 from resources.lib import ampache_connect
 
@@ -50,7 +50,7 @@ def serversDialog(data,title=''):
             i_temp = i
     return i_temp 
 
-def showServerData(data,title='Modify the data, cancel to exit'):
+def showServerData(data,title=ut.tString(30168)):
     padding_size = 20
     ordlist = ["name","url","username","enable_password","password","use_api_key","api_key"]
     templist = []
@@ -73,7 +73,7 @@ def showServerData(data,title='Modify the data, cancel to exit'):
 def switchServer():
     jsStorServer = json_storage.JsonStorage("servers.json")
     serverData = jsStorServer.getData()
-    i_curr = serversDialog(serverData,'Choose a default server')
+    i_curr = serversDialog(serverData,ut.tString(30169))
     if i_curr == False:
         return
     xbmc.executebuiltin("PlayerControl(Stop)")
@@ -94,35 +94,37 @@ def addServer():
     username = ""
     password = ""
     apikey = ""
+    enablepassword = True
+    is_api_key = False
     tempd = {}
     tempd[stnum] = {}
     serverData["servers"].update(tempd)
-    servername = gui.getFilterFromUser('Enter the Name')
+    servername = gui.getFilterFromUser(ut.tString(30170))
     if servername == False:
         return False
-    url = gui.getFilterFromUser('Enter the url of the server')
+    url = gui.getFilterFromUser(ut.tString(30171))
     if url == False:
         return False
     dialog = xbmcgui.Dialog()
-    is_api_key = dialog.yesno('Use api Key?','Do you want to use an api-key?')
+    is_api_key = dialog.yesno(ut.tString(30172),ut.tString(30173))
     if is_api_key == True:
-        apikey = gui.getFilterFromUser('Enter the Api key')
+        apikey = gui.getFilterFromUser(ut.tString(30174))
         if apikey == False:
             return False
     else:
-        username = gui.getFilterFromUser('Enter the username')
+        username = gui.getFilterFromUser(ut.tString(30175))
         if username == False:
             return False
-        enablepassword = dialog.yesno('Use password?','The server needs a password?')
+        enablepassword = dialog.yesno(ut.tString(30176),ut.tString(30177))
         if enablepassword == True:
-            password = gui.getFilterFromUser('Enter the password')
+            password = gui.getFilterFromUser(ut.tString(30178))
             if password == False:
                 return False
     serverData["servers"][stnum]["name"] = servername
     serverData["servers"][stnum]["url"] = url
-    serverData["servers"][stnum]["use_api_key"] = utils.int_to_strBool(is_api_key)
+    serverData["servers"][stnum]["use_api_key"] = ut.int_to_strBool(is_api_key)
     serverData["servers"][stnum]["username"] = username
-    serverData["servers"][stnum]["enable_password"] = utils.int_to_strBool(enablepassword)
+    serverData["servers"][stnum]["enable_password"] = ut.int_to_strBool(enablepassword)
     serverData["servers"][stnum]["password"] = password
     serverData["servers"][stnum]["api_key"] = apikey
     jsStorServer.save(serverData)
@@ -132,16 +134,17 @@ def addServer():
 def deleteServer():
     jsStorServer = json_storage.JsonStorage("servers.json")
     serverData = jsStorServer.getData()
-    i_rem = serversDialog(serverData,'Choose a server to remove')
+    i_rem = serversDialog(serverData,ut.tString(30179))
     if i_rem == False:
         return False
     del serverData["servers"][i_rem]
+    jsStorServer.save(serverData)
     return True
 
 def modifyServer():
     jsStorServer = json_storage.JsonStorage("servers.json")
     serverData = jsStorServer.getData()
-    i = serversDialog(serverData,'Modify a server')
+    i = serversDialog(serverData,ut.tString(30180))
     if i == False:
         return
     while True:
@@ -150,12 +153,12 @@ def modifyServer():
             break
         elif key == "use_api_key":
             dialog = xbmcgui.Dialog()
-            value_int = dialog.yesno('Use api Key?','Do you want to use an api-key?')
-            value = utils.int_to_strBool(value_int)
+            value_int = dialog.yesno(ut.tString(30172),ut.tString(30173))
+            value = ut.int_to_strBool(value_int)
         elif key == "enable_password":
             dialog = xbmcgui.Dialog()
-            value_int = dialog.yesno('Use password?','The server needs a password?')
-            value = utils.int_to_strBool(value_int)
+            value_int = dialog.yesno(ut.tString(30176),ut.tString(30177))
+            value = ut.int_to_strBool(value_int)
         else:
             value = gui.getFilterFromUser(key)
         if value != False:
