@@ -52,15 +52,20 @@ def serversDialog(data,title=''):
 
 def showServerData(data,title=ut.tString(30168)):
     padding_size = 20
+    #order of the data
     ordlist = ["name","url","username","enable_password","password","use_api_key","api_key"]
+    #name to display
+    dispList = [ut.tString(30181),ut.tString(30182),ut.tString(30183),ut.tString(30184),ut.tString(30185),ut.tString(30186),ut.tString(30187)]
     templist = []
     showlist = []
+    n = 0
     dialog = xbmcgui.Dialog()
     for i in ordlist:
         templist.append(i)
-        pad_i =  i + " "*(padding_size - len(i))
+        pad_i =  dispList[n] + " "*(padding_size - len(i))
         tempStr = pad_i + data[i]
         showlist.append(tempStr)
+        n = n + 1
     ret = dialog.select(title, showlist)
     i_temp= ""
     if ret == -1:

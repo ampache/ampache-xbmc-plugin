@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: XBMC Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2020-02-06 18:18+0100\n"
 "Last-Translator: Kodi Translation Team\n"
 "Language-Team: English (http://www.transifex.com/projects/p/xbmc-addons/language/en/)\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # settings
-
 msgctxt "#30001"
 msgid "General"
 msgstr ""
@@ -59,7 +58,6 @@ msgid "Switch Server"
 msgstr ""
 
 # code
-
 msgctxt "#30101"
 msgid "Search..."
 msgstr ""
@@ -378,4 +376,32 @@ msgstr ""
 
 msgctxt "#30180"
 msgid "Modify a server"
+msgstr ""
+
+msgctxt "#30181"
+msgid "Name"
+msgstr ""
+
+msgctxt "#30182"
+msgid "Url"
+msgstr ""
+
+msgctxt "#30183"
+msgid "Username"
+msgstr ""
+
+msgctxt "#30184"
+msgid "Enable password"
+msgstr ""
+
+msgctxt "#30185"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30186"
+msgid "Use api key"
+msgstr ""
+
+msgctxt "#30187"
+msgid "Api key"
 msgstr ""
