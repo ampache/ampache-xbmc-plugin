@@ -342,10 +342,6 @@ msgctxt "#30171"
 msgid "Enter the url of the server"
 msgstr ""
 
-msgctxt "#30172"
-msgid "Use api Key?"
-msgstr ""
-
 msgctxt "#30173"
 msgid "Do you want to use an api-key?"
 msgstr ""
@@ -356,10 +352,6 @@ msgstr ""
 
 msgctxt "#30175"
 msgid "Enter the username"
-msgstr ""
-
-msgctxt "#30176"
-msgid "Use password?"
 msgstr ""
 
 msgctxt "#30177"
@@ -379,11 +371,11 @@ msgid "Modify a server"
 msgstr ""
 
 msgctxt "#30181"
-msgid "Name"
+msgid "Server name"
 msgstr ""
 
 msgctxt "#30182"
-msgid "Url"
+msgid "Server url"
 msgstr ""
 
 msgctxt "#30183"
@@ -404,4 +396,12 @@ msgstr ""
 
 msgctxt "#30187"
 msgid "Api key"
+msgstr ""
+
+msgctxt "#30188"
+msgid "Are you sure?"
+msgstr ""
+
+msgctxt "#30189"
+msgid "Ampache plugin"
 msgstr ""
