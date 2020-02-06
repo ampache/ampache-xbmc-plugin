@@ -335,7 +335,7 @@ msgid "Choose a default server"
 msgstr ""
 
 msgctxt "#30170"
-msgid "Enter the Name"
+msgid "Enter the Server name"
 msgstr ""
 
 msgctxt "#30171"
