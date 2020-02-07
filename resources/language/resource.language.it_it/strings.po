@@ -215,11 +215,11 @@ msgstr "Playlist casuali..."
 
 msgctxt "#30138"
 msgid "Show artist from this song"
-msgstr "Mostra l'artista di questa canzone"
+msgstr "Mostra l'artista della canzone"
 
 msgctxt "#30139"
 msgid "Show album from this song"
-msgstr "Mostra l'album di questa cazone"
+msgstr "Mostra l'album della canzone"
 
 msgctxt "#30140"
 msgid "Search all songs with this title"
