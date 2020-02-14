@@ -74,6 +74,14 @@ class AmpacheConnect(object):
             else:
                 response = urllib.request.urlopen(req, timeout=400)
                 xbmc.log("AmpachePlugin::handle_request: nossl",xbmc.LOGDEBUG)
+        except urllib.error.HTTPError as e:
+            xbmc.log("AmpachePlugin::handle_request: HTTPError, reason " + e.reason ,xbmc.LOGDEBUG)
+            xbmc.executebuiltin("ConnectionError" )
+            raise self.ConnectionError
+        except urllib.error.URLError as e:
+            xbmc.log("AmpachePlugin::handle_request: URLError, reason " + e.reason,xbmc.LOGDEBUG)
+            xbmc.executebuiltin("ConnectionError" )
+            raise self.ConnectionError
         except:
             xbmc.log("AmpachePlugin::handle_request: ConnectionError",xbmc.LOGDEBUG)
             xbmc.executebuiltin("ConnectionError" )

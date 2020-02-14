@@ -450,7 +450,7 @@ def get_random(object_type):
             addItem( object_type, mode , el)
         
 def get_params():
-    xbmc.log("AmpachePlugin::get_params handle " + sys.argv[0] + " first " + sys.argv[1] + " second " + sys.argv[2], xbmc.LOGDEBUG)
+    xbmc.log("AmpachePlugin::get_params handle: " + sys.argv[0] + " 1stArg: " + sys.argv[1] + " 2ndArg: " + sys.argv[2], xbmc.LOGDEBUG)
     param=[]
     paramstring=sys.argv[2]
     if len(paramstring)>=2:
