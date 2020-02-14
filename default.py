@@ -176,17 +176,45 @@ def addSongLinks(elem):
 
 # The function that actually plays an Ampache URL by using setResolvedUrl. 
 def play_track(object_id,song_url):
+    if song_url == None or object_id == None:
+        xbmc.log("AmpachePlugin::play_track object or song null", xbmc.LOGNOTICE )
+        return
+
+    old_object_id = None
+
     #check if the connection is expired, initialise the connect class only if
     #refresh is needed to speed up the play 
     if ut.check_tokenexp():
         ampConn = ampache_connect.AmpacheConnect()
-        xbmc.log("refreshing token...", xbmc.LOGNOTICE )
+        xbmc.log("AmpachePlugin::play_track refreshing token...", xbmc.LOGNOTICE )
         try:
             #elem non used
             elem = ampConn.AMPACHECONNECT()
         except:
             return
+
+    #check if we need the song infolabels ( object_id cached is different from
+    #object_id of the song, for instance as kore app call the song
+    plugin_url = xbmc.getInfoLabel('ListItem.FileNameAndPath')
+    params=ut.get_params(plugin_url)
+    try:
+            old_object_id=int(params["object_id"])
+            xbmc.log("AmpachePlugin::play_track old_object_id " + str(old_object_id), xbmc.LOGDEBUG)
+    except:
+            pass
+
     liz = xbmcgui.ListItem()
+
+    if old_object_id == None or old_object_id != object_id:
+        ampConn = ampache_connect.AmpacheConnect()
+        xbmc.log("AmpachePlugin::play_track refresh infoLabels", xbmc.LOGDEBUG)
+        ampConn.filter = object_id
+        elem = ampConn.ampache_http_request("song")
+        for thisnode in elem:
+            node = thisnode
+        fillListItemWithSongInfo(liz,node)
+        liz.setProperty("IsPlayable", "true")
+
     liz.setPath(song_url)
     #rating = xbmc.getInfoLabel('ListItem.UserRating')
     xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
@@ -461,29 +489,12 @@ def get_random(object_type):
    
         for el in elements:
             addItem( object_type, mode , el)
-        
-def get_params():
-    xbmc.log("AmpachePlugin::get_params plugin: " + sys.argv[0] + " handle: " +\
-            sys.argv[1] + " url: " + sys.argv[2], xbmc.LOGDEBUG)
-    param=[]
-    paramstring=sys.argv[2]
-    if len(paramstring)>=2:
-            params=sys.argv[2]
-            cleanedparams=params.replace('?','')
-            if (params[len(params)-1]=='/'):
-                    params=params[0:len(params)-2]
-            pairsofparams=cleanedparams.split('&')
-            param={}
-            for i in range(len(pairsofparams)):
-                    splitparams={}
-                    splitparams=pairsofparams[i].split('=')
-                    if (len(splitparams))==2:
-                            param[splitparams[0]]=splitparams[1]
-                            
-    return param
 
 if (__name__ == '__main__'):
-    params=get_params()
+    handle = int(sys.argv[1])
+    plugin_url=sys.argv[2]
+    params=ut.get_params(plugin_url)
+    xbmc.log("AmpachePlugin::init handle: " + str(handle) + " url: " + plugin_url, xbmc.LOGDEBUG)
     name=None
     mode=None
     object_id=None
@@ -525,7 +536,6 @@ if (__name__ == '__main__'):
     servers_manager.initializeServer()
     
     ampacheConnect = ampache_connect.AmpacheConnect()
-    handle = int(sys.argv[1])
 
     if mode==None:
         try:
@@ -858,8 +868,8 @@ if (__name__ == '__main__'):
     
     elif mode==44:
         servers_manager.switchServer()
-        
-    #   play track mode  ( mode set in add_links function )
+
+    #play track mode  ( mode set in add_links function )
     #mode 45 to avoid endDirectory
     elif mode==45:
         play_track(object_id, song_url)
