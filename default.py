@@ -213,9 +213,11 @@ def addDir(name,object_id,mode,iconImage=None,elem=None,infoLabels=None):
     except:
         pass
 
+    handle=int(sys.argv[1])
+
     u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)
     xbmc.log("AmpachePlugin::addDir url " + u, xbmc.LOGDEBUG)
-    ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
+    ok=xbmcplugin.addDirectoryItem(handle=handle,url=u,listitem=liz,isFolder=True)
     #xbmc.log("AmpachePlugin::addDir ok " + str(ok), xbmc.LOGDEBUG)
     return ok
 
@@ -250,8 +252,18 @@ def addItem( object_type, mode , elem, useCacheArt=True):
     elif object_type == 'songs':
         addSongLinks(elem)
 
-def get_items(object_type, object_id=None, add=None,
-        thisFilter=None,limit=5000,useCacheArt=True, object_subtype=None, exact=None ):
+def get_all(object_type):
+    limit = int(ampache.getSetting(object_type))
+    step = 500
+    for offset in range( 0, limit, step):
+        newLimit = offset+step
+        get_items(object_type, limit=step, offset=offset,
+                useCacheArt=False)
+
+
+def get_items(object_type, object_id=None, add=None,\
+        thisFilter=None,limit=5000,useCacheArt=True, object_subtype=None,\
+        exact=None, offset=None ):
     
     if object_type:
         xbmc.log("AmpachePlugin::get_items: object_type " + object_type, xbmc.LOGDEBUG)
@@ -309,6 +321,7 @@ def get_items(object_type, object_id=None, add=None,
         ampConn.filter = thisFilter
         ampConn.limit = limit
         ampConn.exact = exact
+        ampConn.offset = offset
 
         elem = ampConn.ampache_http_request(action)
     except:
@@ -322,7 +335,7 @@ def get_items(object_type, object_id=None, add=None,
         mode = 3
     elif object_type == 'playlists':
         mode = 14
-    if object_type == 'tags':
+    elif object_type == 'tags':
         if object_subtype == 'tag_artists':
             mode = 19
         elif object_subtype == 'tag_albums':
@@ -450,7 +463,8 @@ def get_random(object_type):
             addItem( object_type, mode , el)
         
 def get_params():
-    xbmc.log("AmpachePlugin::get_params handle: " + sys.argv[0] + " 1stArg: " + sys.argv[1] + " 2ndArg: " + sys.argv[2], xbmc.LOGDEBUG)
+    xbmc.log("AmpachePlugin::get_params plugin: " + sys.argv[0] + " handle: " +\
+            sys.argv[1] + " url: " + sys.argv[2], xbmc.LOGDEBUG)
     param=[]
     paramstring=sys.argv[2]
     if len(paramstring)>=2:
@@ -511,6 +525,7 @@ if (__name__ == '__main__'):
     servers_manager.initializeServer()
     
     ampacheConnect = ampache_connect.AmpacheConnect()
+    handle = int(sys.argv[1])
 
     if mode==None:
         try:
@@ -534,7 +549,8 @@ if (__name__ == '__main__'):
         num_items = (int(ampache.getSetting("random_items"))*3)+3
         #get all artists
         if object_id == None:
-            get_items("artists", limit=None, useCacheArt=False)
+            get_all("artists")
+            #get_items("artists", limit=None, useCacheArt=False)
         elif object_id == 9999999:
             endDir = do_search("artists")
             if endDir == False:
@@ -565,7 +581,8 @@ if (__name__ == '__main__'):
         num_items = (int(ampache.getSetting("random_items"))*3)+3
         #get all albums
         if object_id == None:
-            get_items("albums", limit=None, useCacheArt=False)
+            get_all("albums")
+            #get_items("albums", limit=None, useCacheArt=False)
         elif object_id == 9999999:
             endDir = do_search("albums")
             if endDir == False:
@@ -689,7 +706,8 @@ if (__name__ == '__main__'):
 
     elif mode==13:
         if object_id == None:
-            get_items(object_type="playlists")
+            get_all("playlists")
+            #get_items(object_type="playlists")
         elif object_id == 9999999:
             endDir = do_search("playlists")
             if endDir == False:
@@ -847,5 +865,5 @@ if (__name__ == '__main__'):
         play_track(object_id, song_url)
 
     if mode == None or mode < 40:
-        xbmc.log("AmpachePlugin::endOfDirectory " + sys.argv[1],  xbmc.LOGDEBUG)
-        xbmcplugin.endOfDirectory(int(sys.argv[1]))
+        xbmc.log("AmpachePlugin::endOfDirectory " + str(handle),  xbmc.LOGDEBUG)
+        xbmcplugin.endOfDirectory(handle)
