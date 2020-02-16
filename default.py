@@ -18,7 +18,9 @@ from resources.lib import art
 # Shared resources
 
 #addon name : plugin.audio.ampache
-ampache = xbmcaddon.Addon()
+#do not use xbmcaddon.Addon() to avoid crashes when kore app is used ( it is
+#possible to start a song without initialising the plugin
+ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
 #ampache_addon_path =  ampache.getAddonInfo('path')
 #ampache_dir = xbmc.translatePath( ampache_addon_path )

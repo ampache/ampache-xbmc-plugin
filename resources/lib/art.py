@@ -5,7 +5,7 @@ import xbmc,xbmcaddon
 
 from resources.lib import ampache_connect
 
-ampache = xbmcaddon.Addon()
+ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
 user_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
 if PY2:

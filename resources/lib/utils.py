@@ -2,7 +2,7 @@ import time
 import datetime
 import xbmcaddon
 
-ampache = xbmcaddon.Addon()
+ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
 def int_to_strBool(s):
     if s == 1:
