@@ -195,16 +195,18 @@ def play_track(object_id,song_url):
             pass
 
     liz = xbmcgui.ListItem()
-
-    if old_object_id == None or old_object_id != object_id:
-        ampConn = ampache_connect.AmpacheConnect()
-        xbmc.log("AmpachePlugin::play_track refresh infoLabels", xbmc.LOGDEBUG)
-        ampConn.filter = object_id
-        elem = ampConn.ampache_http_request("song")
-        for thisnode in elem:
-            node = thisnode
-        fillListItemWithSongInfo(liz,node)
-        liz.setProperty("IsPlayable", "true")
+    try:
+        if old_object_id == None or old_object_id != object_id:
+            ampConn = ampache_connect.AmpacheConnect()
+            xbmc.log("AmpachePlugin::play_track refresh infoLabels", xbmc.LOGDEBUG)
+            ampConn.filter = object_id
+            elem = ampConn.ampache_http_request("song")
+            for thisnode in elem:
+                node = thisnode
+            fillListItemWithSongInfo(liz,node)
+            liz.setProperty("IsPlayable", "true")
+    except:
+        pass
 
     liz.setPath(song_url)
     #rating = xbmc.getInfoLabel('ListItem.UserRating')
