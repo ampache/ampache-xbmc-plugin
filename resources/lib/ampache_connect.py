@@ -138,7 +138,7 @@ class AmpacheConnect(object):
         self._ampache.setSetting("add", tree.findtext("add"))
         self._ampache.setSetting("token", token)
         self._ampache.setSetting("token-exp", str(nTime+24000))
-        return tree
+        return
 
     def ampache_http_request(self,action):
         thisURL = self.build_ampache_url(action)
@@ -155,7 +155,7 @@ class AmpacheConnect(object):
             errornode = tree.find("error")
             if errornode.attrib["code"]=="401":
                 try:
-                    tree = self.AMPACHECONNECT()
+                    self.AMPACHECONNECT()
                 except self.ConnectionError:
                     raise self.ConnectionError
                 thisURL = self.build_ampache_url(action)
@@ -170,8 +170,7 @@ class AmpacheConnect(object):
         if utils.check_tokenexp():
             xbmc.log("refreshing token...", xbmc.LOGDEBUG )
             try:
-                #elem non used
-                elem = self.AMPACHECONNECT()
+                self.AMPACHECONNECT()
             except:
                 return
         token = self._ampache.getSetting("token")

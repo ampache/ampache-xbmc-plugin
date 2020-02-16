@@ -182,22 +182,11 @@ def play_track(object_id,song_url):
 
     old_object_id = None
 
-    #check if the connection is expired, initialise the connect class only if
-    #refresh is needed to speed up the play 
-    if ut.check_tokenexp():
-        ampConn = ampache_connect.AmpacheConnect()
-        xbmc.log("AmpachePlugin::play_track refreshing token...", xbmc.LOGNOTICE )
-        try:
-            #elem non used
-            elem = ampConn.AMPACHECONNECT()
-        except:
-            return
-
     #check if we need the song infolabels ( object_id cached is different from
     #object_id of the song, for instance as kore app call the song
-    plugin_url = xbmc.getInfoLabel('ListItem.FileNameAndPath')
-    params=ut.get_params(plugin_url)
     try:
+            plugin_url = xbmc.getInfoLabel('ListItem.FileNameAndPath')
+            params=ut.get_params(plugin_url)
             old_object_id=int(params["object_id"])
             xbmc.log("AmpachePlugin::play_track old_object_id " + str(old_object_id), xbmc.LOGDEBUG)
     except:
@@ -206,6 +195,7 @@ def play_track(object_id,song_url):
     liz = xbmcgui.ListItem()
 
     if old_object_id == None or old_object_id != object_id:
+        xbmcplugin.setContent(int(sys.argv[1]), "songs")
         ampConn = ampache_connect.AmpacheConnect()
         xbmc.log("AmpachePlugin::play_track refresh infoLabels", xbmc.LOGDEBUG)
         ampConn.filter = object_id
@@ -491,17 +481,20 @@ def get_random(object_type):
             addItem( object_type, mode , el)
 
 if (__name__ == '__main__'):
-    handle = int(sys.argv[1])
-    plugin_url=sys.argv[2]
-    params=ut.get_params(plugin_url)
-    xbmc.log("AmpachePlugin::init handle: " + str(handle) + " url: " + plugin_url, xbmc.LOGDEBUG)
+
     name=None
     mode=None
     object_id=None
     win_id=None
     title=None
     song_url=None
-    
+
+    handle = int(sys.argv[1])
+    plugin_url=sys.argv[2]
+
+    params=ut.get_params(plugin_url)
+    xbmc.log("AmpachePlugin::init handle: " + str(handle) + " url: " + plugin_url, xbmc.LOGDEBUG)
+
     try:
             name=urllib.parse.unquote_plus(params["name"])
             xbmc.log("AmpachePlugin::name " + name, xbmc.LOGDEBUG)
@@ -537,12 +530,16 @@ if (__name__ == '__main__'):
     
     ampacheConnect = ampache_connect.AmpacheConnect()
 
-    if mode==None:
+    #check if the connection is expired
+    #initialisation
+    if mode==None or ut.check_tokenexp():
         try:
-            elem = ampacheConnect.AMPACHECONNECT()
+            ampacheConnect.AMPACHECONNECT()
         except:
-            elem = ET.Element("")
-        
+            pass
+
+    #start menu
+    if mode==None:
         addDir(ut.tString(30101),None,4)
         addDir(ut.tString(30102),None,25)
         addDir(ut.tString(30103),None,23)
