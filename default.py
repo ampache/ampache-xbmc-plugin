@@ -197,7 +197,6 @@ def play_track(object_id,song_url):
     liz = xbmcgui.ListItem()
 
     if old_object_id == None or old_object_id != object_id:
-        xbmcplugin.setContent(int(sys.argv[1]), "songs")
         ampConn = ampache_connect.AmpacheConnect()
         xbmc.log("AmpachePlugin::play_track refresh infoLabels", xbmc.LOGDEBUG)
         ampConn.filter = object_id
