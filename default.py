@@ -624,9 +624,12 @@ if (__name__ == '__main__'):
 
     #   song mode ( called from search screen ( mode 4 ) and recent ( mode 5 )  )
             
-    elif mode==3:
+    elif mode == 3:
         num_items = (int(ampache.getSetting("random_items"))*3)+3
-        if object_id > 9999994 and object_id < 9999999:
+        if object_id == None:
+            #handle wrong object_id
+            pass
+        elif object_id > 9999994 and object_id < 9999999:
             get_recent( "songs", object_id )
         elif object_id == 9999999:
             endDir = do_search("songs")
