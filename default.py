@@ -137,7 +137,7 @@ def addSongLinks(elem):
         cm = []
         try:
             artist_elem = node.find("artist")
-            artist_id = int(artist_elem.attrib["id"])
+            artist_id = artist_elem.attrib["id"]
             cm.append( ( ut.tString(30138),
             "Container.Update(%s?object_id=%s&mode=15&win_id=%s)" % (
                 sys.argv[0],artist_id, curr_win_id ) ) )
@@ -146,7 +146,7 @@ def addSongLinks(elem):
         
         try:
             album_elem = node.find("album")
-            album_id = int(album_elem.attrib["id"])
+            album_id = album_elem.attrib["id"]
             cm.append( ( ut.tString(30139),
             "Container.Update(%s?object_id=%s&mode=16&win_id=%s)" % (
                 sys.argv[0],album_id, curr_win_id ) ) )
