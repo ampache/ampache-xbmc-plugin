@@ -250,17 +250,22 @@ def addItem( object_type, mode , elem, useCacheArt=True):
     if object_type == 'albums':
         allid = set()
         for node in elem.iter('album'):
-            #no unicode function, cause urllib quot_plus error ( bug )
-            album_id = int(node.attrib["id"])
-            #remove duplicates in album names ( workaround for a problem in server comunication )
-            if album_id not in allid:
-                allid.add(album_id)
-            else:
-                continue
-            fullname = get_album_artist_name(node)
-            if useCacheArt:
-                image = art.get_art(node)
-            addDir(fullname,node.attrib["id"],mode,image,node,infoLabels=get_infolabels("albums",node))
+            try:
+                #no unicode function, cause urllib quot_plus error ( bug )
+                #album_id is ok also as string, cause it is needed to create
+                #an url
+                album_id = node.attrib["id"]
+                #remove duplicates in album names ( workaround for a problem in server comunication )
+                if album_id not in allid:
+                    allid.add(album_id)
+                else:
+                    continue
+                fullname = get_album_artist_name(node)
+                if useCacheArt:
+                    image = art.get_art(node)
+                addDir(fullname,node.attrib["id"],mode,image,node,infoLabels=get_infolabels("albums",node))
+            except:
+                xbmc.log("AmpachePlugin::addItem: album_id error", xbmc.LOGDEBUG)
     elif object_type == 'artists':
         for node in elem.iter('artist'):
             addDir(node.findtext("name").encode("utf-8"),node.attrib["id"],mode,image,node,infoLabels=get_infolabels("artists",node))
