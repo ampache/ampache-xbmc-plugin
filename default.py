@@ -263,7 +263,7 @@ def addItem( object_type, mode , elem, useCacheArt=True):
                 fullname = get_album_artist_name(node)
                 if useCacheArt:
                     image = art.get_art(node)
-                addDir(fullname,node.attrib["id"],mode,image,node,infoLabels=get_infolabels("albums",node))
+                addDir(fullname,album_id,mode,image,node,infoLabels=get_infolabels("albums",node))
             except:
                 xbmc.log("AmpachePlugin::addItem: album_id error", xbmc.LOGDEBUG)
     elif object_type == 'artists':
