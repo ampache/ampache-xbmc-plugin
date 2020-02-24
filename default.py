@@ -123,9 +123,6 @@ def fillListItemWithSongInfo(liz,node):
 #       Also, some property things, some different context menu things.
 def addSongLinks(elem):
    
-    #win_id is necessary to avoid problems in musicplaylist window, where this
-    #script doesn't work
-    curr_win_id = xbmcgui.getCurrentWindowId()
     xbmcplugin.setContent(int(sys.argv[1]), "songs")
     ok=True
     it=[]
@@ -139,8 +136,8 @@ def addSongLinks(elem):
             artist_elem = node.find("artist")
             artist_id = artist_elem.attrib["id"]
             cm.append( ( ut.tString(30138),
-            "Container.Update(%s?object_id=%s&mode=15&win_id=%s)" % (
-                sys.argv[0],artist_id, curr_win_id ) ) )
+            "Container.Update(%s?object_id=%s&mode=15)" % (
+                sys.argv[0],artist_id ) ) )
         except:
             pass
         
@@ -148,8 +145,8 @@ def addSongLinks(elem):
             album_elem = node.find("album")
             album_id = album_elem.attrib["id"]
             cm.append( ( ut.tString(30139),
-            "Container.Update(%s?object_id=%s&mode=16&win_id=%s)" % (
-                sys.argv[0],album_id, curr_win_id ) ) )
+            "Container.Update(%s?object_id=%s&mode=16)" % (
+                sys.argv[0],album_id ) ) )
         except:
             pass
         
@@ -157,8 +154,8 @@ def addSongLinks(elem):
             song_elem = node.find("song")
             song_title = str(node.findtext("title"))
             cm.append( ( ut.tString(30140),
-            "Container.Update(%s?title=%s&mode=17&win_id=%s)" % (
-                sys.argv[0],song_title, curr_win_id ) ) )
+            "Container.Update(%s?title=%s&mode=17)" % (
+                sys.argv[0],song_title) ) )
         except:
             pass
 
@@ -493,7 +490,6 @@ if (__name__ == '__main__'):
     name=None
     mode=None
     object_id=None
-    win_id=None
     title=None
     song_url=None
 
@@ -516,11 +512,6 @@ if (__name__ == '__main__'):
     try:
             object_id=int(params["object_id"])
             xbmc.log("AmpachePlugin::object_id " + str(object_id), xbmc.LOGDEBUG)
-    except:
-            pass
-    try:
-            win_id=int(params["win_id"])
-            xbmc.log("AmpachePlugin::win_id " + str(win_id), xbmc.LOGDEBUG)
     except:
             pass
     try:
@@ -747,17 +738,21 @@ if (__name__ == '__main__'):
 
     elif mode==15:
         if xbmc.getCondVisibility("Window.IsActive(musicplaylist)"):
-            xbmc.executebuiltin("ActivateWindow(%s)" % (win_id,))
+            #close busydialog to activate music window
+            xbmc.executebuiltin('Dialog.Close(busydialog)')
+            xbmc.executebuiltin("ActivateWindow(music)")
         get_items(object_type="artists",object_id=object_id,object_subtype="artist")
 
     elif mode==16:
         if xbmc.getCondVisibility("Window.IsActive(musicplaylist)"):
-            xbmc.executebuiltin("ActivateWindow(%s)" % (win_id,))
+            xbmc.executebuiltin('Dialog.Close(busydialog)')
+            xbmc.executebuiltin("ActivateWindow(music)")
         get_items(object_type="albums",object_id=object_id,object_subtype="album")
 
     elif mode==17:
         if xbmc.getCondVisibility("Window.IsActive(musicplaylist)"):
-            xbmc.executebuiltin("ActivateWindow(%s)" % (win_id,))
+            xbmc.executebuiltin('Dialog.Close(busydialog)')
+            xbmc.executebuiltin("ActivateWindow(music)")
         endDir = do_search("songs",thisFilter=title)
         if endDir == False:
             #no end directory item
@@ -880,6 +875,8 @@ if (__name__ == '__main__'):
     #play track mode  ( mode set in add_links function )
     #mode 45 to avoid endDirectory
     elif mode==45:
+        #workaround busydialog bug
+        xbmc.executebuiltin('Dialog.Close(busydialog)')
         play_track(object_id, song_url)
 
     if mode == None or mode < 40:
