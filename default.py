@@ -741,18 +741,24 @@ if (__name__ == '__main__'):
             #close busydialog to activate music window
             xbmc.executebuiltin('Dialog.Close(busydialog)')
             xbmc.executebuiltin("ActivateWindow(music)")
+            xbmc.executebuiltin("Container.Update(%s?object_id=%s&mode=15)" %\
+                    ( sys.argv[0],object_id ) )
         get_items(object_type="artists",object_id=object_id,object_subtype="artist")
 
     elif mode==16:
         if xbmc.getCondVisibility("Window.IsActive(musicplaylist)"):
             xbmc.executebuiltin('Dialog.Close(busydialog)')
             xbmc.executebuiltin("ActivateWindow(music)")
+            xbmc.executebuiltin("Container.Update(%s?object_id=%s&mode=16)" %\
+                    ( sys.argv[0],object_id ) )
         get_items(object_type="albums",object_id=object_id,object_subtype="album")
 
     elif mode==17:
         if xbmc.getCondVisibility("Window.IsActive(musicplaylist)"):
             xbmc.executebuiltin('Dialog.Close(busydialog)')
             xbmc.executebuiltin("ActivateWindow(music)")
+            xbmc.executebuiltin("Container.Update(%s?title=%s&mode=17)" %\
+                    ( sys.argv[0],title ) )
         endDir = do_search("songs",thisFilter=title)
         if endDir == False:
             #no end directory item
