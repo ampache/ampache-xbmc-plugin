@@ -23,10 +23,13 @@ def strBool_to_bool(s):
         raise ValueError
 
 def check_tokenexp():
-    tokenexp = int(ampache.getSetting("token-exp"))
-    if int(time.time()) > tokenexp:
+    try:
+        tokenexp = int(ampache.getSetting("token-exp"))
+        if int(time.time()) > tokenexp:
+            return True
+        return False
+    except:
         return True
-    return False
 
 def get_time(time_offset):
     d = datetime.date.today()
