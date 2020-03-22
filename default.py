@@ -276,7 +276,10 @@ def addItem( object_type, mode , elem, useCacheArt=True):
         addSongLinks(elem)
 
 def get_all(object_type):
-    limit = int(ampache.getSetting(object_type))
+    try:
+        limit = int(ampache.getSetting(object_type))
+    except:
+        return
     step = 500
     for offset in range( 0, limit, step):
         newLimit = offset+step
@@ -446,11 +449,14 @@ def get_random(object_type):
         amtype='song'
     
     xbmcplugin.setContent(int(sys.argv[1]), object_type)
-        
-    random_items = (int(ampache.getSetting("random_items"))*3)+3
-    xbmc.log("AmpachePlugin::get_random: random_items " + str(random_items), xbmc.LOGDEBUG )
-    items = int(ampache.getSetting(object_type))
-    xbmc.log("AmpachePlugin::get_random: total items in the catalog " + str(items), xbmc.LOGDEBUG )
+
+    try:
+        random_items = (int(ampache.getSetting("random_items"))*3)+3
+        xbmc.log("AmpachePlugin::get_random: random_items " + str(random_items), xbmc.LOGDEBUG )
+        items = int(ampache.getSetting(object_type))
+        xbmc.log("AmpachePlugin::get_random: total items in the catalog " + str(items), xbmc.LOGDEBUG )
+    except:
+        return
     if random_items > items:
         #if items are less than random_itmes, return all items
         get_items(object_type, limit=items)
