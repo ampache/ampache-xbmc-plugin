@@ -5,7 +5,7 @@ import xbmcaddon
  
 ampache = xbmcaddon.Addon()
 
-if __name__ == '__main__':
+def clean_cache():
     base_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
     if PY2:
         base_dir = base_dir.decode('utf-8')
@@ -27,3 +27,7 @@ if __name__ == '__main__':
         #xbmc.log("Clear Cache Art " + str(currentFile),xbmc.LOGDEBUG)
         pathDel = os.path.join( cacheDir, currentFile)
         os.remove(pathDel)
+
+
+if __name__ == '__main__':
+    clean_cache()
