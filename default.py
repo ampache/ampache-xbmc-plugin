@@ -14,6 +14,7 @@ from resources.lib import servers_manager
 from resources.lib import gui
 from resources.lib import utils as ut
 from resources.lib import art
+from resources.lib import player
 
 # Shared resources
 
@@ -207,7 +208,9 @@ def play_track(object_id,song_url):
 
     liz.setPath(song_url)
     #rating = xbmc.getInfoLabel('ListItem.UserRating')
-    xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
+    AmpachePlayer = player.AmpachePlayer()
+    AmpachePlayer.play( int(sys.argv[1]) , liz )
+    #xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
 
 # Main function for adding xbmc plugin elements
 def addDir(name,object_id,mode,iconImage=None,elem=None,infoLabels=None):
