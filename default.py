@@ -343,20 +343,8 @@ def get_items(object_type, object_id=None, add=None,\
 
     if object_id:
         thisFilter = object_id
-    
-    try:
-        ampConn = ampache_connect.AmpacheConnect()
-        ampConn.add = add
-        ampConn.filter = thisFilter
-        ampConn.limit = limit
-        ampConn.exact = exact
-        ampConn.offset = offset
-
-        elem = ampConn.ampache_http_request(action)
-    except:
-        return
-
-    #after the request, set the mode 
+  
+  #set the mode 
 
     if object_type == 'artists':
         mode = 2
@@ -372,7 +360,20 @@ def get_items(object_type, object_id=None, add=None,\
         elif object_subtype == 'tag_songs':
             mode = 21
 
-    addItem( object_type, mode , elem, useCacheArt)
+  
+    try:
+        ampConn = ampache_connect.AmpacheConnect()
+        ampConn.add = add
+        ampConn.filter = thisFilter
+        ampConn.limit = limit
+        ampConn.exact = exact
+        ampConn.offset = offset
+
+        elem = ampConn.ampache_http_request(action)
+        addItem( object_type, mode , elem, useCacheArt)
+    except:
+        return
+
 
 def do_search(object_type,object_subtype=None,thisFilter=None):
     if not thisFilter:
@@ -414,10 +415,9 @@ def get_stats(object_type, object_subtype=None, limit=5000 ):
         ampConn.type = amtype
                 
         elem = ampConn.ampache_http_request(action)
+        addItem( object_type, mode , elem)
     except:
         return
-  
-    addItem( object_type, mode , elem)
 
 def get_recent(object_type,object_id,object_subtype=None):   
 
@@ -487,13 +487,10 @@ def get_random(object_type):
                 ampConn.offset = item_id
                 ampConn.limit = 1
                 elem = ampConn.ampache_http_request(object_type)
-                elements.append(elem)
+                addItem( object_type, mode , elem)
             except:
                 pass
    
-        for el in elements:
-            addItem( object_type, mode , el)
-
 if (__name__ == '__main__'):
 
     name=None
