@@ -254,19 +254,19 @@ msgid "Server playlist..."
 msgstr "Playlist casuale del server"
 
 msgctxt "#30148"
-msgid "Hightest Rated..."
+msgid "Highest Rated..."
 msgstr "Punteggio più alto..."
 
 msgctxt "#30149"
-msgid "Hightest Rated Artists..."
+msgid "Highest Rated Artists..."
 msgstr "Artisti col punteggio più alto..."
 
 msgctxt "#30150"
-msgid "Hightest Rated Albums..."
+msgid "Highest Rated Albums..."
 msgstr "Album col punteggio più alto..."
 
 msgctxt "#30151"
-msgid "Hightest Rated Songs..."
+msgid "Highest Rated Songs..."
 msgstr "Canzoni col punteggio più alto..."
 
 msgctxt "#30152"

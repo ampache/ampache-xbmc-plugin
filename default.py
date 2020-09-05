@@ -576,7 +576,7 @@ if (__name__ == '__main__'):
             #addDir("Refresh..",9999994,2,os.path.join(imagepath,'refresh_icon.png'))
             get_random('artists')
         elif object_id == 9999993:
-            get_stats(object_type="artists",object_subtype="hightest",limit=num_items)
+            get_stats(object_type="artists",object_subtype="highest",limit=num_items)
         elif object_id == 9999992:
             get_stats(object_type="artists",object_subtype="frequent",limit=num_items)
         elif object_id == 9999991:
@@ -607,7 +607,7 @@ if (__name__ == '__main__'):
             #addDir("Refresh..",9999990,2,os.path.join(imagepath, 'refresh_icon.png'))
             get_random('albums')
         elif object_id == 9999993:
-            get_stats(object_type="albums",object_subtype="hightest",limit=num_items)
+            get_stats(object_type="albums",object_subtype="highest",limit=num_items)
         elif object_id == 9999992:
             get_stats(object_type="albums",object_subtype="frequent",limit=num_items)
         elif object_id == 9999991:
@@ -638,7 +638,7 @@ if (__name__ == '__main__'):
             #addDir("Refresh..",9999994,2,os.path.join(imagepath, 'refresh_icon.png'))
             get_random('songs')
         elif object_id == 9999993:
-            get_stats(object_type="songs",object_subtype="hightest",limit=num_items)
+            get_stats(object_type="songs",object_subtype="highest",limit=num_items)
         elif object_id == 9999992:
             get_stats(object_type="songs",object_subtype="frequent",limit=num_items)
         elif object_id == 9999991:
@@ -837,7 +837,7 @@ if (__name__ == '__main__'):
             addDir(ut.tString(30153),9999992,2)
         addDir(ut.tString(30147),9999994,3)
 
-    #hightest
+    #highest
     elif mode==30:
         addDir(ut.tString(30149),9999993,1)
         addDir(ut.tString(30150),9999993,2)

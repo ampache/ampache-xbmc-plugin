@@ -16,17 +16,16 @@ class Main():
     def main_loop(self):
         while not xbmc.abortRequested:
             xbmc.sleep(1000)
-        self.close()
 
 class ServiceMonitor( xbmc.Monitor ):
 
     def __init__( self, *args, **kwargs ):
-        xbmc.log( 'ServiceMonitor called', xbmc.LOGDEBUG)
+        xbmc.log( 'AmpachePlugin::ServiceMonitor called', xbmc.LOGDEBUG)
         #pass
 
     def onNotification(self, sender, method, data):
         xbmc.Monitor.onNotification(self, sender, method, data)
-        xbmc.log('Notification %s from %s, params: %s' % (method, sender, str(data)))
+        xbmc.log('AmpachePlugin::Notification %s from %s, params: %s' % (method, sender, str(data)))
 
         if method == 'Info.OnChanged' or 'Player.OnAVStart':
             pass

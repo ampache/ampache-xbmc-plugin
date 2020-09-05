@@ -247,19 +247,19 @@ msgid "Server playlist..."
 msgstr ""
 
 msgctxt "#30148"
-msgid "Hightest Rated..."
+msgid "Highest Rated..."
 msgstr ""
 
 msgctxt "#30149"
-msgid "Hightest Rated Artists..."
+msgid "Highest Rated Artists..."
 msgstr ""
 
 msgctxt "#30150"
-msgid "Hightest Rated Albums..."
+msgid "Highest Rated Albums..."
 msgstr ""
 
 msgctxt "#30151"
-msgid "Hightest Rated Songs..."
+msgid "Highest Rated Songs..."
 msgstr ""
 
 msgctxt "#30152"
