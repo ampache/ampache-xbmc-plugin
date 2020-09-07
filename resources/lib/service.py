@@ -8,14 +8,19 @@ ampache = xbmcaddon.Addon()
 class Main():
 
     def __init__(self):
-        self.servicemonitor = ServiceMonitor()
+        #self.monitor = ServiceMonitor()
 
         # start mainloop
-        self.main_loop()
+        #self.main_loop()
+        #implemented, but now not needed
+        pass
+
 
     def main_loop(self):
-        while not xbmc.abortRequested:
-            xbmc.sleep(1000)
+        while not self.monitor.abortRequested():
+            if self.monitor.waitForAbort(1):
+                # Abort was requested while waiting. We should exit
+                break
 
 class ServiceMonitor( xbmc.Monitor ):
 
