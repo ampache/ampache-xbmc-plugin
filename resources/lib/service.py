@@ -22,6 +22,9 @@ class Main():
                 # Abort was requested while waiting. We should exit
                 break
 
+    def close():
+        pass
+
 class ServiceMonitor( xbmc.Monitor ):
 
     def __init__( self, *args, **kwargs ):
@@ -61,4 +64,4 @@ def clean_cache():
 
 if __name__ == '__main__':
     clean_cache()
-    Main()
+    #Main()
