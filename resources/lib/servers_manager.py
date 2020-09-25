@@ -6,6 +6,7 @@ from resources.lib import gui
 from resources.lib import utils as ut
 from resources.lib import json_storage
 from resources.lib import ampache_connect
+from resources.lib.service import clean_cache
 
 def initializeServer():
     jsStorServer = json_storage.JsonStorage("servers.json")
@@ -84,6 +85,8 @@ def switchServer():
     xbmc.executebuiltin("PlayerControl(Stop)")
     serverData["current_server"] = i_curr
     jsStorServer.save(serverData)
+    #clean cache_art, the server is different, so the cache is invalid
+    clean_cache()
     #if we switch, reconnect
     try:
         ampacheConnect = ampache_connect.AmpacheConnect()
