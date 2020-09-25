@@ -8,6 +8,7 @@ import os
 import random,xbmcplugin,xbmcgui,urllib.request,urllib.parse,urllib.error
 import xml.etree.ElementTree as ET
 import xbmcaddon
+import threading
 
 from resources.lib import ampache_connect
 from resources.lib import servers_manager
@@ -108,6 +109,18 @@ def get_infolabels(object_type , node):
         }
 
     return infoLabels
+
+def precacheArt(elem,object_type):
+    if object_type == "songs":
+        elem_type = "song"
+    elif object_type == "albums":
+        elem_type = "album"
+    else:
+        return
+    for node in elem.iter(elem_type):
+        x = threading.Thread(target=art.get_art, args=(node,))
+        x.start()
+    x.join()
 
 #handle albumArt and song info
 def fillListItemWithSongInfo(liz,node):
@@ -247,6 +260,8 @@ def addDir(name,object_id,mode,iconImage=None,elem=None,infoLabels=None):
 def addItem( object_type, mode , elem, useCacheArt=True):
     image = "DefaultFolder.png"
     xbmc.log("AmpachePlugin::addItem: object_type - " + str(object_type) , xbmc.LOGDEBUG )
+    if useCacheArt:
+        precacheArt(elem,object_type)
     if object_type == 'albums':
         allid = set()
         for node in elem.iter('album'):
