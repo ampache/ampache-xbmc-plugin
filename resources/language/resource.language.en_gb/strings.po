@@ -159,19 +159,19 @@ msgid "Search Tags..."
 msgstr ""
 
 msgctxt "#30126"
-msgid "Recent Artists..."
+msgid "Recently Added Artists..."
 msgstr ""
 
 msgctxt "#30127"
-msgid "Recent Albums..."
+msgid "Recently Added Albums..."
 msgstr ""
 
 msgctxt "#30128"
-msgid "Recent Songs..."
+msgid "Recently Added Songs..."
 msgstr ""
 
 msgctxt "#30129"
-msgid "Recent Playlists..."
+msgid "Recently Added Playlists..."
 msgstr ""
 
 msgctxt "#30130"
@@ -235,7 +235,7 @@ msgid "Song tags..."
 msgstr ""
 
 msgctxt "#30145"
-msgid "Recent..."
+msgid "Recently Added..."
 msgstr ""
 
 msgctxt "#30146"
@@ -404,4 +404,20 @@ msgstr ""
 
 msgctxt "#30189"
 msgid "Ampache plugin"
+msgstr ""
+
+msgctxt "#30190"
+msgid "Recent Artists..."
+msgstr ""
+
+msgctxt "#30191"
+msgid "Recent Albums..."
+msgstr ""
+
+msgctxt "#30192"
+msgid "Recent Songs..."
+msgstr ""
+
+msgctxt "#30193"
+msgid "Recent..."
 msgstr ""

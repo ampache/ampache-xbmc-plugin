@@ -600,6 +600,8 @@ if (__name__ == '__main__'):
             get_stats(object_type="artists",object_subtype="forgotten",limit=num_items)
         elif object_id == 9999989:
             get_stats(object_type="artists",object_subtype="newest",limit=num_items)
+        elif object_id == 9999988:
+            get_stats(object_type="artists",object_subtype="recent",limit=num_items)
            
     #   albums list ( called from main screen ( mode None ) , search
     #   screen ( mode 4 ) and recent ( mode 5 )
@@ -631,6 +633,8 @@ if (__name__ == '__main__'):
             get_stats(object_type="albums",object_subtype="forgotten",limit=num_items)
         elif object_id == 9999989:
             get_stats(object_type="albums",object_subtype="newest",limit=num_items)
+        elif object_id == 9999988:
+            get_stats(object_type="albums",object_subtype="recent",limit=num_items)
         elif object_id:
             get_items(object_type="albums",object_id=object_id,object_subtype="artist_albums")
 
@@ -662,6 +666,8 @@ if (__name__ == '__main__'):
             get_stats(object_type="songs",object_subtype="forgotten",limit=num_items)
         elif object_id == 9999989:
             get_stats(object_type="songs",object_subtype="newest",limit=num_items)
+        elif object_id == 9999988:
+            get_stats(object_type="songs",object_subtype="recent",limit=num_items)
         else:
             get_items(object_type="songs",object_id=object_id,object_subtype="album_songs")
 
@@ -834,6 +840,7 @@ if (__name__ == '__main__'):
             addDir(ut.tString(30165),9999991,32)
             addDir(ut.tString(30166),9999990,33)
             addDir(ut.tString(30167),9999989,34)
+            addDir(ut.tString(30193),9999988,35)
 
     #Library
     elif mode==24:
@@ -845,11 +852,11 @@ if (__name__ == '__main__'):
             addDir(ut.tString(30119),None,18)
     
     elif mode==25:
-        addDir(ut.tString(30127),9999997,6)
         addDir(ut.tString(30135),9999994,2)
         if(int(ampache.getSetting("api-version"))) >= 400001:
             addDir(ut.tString(30162),9999989,2)
             addDir(ut.tString(30153),9999992,2)
+            addDir(ut.tString(30191),9999988,2)
         addDir(ut.tString(30147),9999994,3)
 
     #highest
@@ -882,6 +889,12 @@ if (__name__ == '__main__'):
         addDir(ut.tString(30162),9999989,2)
         addDir(ut.tString(30163),9999989,3)
     
+    #recent
+    elif mode==35:
+        addDir(ut.tString(30190),9999988,1)
+        addDir(ut.tString(30191),9999988,2)
+        addDir(ut.tString(30192),9999988,3)
+
     elif mode==40:
         ampache.openSettings()
 
