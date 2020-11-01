@@ -687,8 +687,8 @@ if (__name__ == '__main__'):
             addDir(ut.tString(30124),9999999,11)
             addDir(ut.tString(30125),9999999,18)
 
-    # recent additions screen ( called from main screen )
 
+    # recently additions screen ( called from main screen )
     elif mode==5:
         addDir(ut.tString(30126),9999998,6)
         addDir(ut.tString(30127),9999997,6)
@@ -830,7 +830,7 @@ if (__name__ == '__main__'):
         else:
             get_items(object_type = "tags", object_subtype="tag_songs")
 
-    #Quick access
+    #explore
     elif mode==23:
         addDir(ut.tString(30145),None,5)
         addDir(ut.tString(30146),None,7)
@@ -850,13 +850,17 @@ if (__name__ == '__main__'):
         apiVersion = int(ampache.getSetting("api-version"))
         if(apiVersion < 400003 and apiVersion >= 380001):
             addDir(ut.tString(30119),None,18)
-    
+
+    #quick access
     elif mode==25:
         addDir(ut.tString(30135),9999994,2)
         if(int(ampache.getSetting("api-version"))) >= 400001:
             addDir(ut.tString(30162),9999989,2)
             addDir(ut.tString(30153),9999992,2)
             addDir(ut.tString(30191),9999988,2)
+        else:
+            #use recently added for old api versions
+            addDir(ut.tString(30127),9999997,6)
         addDir(ut.tString(30147),9999994,3)
 
     #highest
