@@ -4,6 +4,19 @@ import xbmcaddon
 
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
+def otype_to_type(object_type):
+    if object_type == 'albums':
+        return 'album'
+    elif object_type == 'artists':
+        return 'artist'
+    elif object_type == 'songs':
+        return 'song'
+    elif object_type == 'playlists':
+        return 'playlist'
+    elif object_type == 'tags':
+        return 'tag'
+    return None
+
 def int_to_strBool(s):
     if s == 1:
         return 'true'

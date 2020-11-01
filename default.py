@@ -87,7 +87,6 @@ def get_infolabels(object_type , node):
         }
  
     elif object_type == 'artists':
-        
         infoLabels = {
             'Title' : str(node.findtext("name")) ,
             'Artist' : str(node.findtext("name")),
@@ -111,12 +110,7 @@ def get_infolabels(object_type , node):
     return infoLabels
 
 def precacheArt(elem,object_type):
-    if object_type == "songs":
-        elem_type = "song"
-    elif object_type == "albums":
-        elem_type = "album"
-    else:
-        return
+    elem_type = ut.otype_to_type(object_type)
     for node in elem.iter(elem_type):
         x = threading.Thread(target=art.get_art, args=(node,))
         x.start()
@@ -131,6 +125,71 @@ def fillListItemWithSongInfo(liz,node):
     liz.setPath(node.findtext("url"))
     liz.setInfo( type="music", infoLabels=get_infolabels("songs", node) )
     liz.setMimeType(node.findtext("mime"))
+
+def addLinks(elem,object_type,useCacheArt,mode):
+
+    image = "DefaultFolder.png"
+    elem_type = ut.otype_to_type(object_type)
+    it=[]
+    allid = set()
+
+    for node in elem.iter(elem_type):
+        cm = []
+        object_id = int(node.attrib["id"])
+        #xbmc.log("AmpachePlugin::addLinks: object_id  - " + str(object_id) , xbmc.LOGDEBUG )
+        name = node.findtext("name").encode("utf-8")
+        if elem_type == "album":
+            try:
+                #no unicode function, cause urllib quot_plus error ( bug )
+                #album_id is ok also as string, cause it is needed to create
+                #an url
+                #remove duplicates in album names ( workaround for a problem in server comunication )
+                if object_id not in allid:
+                    allid.add(object_id)
+                else:
+                    continue
+                try:
+                    artist_elem = node.find("artist")
+                    artist_id = int(artist_elem.attrib["id"])
+                    cm.append( ( ut.tString(30141), "Container.Update(%s?object_id=%s&mode=2)" % ( sys.argv[0],artist_id ) ) )
+                except:
+                    pass
+
+                name = get_album_artist_name(node)
+                if useCacheArt:
+                    image = art.get_art(node)
+            except:
+                xbmc.log("AmpachePlugin::addItem: album_id error", xbmc.LOGDEBUG)
+        else:
+            useCacheArt = False
+
+        infoLabels=get_infolabels(object_type,node)
+
+        if infoLabels == None:
+            infoLabels={ "Title": name }
+
+        liz=xbmcgui.ListItem(name)
+        liz.setInfo( type="Music", infoLabels=infoLabels )
+
+        if useCacheArt:
+            #faster loading for libraries
+            liz.setArt(  art.get_artLabels(image) )
+        liz.setProperty('IsPlayable', 'false')
+
+        if cm:
+            liz.addContextMenuItems(cm)
+
+        handle=int(sys.argv[1])
+
+        u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)
+        xbmc.log("AmpachePlugin::addItems: u - " + u, xbmc.LOGDEBUG )
+        isFolder=True
+        tu= (u,liz,isFolder)
+        it.append(tu)
+
+    ok=xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(elem))
+    #xbmc.log("AmpachePlugin::addItems: ok - " + str(ok), xbmc.LOGDEBUG )
+    return ok
 
 # Used to populate items for songs on XBMC. Calls plugin script with mode == 9 and object_id == (ampache song id)
 # TODO: Merge with addDir(). Same basic idea going on, this one adds links all at once, that one does it one at a time
@@ -164,14 +223,10 @@ def addSongLinks(elem):
         except:
             pass
         
-        try:
-            song_elem = node.find("song")
-            song_title = str(node.findtext("title"))
-            cm.append( ( ut.tString(30140),
-            "Container.Update(%s?title=%s&mode=17)" % (
-                sys.argv[0],song_title) ) )
-        except:
-            pass
+        song_title = str(node.findtext("title"))
+        cm.append( ( ut.tString(30140),
+        "Container.Update(%s?title=%s&mode=17)" % (
+            sys.argv[0],song_title) ) )
 
         if cm != []:
             liz.addContextMenuItems(cm)
@@ -226,26 +281,12 @@ def play_track(object_id,song_url):
     #xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
 
 # Main function for adding xbmc plugin elements
-def addDir(name,object_id,mode,iconImage=None,elem=None,infoLabels=None):
-    if iconImage == None:
-        iconImage = "DefaultFolder.png"
-    
-    if infoLabels == None:
-        infoLabels={ "Title": name }
+def addDir(name,object_id,mode):
+    infoLabels={ "Title": name }
     
     liz=xbmcgui.ListItem(name)
     liz.setInfo( type="Music", infoLabels=infoLabels )
-    liz.setArt(  art.get_artLabels(iconImage) )
     liz.setProperty('IsPlayable', 'false')
-
-    try:
-        artist_elem = elem.find("artist")
-        artist_id = int(artist_elem.attrib["id"]) 
-        cm = []
-        cm.append( ( ut.tString(30141), "Container.Update(%s?object_id=%s&mode=2)" % ( sys.argv[0],artist_id ) ) )
-        liz.addContextMenuItems(cm)
-    except:
-        pass
 
     handle=int(sys.argv[1])
 
@@ -262,36 +303,12 @@ def addItem( object_type, mode , elem, useCacheArt=True):
     xbmc.log("AmpachePlugin::addItem: object_type - " + str(object_type) , xbmc.LOGDEBUG )
     if useCacheArt:
         precacheArt(elem,object_type)
-    if object_type == 'albums':
-        allid = set()
-        for node in elem.iter('album'):
-            try:
-                #no unicode function, cause urllib quot_plus error ( bug )
-                #album_id is ok also as string, cause it is needed to create
-                #an url
-                album_id = node.attrib["id"]
-                #remove duplicates in album names ( workaround for a problem in server comunication )
-                if album_id not in allid:
-                    allid.add(album_id)
-                else:
-                    continue
-                fullname = get_album_artist_name(node)
-                if useCacheArt:
-                    image = art.get_art(node)
-                addDir(fullname,album_id,mode,image,node,infoLabels=get_infolabels("albums",node))
-            except:
-                xbmc.log("AmpachePlugin::addItem: album_id error", xbmc.LOGDEBUG)
-    elif object_type == 'artists':
-        for node in elem.iter('artist'):
-            addDir(node.findtext("name").encode("utf-8"),node.attrib["id"],mode,image,node,infoLabels=get_infolabels("artists",node))
-    elif object_type == 'playlists':
-        for node in elem.iter('playlist'):
-            addDir(node.findtext("name").encode("utf-8"),node.attrib["id"],mode,image,node)
-    elif object_type == 'tags':
-        for node in elem.iter('tag'):
-            addDir(node.findtext("name").encode("utf-8"),node.attrib["id"],mode,image,node)
-    elif object_type == 'songs':
+
+    if object_type == 'songs':
         addSongLinks(elem)
+    else:
+        addLinks(elem,object_type,useCacheArt,mode)
+    return
 
 def get_all(object_type):
     try:
@@ -416,12 +433,7 @@ def get_stats(object_type, object_subtype=None, limit=5000 ):
         amtype = object_subtype
         thisFilter = None
     else:
-        if object_type == 'albums':
-            amtype='album'
-        elif object_type == 'artists':
-            amtype='artist'
-        elif object_type == 'songs':
-            amtype='song'
+        amtype = ut.otype_to_type(object_type)
         thisFilter = object_subtype
     
     try:
@@ -454,18 +466,15 @@ def get_random(object_type):
     
     ampConn = ampache_connect.AmpacheConnect()
     
+    amtype = ut.otype_to_type(object_type)
     if object_type == 'albums':
-        amtype='album'
         mode = 3
     elif object_type == 'artists':
-        amtype='artist'
         mode = 2
     elif object_type == 'playlists':
-        amtype='playlist'
         mode = 14
-    elif object_type == 'songs':
-        amtype='song'
-    
+    #song is the same mode
+
     xbmcplugin.setContent(int(sys.argv[1]), object_type)
 
     try:
