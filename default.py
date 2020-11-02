@@ -60,12 +60,20 @@ def searchGui():
 
 #return album and artist name, only album could be confusing
 def get_album_artist_name(node):
+    disknumber = str(node.findtext("disk"))
     fullname = node.findtext("name").encode("utf-8")
     if PY2:
-        fullname += " - "
+        separator = " - "
+        square_open = "[ "
+        square_closed = " ]"
     else:
-        fullname += b" - "
+        separator = b" - "
+        square_open = b"[ "
+        square_closed = b" ]"
+    fullname+=separator
     fullname += node.findtext("artist").encode("utf-8")
+    if disknumber != "1":
+        fullname = fullname + separator + square_open + disknumber + square_closed
     return fullname
 
 def get_infolabels(object_type , node):
@@ -159,7 +167,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
                 if useCacheArt:
                     image = art.get_art(node)
             except:
-                xbmc.log("AmpachePlugin::addItem: album_id error", xbmc.LOGDEBUG)
+                xbmc.log("AmpachePlugin::addLinks: album_id error", xbmc.LOGDEBUG)
         else:
             useCacheArt = False
 
@@ -182,7 +190,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
         handle=int(sys.argv[1])
 
         u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)
-        xbmc.log("AmpachePlugin::addItems: u - " + u, xbmc.LOGDEBUG )
+        xbmc.log("AmpachePlugin::addLinks: u - " + u, xbmc.LOGDEBUG )
         isFolder=True
         tu= (u,liz,isFolder)
         it.append(tu)
