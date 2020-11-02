@@ -281,7 +281,7 @@ def play_track(object_id,song_url):
     #xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
 
 # Main function for adding xbmc plugin elements
-def addDir(name,object_id,mode):
+def addDir(name,object_id,mode,offset=None):
     infoLabels={ "Title": name }
     
     liz=xbmcgui.ListItem(name)
@@ -291,6 +291,9 @@ def addDir(name,object_id,mode):
     handle=int(sys.argv[1])
 
     u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)
+    #offset, in case of very long lists
+    if offset:
+        u = u + "&offset="+str(offset)
     xbmc.log("AmpachePlugin::addDir url " + u, xbmc.LOGDEBUG)
     ok=xbmcplugin.addDirectoryItem(handle=handle,url=u,listitem=liz,isFolder=True)
     #xbmc.log("AmpachePlugin::addDir ok " + str(ok), xbmc.LOGDEBUG)
@@ -310,17 +313,21 @@ def addItem( object_type, mode , elem, useCacheArt=True):
         addLinks(elem,object_type,useCacheArt,mode)
     return
 
-def get_all(object_type):
+def get_all(object_type,offset=None):
+    if offset == None:
+        offset=0
     try:
         limit = int(ampache.getSetting(object_type))
     except:
         return
-    step = 500
-    for offset in range( 0, limit, step):
-        newLimit = offset+step
-        get_items(object_type, limit=step, offset=offset,
-                useCacheArt=False)
-
+    step = 700
+    newLimit = offset+step
+    get_items(object_type, limit=step, offset=offset, useCacheArt=False)
+    print(newLimit)
+    if newLimit < limit:
+        return newLimit
+    else:
+        return None
 
 def get_items(object_type, object_id=None, add=None,\
         thisFilter=None,limit=5000,useCacheArt=True, object_subtype=None,\
@@ -522,6 +529,7 @@ if (__name__ == '__main__'):
     object_id=None
     title=None
     song_url=None
+    offset=None
 
     handle = int(sys.argv[1])
     plugin_url=sys.argv[2]
@@ -552,6 +560,11 @@ if (__name__ == '__main__'):
     try:
             song_url=urllib.parse.unquote_plus(params["song_url"])
             xbmc.log("AmpachePlugin::song_url " + song_url, xbmc.LOGDEBUG)
+    except:
+            pass
+    try:
+            offset=int(params["offset"])
+            xbmc.log("AmpachePlugin::offset " + str(offset), xbmc.LOGDEBUG)
     except:
             pass
 
@@ -585,7 +598,9 @@ if (__name__ == '__main__'):
         num_items = (int(ampache.getSetting("random_items"))*3)+3
         #get all artists
         if object_id == None:
-            get_all("artists")
+            new_offset=get_all("artists",offset)
+            if new_offset:
+                addDir(ut.tString(30194),None,1,new_offset)
             #get_items("artists", limit=None, useCacheArt=False)
         elif object_id == 9999999:
             endDir = do_search("artists")
@@ -619,7 +634,9 @@ if (__name__ == '__main__'):
         num_items = (int(ampache.getSetting("random_items"))*3)+3
         #get all albums
         if object_id == None:
-            get_all("albums")
+            new_offset=get_all("albums",offset)
+            if new_offset:
+                addDir(ut.tString(30194),None,2,new_offset)
             #get_items("albums", limit=None, useCacheArt=False)
         elif object_id == 9999999:
             endDir = do_search("albums")
@@ -751,7 +768,9 @@ if (__name__ == '__main__'):
 
     elif mode==13:
         if object_id == None:
-            get_all("playlists")
+            new_offset=get_all("playlists",offset)
+            if new_offset:
+                addDir(ut.tString(30194),None,13,new_offset)
             #get_items(object_type="playlists")
         elif object_id == 9999999:
             endDir = do_search("playlists")

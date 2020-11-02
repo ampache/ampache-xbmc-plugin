@@ -421,3 +421,7 @@ msgstr ""
 msgctxt "#30193"
 msgid "Recent..."
 msgstr ""
+
+msgctxt "#30194"
+msgid "Next items..."
+msgstr ""
