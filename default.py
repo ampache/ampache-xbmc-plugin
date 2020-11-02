@@ -63,17 +63,20 @@ def get_album_artist_name(node):
     disknumber = str(node.findtext("disk"))
     fullname = node.findtext("name").encode("utf-8")
     if PY2:
+        space = " "
         separator = " - "
         square_open = "[ "
         square_closed = " ]"
     else:
+        space = b" "
         separator = b" - "
         square_open = b"[ "
         square_closed = b" ]"
     fullname+=separator
     fullname += node.findtext("artist").encode("utf-8")
     if disknumber != "1":
-        fullname = fullname + separator + square_open + disknumber + square_closed
+        fullname = fullname + separator + square_open + ut.tString(30195) +\
+        space + disknumber + square_closed
     return fullname
 
 def get_infolabels(object_type , node):
@@ -88,7 +91,7 @@ def get_infolabels(object_type , node):
             'Title' : str(node.findtext("name")) ,
             'Album' : str(node.findtext("name")) ,
             'Artist' : str(node.findtext("artist")),
-            'Discnumber' : str(node.findtext("disk")),
+            'DiscNumber' : str(node.findtext("disk")),
             'Year' : node.findtext("year") ,
             'UserRating' : avgRating,
             'Mediatype' : 'album'
@@ -110,7 +113,7 @@ def get_infolabels(object_type , node):
             'Size' : node.findtext("size") ,
             'Duration' : node.findtext("time"),
             'Year' : node.findtext("year") ,
-            'Tracknumber' : node.findtext("track"),
+            'TrackNumber' : node.findtext("track"),
             'UserRating' : avgRating,
             'Mediatype' : 'song'
         }
