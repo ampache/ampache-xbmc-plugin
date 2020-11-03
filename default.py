@@ -333,8 +333,10 @@ def get_all(object_type,offset=None):
     #to not overload servers
     step = 100
     newLimit = offset+step
-    get_items(object_type, limit=step, offset=offset, useCacheArt=False)
-    #get_items(object_type, limit=step, offset=offset)
+    if (ut.strBool_to_bool(ampache.getSetting("images-long-list"))):
+        get_items(object_type, limit=step, offset=offset)
+    else:
+        get_items(object_type, limit=step, offset=offset, useCacheArt=False)
     if newLimit < limit:
         return newLimit
     else:

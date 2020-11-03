@@ -41,6 +41,10 @@ msgctxt "#30013"
 msgid "Old search gui (web controller friendly)"
 msgstr ""
 
+msgctxt "#30014"
+msgid "Enable images on long lists"
+msgstr ""
+
 msgctxt "#30020"
 msgid "Add Server"
 msgstr ""
