@@ -2,14 +2,18 @@ from future.utils import PY2
 import re
 import os
 import xbmc,xbmcaddon
+import xbmcvfs
 
 from resources.lib import ampache_connect
 
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
-user_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
+#different functions in kodi 19 (python3) and kodi 18 (python2)
 if PY2:
+    user_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
     user_dir = user_dir.decode('utf-8')
+else:
+    user_dir = xbmcvfs.translatePath( ampache.getAddonInfo('profile'))
 user_mediaDir = os.path.join( user_dir , 'media' )
 cacheDir = os.path.join( user_mediaDir , 'cache' )
 

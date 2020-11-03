@@ -61,22 +61,17 @@ def searchGui():
 #return album and artist name, only album could be confusing
 def get_album_artist_name(node):
     disknumber = str(node.findtext("disk"))
-    fullname = node.findtext("name").encode("utf-8")
     if PY2:
-        space = " "
-        separator = " - "
-        square_open = "[ "
-        square_closed = " ]"
+        fullname = node.findtext("name").encode("utf-8")
+        fullname += " - "
+        fullname += node.findtext("artist").encode("utf-8")
     else:
-        space = b" "
-        separator = b" - "
-        square_open = b"[ "
-        square_closed = b" ]"
-    fullname+=separator
-    fullname += node.findtext("artist").encode("utf-8")
+        #no encode utf-8 in python3, not necessary
+        fullname = node.findtext("name")
+        fullname += " - "
+        fullname += node.findtext("artist")
     if disknumber != "1":
-        fullname = fullname + separator + square_open + ut.tString(30195) +\
-        space + disknumber + square_closed
+        fullname = fullname + " - [ " + ut.tString(30195) + " " + disknumber + " ]"
     return fullname
 
 def get_infolabels(object_type , node):
@@ -148,7 +143,10 @@ def addLinks(elem,object_type,useCacheArt,mode):
         cm = []
         object_id = int(node.attrib["id"])
         #xbmc.log("AmpachePlugin::addLinks: object_id  - " + str(object_id) , xbmc.LOGDEBUG )
-        name = node.findtext("name").encode("utf-8")
+        if PY2:
+            name = node.findtext("name").encode("utf-8")
+        else:
+            name = node.findtext("name")
         if elem_type == "album":
             try:
                 #no unicode function, cause urllib quot_plus error ( bug )

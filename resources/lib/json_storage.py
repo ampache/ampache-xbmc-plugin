@@ -11,9 +11,11 @@ class JsonStorage(object):
 
     def __init__(self,filename):
         ampache = xbmcaddon.Addon()
-        base_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
         if PY2:
+            base_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
             base_dir = base_dir.decode('utf-8')
+        else:
+            base_dir = xbmcvfs.translatePath( ampache.getAddonInfo('profile'))
         self._filename = os.path.join(base_dir, filename)
         self._data = dict()
         self.load()

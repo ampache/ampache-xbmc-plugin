@@ -2,6 +2,7 @@ from future.utils import PY2
 import xbmc
 import os
 import xbmcaddon
+import xbmcvfs
  
 ampache = xbmcaddon.Addon()
 
@@ -39,9 +40,11 @@ class ServiceMonitor( xbmc.Monitor ):
             pass
 
 def clean_cache():
-    base_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
     if PY2:
+        base_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
         base_dir = base_dir.decode('utf-8')
+    else:
+        base_dir = xbmcvfs.translatePath( ampache.getAddonInfo('profile'))
     #hack to force the creation of profile directory if don't exists
     if not os.path.isdir(base_dir):
         ampache.setSetting("api-version","350001")
