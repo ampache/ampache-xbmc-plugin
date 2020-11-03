@@ -70,7 +70,7 @@ def get_album_artist_name(node):
         fullname = node.findtext("name")
         fullname += " - "
         fullname += node.findtext("artist")
-    if disknumber != "1":
+    if disknumber != "1" and disknumber !="0":
         fullname = fullname + " - [ " + ut.tString(30195) + " " + disknumber + " ]"
     return fullname
 
@@ -143,6 +143,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
         cm = []
         object_id = int(node.attrib["id"])
         #xbmc.log("AmpachePlugin::addLinks: object_id  - " + str(object_id) , xbmc.LOGDEBUG )
+        #xbmc.log("AmpachePlugin::addLinks: node " + ET.tostring(node) , xbmc.LOGDEBUG )
         if PY2:
             name = node.findtext("name").encode("utf-8")
         else:
@@ -191,7 +192,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
         handle=int(sys.argv[1])
 
         u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)
-        xbmc.log("AmpachePlugin::addLinks: u - " + u, xbmc.LOGDEBUG )
+        #xbmc.log("AmpachePlugin::addLinks: u - " + u, xbmc.LOGDEBUG )
         isFolder=True
         tu= (u,liz,isFolder)
         it.append(tu)
@@ -329,10 +330,11 @@ def get_all(object_type,offset=None):
         limit = int(ampache.getSetting(object_type))
     except:
         return
-    step = 700
+    #to not overload servers
+    step = 100
     newLimit = offset+step
     get_items(object_type, limit=step, offset=offset, useCacheArt=False)
-    print(newLimit)
+    #get_items(object_type, limit=step, offset=offset)
     if newLimit < limit:
         return newLimit
     else:
@@ -885,7 +887,7 @@ if (__name__ == '__main__'):
         addDir(ut.tString(30116) + " (" + ampache.getSetting("albums") + ")",None,2)
         addDir(ut.tString(30118) + " (" + ampache.getSetting("playlists")+ ")",None,13)
         apiVersion = int(ampache.getSetting("api-version"))
-        if(apiVersion < 400003 and apiVersion >= 380001):
+        if apiVersion >= 380001:
             addDir(ut.tString(30119),None,18)
 
     #quick access
