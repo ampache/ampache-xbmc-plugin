@@ -1,6 +1,7 @@
 from future.utils import PY2
 import re
 import os
+import cgi
 import xbmc,xbmcaddon
 import xbmcvfs
 
@@ -17,43 +18,46 @@ else:
 user_mediaDir = os.path.join( user_dir , 'media' )
 cacheDir = os.path.join( user_mediaDir , 'cache' )
 
-def cacheArt(url):
-    strippedAuth = url.split('&')
-    imageID = re.search(r"id=(\d+)", strippedAuth[0])
-    #security check:
-    #also nexcloud server doesn't send images
+def cacheArt(imageID,elem_type):
+    #security check
     if imageID == None:
         raise NameError
+   
+    possible_ext = ["png", "jpg", "bmp", "gif", "tiff"] 
+    for ext in possible_ext:
+        imageName = str(imageID) + "." + ext
+        pathImage = os.path.join( cacheDir , imageName )
+        if os.path.exists( pathImage ):
+            #xbmc.log("AmpachePlugin::CacheArt: cached, id " + str(imageID) +  " extension " + ext ,xbmc.LOGDEBUG)
+            return pathImage
     
-    imageNamePng = imageID.group(1) + ".png"
-    imageNameJpg = imageID.group(1) + ".jpg"
-    pathPng = os.path.join( cacheDir , imageNamePng )
-    pathJpg = os.path.join( cacheDir , imageNameJpg )
-    if os.path.exists( pathPng ):
-            #xbmc.log("AmpachePlugin::CacheArt: png cached",xbmc.LOGDEBUG)
-            return pathPng
-    elif os.path.exists( pathJpg ):
-            #xbmc.log("AmpachePlugin::CacheArt: jpg cached",xbmc.LOGDEBUG)
-            return pathJpg
-    else:
-            ampacheConnect = ampache_connect.AmpacheConnect()
-            #xbmc.log("AmpachePlugin::CacheArt: File needs fetching ",xbmc.LOGDEBUG)
-            headers,contents = ampacheConnect.handle_request(url)
-            extension = headers['content-type']
-            tmpExt = extension.split("/")
-            if tmpExt[0] == 'image':
-                    if tmpExt[1] == "jpeg":
-                            fname = imageNameJpg
-                    else:
-                            fname = imageID.group(1) + '.' + tmpExt[1]
-                    pathJpg = os.path.join( cacheDir , fname )
-                    open( pathJpg, 'wb').write(contents)
-                    #xbmc.log("AmpachePlugin::CacheArt: Cached " + str(fname), xbmc.LOGDEBUG )
-                    return pathJpg
+    #no return, not found
+    ampacheConnect = ampache_connect.AmpacheConnect()
+    action = 'get_art'
+    ampacheConnect.id = str(imageID)
+    ampacheConnect.type = elem_type
+
+    headers,contents = ampacheConnect.ampache_binary_request(action)
+    #xbmc.log("AmpachePlugin::CacheArt: File needs fetching, id " + str(imageID),xbmc.LOGDEBUG)
+    extension = headers['content-type']
+    if extension:
+        mimetype, options = cgi.parse_header(extension)
+        maintype, subtype = mimetype.split("/")
+        if maintype == 'image':
+            if subtype == "jpeg":
+                fname = str(imageID) + ".jpg"
             else:
-                    xbmc.log("AmpachePlugin::CacheArt: It didnt work", xbmc.LOGDEBUG )
-                    raise NameError
-                    #return False
+                fname = str(imageID) + '.' + subtype
+            pathImage = os.path.join( cacheDir , fname )
+            open( pathImage, 'wb').write(contents)
+            #xbmc.log("AmpachePlugin::CacheArt: Cached " + str(fname), xbmc.LOGDEBUG )
+            return pathImage
+        else:
+            xbmc.log("AmpachePlugin::CacheArt: It didnt work, id " + str(imageID) , xbmc.LOGDEBUG )
+            raise NameError
+    else:
+        xbmc.log("AmpachePlugin::CacheArt: No file found, id " + str(imageID) , xbmc.LOGDEBUG )
+        raise NameError
 
 def get_artLabels(albumArt):
     art_labels = {
@@ -64,9 +68,9 @@ def get_artLabels(albumArt):
             }
     return art_labels
 
-def get_art(node):
+def get_art(object_id,elem_type):
     try:
-        albumArt = cacheArt(node.findtext("art"))
+        albumArt = cacheArt(object_id,elem_type)
     except NameError:
         albumArt = "DefaultFolder.png"
     #xbmc.log("AmpachePlugin::get_art: albumArt - " + str(albumArt), xbmc.LOGDEBUG )

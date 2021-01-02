@@ -117,14 +117,31 @@ def get_infolabels(object_type , node):
 
 def precacheArt(elem,object_type):
     elem_type = ut.otype_to_type(object_type)
+    if elem_type != "album" or elem_type != "song":
+        return
+    art_type = "album"
     for node in elem.iter(elem_type):
-        x = threading.Thread(target=art.get_art, args=(node,))
+        if elem_type == "song":
+            try:
+                album_elem = node.find("album")
+                object_id = int(album_elem.attrib["id"])
+            except:
+                object_id = None
+        else:
+            object_id = int(node.attrib["id"])
+        x = threading.Thread(target=art.get_art, args=(object_id,art_type,))
         x.start()
     x.join()
 
 #handle albumArt and song info
 def fillListItemWithSongInfo(liz,node):
-    albumArt = art.get_art(node)
+    object_id = int(node.attrib["id"])
+    try:
+        album_elem = node.find("album")
+        album_id = int(album_elem.attrib["id"])
+        albumArt = art.get_art(album_id,"album")
+    except:
+        albumArt = art.get_art(None,"album")
     liz.setLabel(str(node.findtext("title")))
     liz.setArt( art.get_artLabels(albumArt) )
     #needed by play_track to play the song, added here to uniform api
@@ -167,7 +184,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
 
                 name = get_album_artist_name(node)
                 if useCacheArt:
-                    image = art.get_art(node)
+                    image = art.get_art(object_id,elem_type)
             except:
                 xbmc.log("AmpachePlugin::addLinks: album_id error", xbmc.LOGDEBUG)
         else:
@@ -314,6 +331,7 @@ def addDir(name,object_id,mode,offset=None):
 def addItem( object_type, mode , elem, useCacheArt=True):
     image = "DefaultFolder.png"
     xbmc.log("AmpachePlugin::addItem: object_type - " + str(object_type) , xbmc.LOGDEBUG )
+
     if useCacheArt:
         precacheArt(elem,object_type)
 

@@ -140,6 +140,16 @@ class AmpacheConnect(object):
         self._ampache.setSetting("token-exp", str(nTime+24000))
         return
 
+    #handle request to the xml api that return binary files
+    def ampache_binary_request(self,action):
+        thisURL = self.build_ampache_url(action)
+        try:
+            headers,contents  = self.handle_request(thisURL)
+        except self.ConnectionError:
+            raise self.ConnectionError
+        return headers,contents
+   
+    #handle request to the xml api that return xml content
     def ampache_http_request(self,action):
         thisURL = self.build_ampache_url(action)
         try:
@@ -164,6 +174,11 @@ class AmpacheConnect(object):
                 except self.ConnectionError:
                     raise self.ConnectionError
                 tree=ET.XML(contents)
+            elif errornode.attrib["code"]=="400":
+                xbmc.log("AmpachePlugin::ampache_http_request Bad Request",xbmc.LOGDEBUG)
+            elif errornode.attrib["code"]=="404":
+                xbmc.log("AmpachePlugin::ampache_http_request Not Found",xbmc.LOGDEBUG)
+
         return tree
     
     def build_ampache_url(self,action):
