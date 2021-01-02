@@ -23,7 +23,7 @@ def cacheArt(imageID,elem_type):
     if imageID == None:
         raise NameError
    
-    possible_ext = ["png", "jpg", "bmp", "gif", "tiff"] 
+    possible_ext = ["jpg", "png" , "bmp", "gif", "tiff"]
     for ext in possible_ext:
         imageName = str(imageID) + "." + ext
         pathImage = os.path.join( cacheDir , imageName )
