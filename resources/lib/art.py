@@ -18,7 +18,7 @@ else:
 user_mediaDir = os.path.join( user_dir , 'media' )
 cacheDir = os.path.join( user_mediaDir , 'cache' )
 
-def cacheArt(imageID,elem_type):
+def cacheArt(imageID,elem_type,url=None):
     #security check
     if imageID == None:
         raise NameError
@@ -28,7 +28,7 @@ def cacheArt(imageID,elem_type):
         imageName = str(imageID) + "." + ext
         pathImage = os.path.join( cacheDir , imageName )
         if os.path.exists( pathImage ):
-            #xbmc.log("AmpachePlugin::CacheArt: cached, id " + str(imageID) +  " extension " + ext ,xbmc.LOGDEBUG)
+            xbmc.log("AmpachePlugin::CacheArt: cached, id " + str(imageID) +  " extension " + ext ,xbmc.LOGDEBUG)
             return pathImage
     
     #no return, not found
@@ -36,8 +36,12 @@ def cacheArt(imageID,elem_type):
     action = 'get_art'
     ampacheConnect.id = str(imageID)
     ampacheConnect.type = elem_type
-
-    headers,contents = ampacheConnect.ampache_binary_request(action)
+    
+    if url:
+        #old api version
+        headers,contents = ampacheConnect.handle_request(url)
+    else:
+        headers,contents = ampacheConnect.ampache_binary_request(action)
     #xbmc.log("AmpachePlugin::CacheArt: File needs fetching, id " + str(imageID),xbmc.LOGDEBUG)
     extension = headers['content-type']
     if extension:
@@ -68,9 +72,12 @@ def get_artLabels(albumArt):
             }
     return art_labels
 
-def get_art(object_id,elem_type):
+def get_art(object_id,elem_type,node=None):
     try:
-        albumArt = cacheArt(object_id,elem_type)
+        url = None
+        if(int(ampache.getSetting("api-version"))) < 400001:
+            url = node.findtext("art")
+        albumArt = cacheArt(object_id,elem_type,url)
     except NameError:
         albumArt = "DefaultFolder.png"
     #xbmc.log("AmpachePlugin::get_art: albumArt - " + str(albumArt), xbmc.LOGDEBUG )

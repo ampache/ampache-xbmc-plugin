@@ -129,7 +129,7 @@ def precacheArt(elem,object_type):
                 object_id = None
         else:
             object_id = int(node.attrib["id"])
-        x = threading.Thread(target=art.get_art, args=(object_id,art_type,))
+        x = threading.Thread(target=art.get_art,args=(object_id,art_type,node,))
         x.start()
     x.join()
 
@@ -139,7 +139,7 @@ def fillListItemWithSongInfo(liz,node):
     try:
         album_elem = node.find("album")
         album_id = int(album_elem.attrib["id"])
-        albumArt = art.get_art(album_id,"album")
+        albumArt = art.get_art(album_id,"album",node)
     except:
         albumArt = art.get_art(None,"album")
     liz.setLabel(str(node.findtext("title")))
@@ -184,7 +184,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
 
                 name = get_album_artist_name(node)
                 if useCacheArt:
-                    image = art.get_art(object_id,elem_type)
+                    image = art.get_art(object_id,elem_type,node)
             except:
                 xbmc.log("AmpachePlugin::addLinks: album_id error", xbmc.LOGDEBUG)
         else:
