@@ -4,18 +4,15 @@ import os
 import xbmcaddon
 import xbmcvfs
  
-ampache = xbmcaddon.Addon()
+ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
 class Main():
 
     def __init__(self):
-        #self.monitor = ServiceMonitor()
+        self.monitor = ServiceMonitor()
 
         # start mainloop
-        #self.main_loop()
-        #implemented, but now not needed
-        pass
-
+        self.main_loop()
 
     def main_loop(self):
         while not self.monitor.abortRequested():
@@ -34,10 +31,14 @@ class ServiceMonitor( xbmc.Monitor ):
 
     def onNotification(self, sender, method, data):
         xbmc.Monitor.onNotification(self, sender, method, data)
-        xbmc.log('AmpachePlugin::Notification %s from %s, params: %s' % (method, sender, str(data)))
+        #xbmc.log('AmpachePlugin::Notification %s from %s, params: %s' % (method, sender, str(data)))
 
-        if method == 'Info.OnChanged' or 'Player.OnAVStart':
-            pass
+        #'Player.OnAVStart':
+        #called on infoChanged ( rating )
+        if method == 'Info.OnChanged':
+            #call setRating
+            xbmc.executebuiltin('RunPlugin(plugin://plugin.audio.ampache/?mode=47)')
+
 
 def clean_cache():
     if PY2:
@@ -56,7 +57,6 @@ def clean_cache():
         os.mkdir(mediaDir)
         if not os.path.isdir(cacheDir):
             os.mkdir(cacheDir)
-    extensions = ('.png', '.jpg')
 
     #clean cache on start
     for currentFile in os.listdir(cacheDir):
@@ -67,4 +67,4 @@ def clean_cache():
 
 if __name__ == '__main__':
     clean_cache()
-    #Main()
+    Main()

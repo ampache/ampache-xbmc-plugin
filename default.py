@@ -3,8 +3,8 @@ from future.utils import PY2
 standard_library.install_aliases()
 from builtins import str
 from builtins import range
-import sys
-import os
+import sys, os
+import math
 import random,xbmcplugin,xbmcgui,urllib.request,urllib.parse,urllib.error
 import xml.etree.ElementTree as ET
 import xbmcaddon
@@ -443,6 +443,43 @@ def get_items(object_type, object_id=None, add=None,\
         addItem( object_type, mode , elem, useCacheArt)
     except:
         return
+
+
+def setRating():
+    xbmc.log("AmpachePlugin::setRating " , xbmc.LOGDEBUG)
+    plugin_url = xbmc.Player().getPlayingFile()
+    xbmc.log("AmpachePlugin::setRating url " + plugin_url , xbmc.LOGDEBUG)
+    params = ut.get_params(plugin_url)
+    object_id = None
+    #i use two kind of object_id, i don't know, but sometime i have different
+    #url, btw, no problem, i handle both and i solve the problem in this way
+    try:
+            object_id=int(params["object_id"])
+            xbmc.log("AmpachePlugin::object_id " + str(object_id), xbmc.LOGDEBUG)
+    except:
+            pass
+    try:
+            object_id=int(params["oid"])
+            xbmc.log("AmpachePlugin::object_id " + str(object_id), xbmc.LOGDEBUG)
+    except:
+            pass
+    if object_id == None:
+        pass
+    rating = xbmc.getInfoLabel('MusicPlayer.UserRating')
+    if rating == "":
+        rating = "0"
+
+    xbmc.log("AmpachePlugin::setRating, user Rating" + rating , xbmc.LOGDEBUG)
+    amp_rating = math.ceil(int(rating)/2.0)
+
+    ampConn = ampache_connect.AmpacheConnect()
+
+    action = "rate"
+    ampConn.id = str(object_id)
+    ampConn.type = "song"
+    ampConn.rating = str(amp_rating)
+
+    elem = ampConn.ampache_http_request(action)
 
 
 def do_search(object_type,object_subtype=None,thisFilter=None):
@@ -957,7 +994,7 @@ if (__name__ == '__main__'):
         addDir(ut.tString(30190),9999988,1)
         addDir(ut.tString(30191),9999988,2)
         addDir(ut.tString(30192),9999988,3)
-
+ 
     elif mode==40:
         ampache.openSettings()
 
@@ -981,6 +1018,10 @@ if (__name__ == '__main__'):
         #workaround busydialog bug
         xbmc.executebuiltin('Dialog.Close(busydialog)')
         play_track(object_id, song_url)
+
+    #change rating
+    elif mode==47:
+        setRating()
 
     if mode == None or mode < 40:
         xbmc.log("AmpachePlugin::endOfDirectory " + str(handle),  xbmc.LOGDEBUG)
