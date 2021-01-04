@@ -30,7 +30,7 @@ class ServiceMonitor( xbmc.Monitor ):
         #pass
 
     def onNotification(self, sender, method, data):
-        xbmc.Monitor.onNotification(self, sender, method, data)
+        #xbmc.Monitor.onNotification(self, sender, method, data)
         #xbmc.log('AmpachePlugin::Notification %s from %s, params: %s' % (method, sender, str(data)))
 
         #'Player.OnAVStart':

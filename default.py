@@ -469,7 +469,7 @@ def setRating():
     if rating == "":
         rating = "0"
 
-    xbmc.log("AmpachePlugin::setRating, user Rating" + rating , xbmc.LOGDEBUG)
+    xbmc.log("AmpachePlugin::setRating, user Rating " + rating , xbmc.LOGDEBUG)
     amp_rating = math.ceil(int(rating)/2.0)
 
     ampConn = ampache_connect.AmpacheConnect()
