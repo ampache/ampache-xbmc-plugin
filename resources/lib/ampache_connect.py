@@ -27,8 +27,8 @@ class AmpacheConnect(object):
         #self._connectionData = None
         self.filter=None
         self.add=None
-        self.limit=5000
-        self.offset=0
+        self.limit=None
+        self.offset=None
         self.type=None
         self.exact=None 
         self.mode=None
