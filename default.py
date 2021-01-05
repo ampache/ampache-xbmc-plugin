@@ -74,13 +74,17 @@ def get_album_artist_name(node):
         fullname = fullname + " - [ " + ut.tString(30195) + " " + disknumber + " ]"
     return fullname
 
+def getRating(node):
+    rating = node.findtext("rating")
+    if rating:
+        rating = int(float(rating)*2)
+    else:
+        rating = 0
+    return rating
+
 def get_infolabels(object_type , node):
     infoLabels = None
-    avgRating = node.findtext("averagerating")
-    if avgRating:
-        avgRating = int(float(avgRating)*2)
-    else:
-        avgRating = 0
+    rating = getRating(node)
     if object_type == 'albums':
         infoLabels = {
             'Title' : str(node.findtext("name")) ,
@@ -88,7 +92,9 @@ def get_infolabels(object_type , node):
             'Artist' : str(node.findtext("artist")),
             'DiscNumber' : str(node.findtext("disk")),
             'Year' : node.findtext("year") ,
-            'UserRating' : avgRating,
+            #i don't know if it is working, if someone have an idea how to
+            #write this property, please open an issue on github
+            'Album.Album_UserRating' : rating,
             'Mediatype' : 'album'
         }
  
@@ -96,7 +102,6 @@ def get_infolabels(object_type , node):
         infoLabels = {
             'Title' : str(node.findtext("name")) ,
             'Artist' : str(node.findtext("name")),
-            'UserRating' : avgRating,
             'Mediatype' : 'artist'
         }
 
@@ -109,7 +114,7 @@ def get_infolabels(object_type , node):
             'Duration' : node.findtext("time"),
             'Year' : node.findtext("year") ,
             'TrackNumber' : node.findtext("track"),
-            'UserRating' : avgRating,
+            'UserRating' : rating,
             'Mediatype' : 'song'
         }
 
