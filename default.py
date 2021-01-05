@@ -645,11 +645,12 @@ if (__name__ == '__main__'):
 
     #check if the connection is expired
     #initialisation
-    if mode==None or ut.check_tokenexp():
-        try:
-            ampacheConnect.AMPACHECONNECT()
-        except:
-            pass
+    if mode==None:
+        if ut.check_tokenexp():
+            try:
+                ampacheConnect.AMPACHECONNECT()
+            except:
+                pass
 
     #start menu
     if mode==None:
