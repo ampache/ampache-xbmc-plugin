@@ -82,18 +82,14 @@ class AmpacheConnect(object):
             xbmc.log("AmpachePlugin::handle_request: URLError, reason " + e.reason,xbmc.LOGDEBUG)
             xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
-        except:
-            xbmc.log("AmpachePlugin::handle_request: ConnectionError",xbmc.LOGDEBUG)
+        except Exception  as e:
+            xbmc.log("AmpachePlugin::handle_request: ConnectionError " + \
+                    str(e) ,xbmc.LOGDEBUG)
             xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
         headers = response.headers
         contents = response.read()
         response.close()
-        try:
-            strCont = contents.decode()
-            xbmc.log("AmpachePlugin::handle_request: Contents " + strCont,xbmc.LOGDEBUG)
-        except:
-            pass
         return headers,contents
 
     def AMPACHECONNECT(self):
@@ -111,8 +107,14 @@ class AmpacheConnect(object):
             headers,contents = self.handle_request(myURL)
         except self.ConnectionError:
             xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
+            xbmc.executebuiltin("Notification(Error,Connection error)")
             raise self.ConnectionError
         xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
+        try:
+            xbmc.log("AmpachePlugin::AMPACHECONNECT: contents " + contents,xbmc.LOGDEBUG)
+        except Exception as e:
+            xbmc.log("AmpachePlugin::AMPACHECONNECT: unable to print contents " + \
+                    + str(e) , xbmc.LOGDEBUG)
         tree=ET.XML(contents)
         errormess = tree.findtext('error')
         if errormess:
@@ -124,6 +126,7 @@ class AmpacheConnect(object):
                     xbmc.executebuiltin("Notification(Error,Connection error)")
             raise self.ConnectionError
             return
+        #xbmc.executebuiltin("Notification(Information,Connection Ok)")
         token = tree.findtext('auth')
         version = tree.findtext('api')
         if not version:
@@ -160,6 +163,11 @@ class AmpacheConnect(object):
             contents = contents.replace("\0", "")
         #parser = ET.XMLParser(recover=True)
         #tree=ET.XML(contents, parser = parser)
+        try:
+            xbmc.log("AmpachePlugin::ampache_http_request: contents " + contents,xbmc.LOGDEBUG)
+        except Exception as e:
+            xbmc.log("AmpachePlugin::ampache_http_request: unable print contents " + \
+                    + str(e) , xbmc.LOGDEBUG)
         tree=ET.XML(contents)
         if tree.findtext("error"):
             errornode = tree.find("error")
@@ -191,8 +199,10 @@ class AmpacheConnect(object):
         token = self._ampache.getSetting("token")
         thisURL = self._connectionData["url"] + '/server/xml.server.php?action=' + action 
         thisURL += '&auth=' + token
-        thisURL += '&limit=' +str(self.limit)
-        thisURL += '&offset=' +str(self.offset)
+        if self.limit:
+            thisURL += '&limit=' +str(self.limit)
+        if self.offset:
+            thisURL += '&offset=' +str(self.offset)
         if self.filter:
             thisURL += '&filter=' +urllib.parse.quote_plus(str(self.filter))
         if self.add:
