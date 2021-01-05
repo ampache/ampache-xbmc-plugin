@@ -92,9 +92,7 @@ def get_infolabels(object_type , node):
             'Artist' : str(node.findtext("artist")),
             'DiscNumber' : str(node.findtext("disk")),
             'Year' : node.findtext("year") ,
-            #i don't know if it is working, if someone have an idea how to
-            #write this property, please open an issue on github
-            'Album.Album_UserRating' : rating,
+            'UserRating' : rating,
             'Mediatype' : 'album'
         }
  
