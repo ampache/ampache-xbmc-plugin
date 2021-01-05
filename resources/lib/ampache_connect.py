@@ -83,7 +83,8 @@ class AmpacheConnect(object):
             xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
         except Exception  as e:
-            xbmc.log("AmpachePlugin::handle_request: ConnectionError " ,xbmc.LOGDEBUG)
+            xbmc.log("AmpachePlugin::handle_request: ConnectionError "  +\
+                    repr(e),xbmc.LOGDEBUG)
             xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
         headers = response.headers
@@ -113,7 +114,8 @@ class AmpacheConnect(object):
             xbmc.log("AmpachePlugin::AMPACHECONNECT: contents " +\
                     contents.decode(),xbmc.LOGDEBUG)
         except Exception as e:
-            xbmc.log("AmpachePlugin::AMPACHECONNECT: unable to print contents " , xbmc.LOGDEBUG)
+            xbmc.log("AmpachePlugin::AMPACHECONNECT: unable to print contents " + \
+                   repr(e) , xbmc.LOGDEBUG)
         tree=ET.XML(contents)
         errormess = tree.findtext('error')
         if errormess:
@@ -166,7 +168,8 @@ class AmpacheConnect(object):
             xbmc.log("AmpachePlugin::ampache_http_request: contents " + \
                     contents.decode(),xbmc.LOGDEBUG)
         except Exception as e:
-            xbmc.log("AmpachePlugin::ampache_http_request: unable print contents " , xbmc.LOGDEBUG)
+            xbmc.log("AmpachePlugin::ampache_http_request: unable print contents " + \
+                    repr(e) , xbmc.LOGDEBUG)
         tree=ET.XML(contents)
         if tree.findtext("error"):
             errornode = tree.find("error")
