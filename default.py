@@ -458,7 +458,7 @@ def setRating():
         plugin_url = xbmc.Player().getPlayingFile()
         xbmc.log("AmpachePlugin::setRating url " + plugin_url , xbmc.LOGDEBUG)
     except:
-        xbmc.log("AmpachePlugin::no file Playing " , xbmc.LOGDEBUG)
+        xbmc.log("AmpachePlugin::no playing file " , xbmc.LOGDEBUG)
         return
     params = ut.get_params(plugin_url)
     object_id = None
