@@ -46,7 +46,16 @@ def cacheArt(imageID,elem_type,url=None):
     extension = headers['content-type']
     if extension:
         mimetype, options = cgi.parse_header(extension)
-        maintype, subtype = mimetype.split("/")
+        #little hack when content-type is not standard
+        if mimetype == "JPG":
+            maintype = "image"
+            subtype = "jpg"
+        else:
+            try:
+                maintype, subtype = mimetype.split("/")
+            except ValueError:
+                xbmc.log("AmpachePlugin::CacheArt: content-type not standard " +\
+                        maintype,xbmc.LOGDEBUG)
         if maintype == 'image':
             if subtype == "jpeg":
                 fname = str(imageID) + ".jpg"
