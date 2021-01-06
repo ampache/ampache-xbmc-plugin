@@ -454,8 +454,12 @@ def get_items(object_type, object_id=None, add=None,\
 
 def setRating():
     xbmc.log("AmpachePlugin::setRating " , xbmc.LOGDEBUG)
-    plugin_url = xbmc.Player().getPlayingFile()
-    xbmc.log("AmpachePlugin::setRating url " + plugin_url , xbmc.LOGDEBUG)
+    try:
+        plugin_url = xbmc.Player().getPlayingFile()
+        xbmc.log("AmpachePlugin::setRating url " + plugin_url , xbmc.LOGDEBUG)
+    except:
+        xbmc.log("AmpachePlugin::no file Playing " , xbmc.LOGDEBUG)
+        return
     params = ut.get_params(plugin_url)
     object_id = None
     #i use two kind of object_id, i don't know, but sometime i have different
