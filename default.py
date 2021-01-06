@@ -62,9 +62,9 @@ def searchGui():
 def get_album_artist_name(node):
     disknumber = str(node.findtext("disk"))
     if PY2:
-        fullname = node.findtext("name").encode("utf-8")
+        fullname = str(node.findtext("name"))
         fullname += u" - "
-        fullname += node.findtext("artist").encode("utf-8")
+        fullname += str(node.findtext("artist"))
     else:
         #no encode utf-8 in python3, not necessary
         fullname = node.findtext("name")
@@ -169,10 +169,9 @@ def addLinks(elem,object_type,useCacheArt,mode):
         object_id = int(node.attrib["id"])
         #xbmc.log("AmpachePlugin::addLinks: object_id  - " + str(object_id) , xbmc.LOGDEBUG )
         #xbmc.log("AmpachePlugin::addLinks: node " + ET.tostring(node) , xbmc.LOGDEBUG )
-        if PY2:
-            name = node.findtext("name").encode("utf-8")
-        else:
-            name = node.findtext("name")
+
+        name = str(node.findtext("name"))
+
         if elem_type == "album":
             try:
                 #no unicode function, cause urllib quot_plus error ( bug )
