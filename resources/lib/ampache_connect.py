@@ -113,7 +113,6 @@ class AmpacheConnect(object):
             xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
             amp_notif = "Notification(" + ut.tString(30198)  +  "," +\
                     ut.tString(30202)   + ")"
-            print(amp_notif)
             #connection error
             xbmc.executebuiltin(amp_notif)
             raise self.ConnectionError
