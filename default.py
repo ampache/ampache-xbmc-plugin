@@ -63,7 +63,7 @@ def get_album_artist_name(node):
     disknumber = str(node.findtext("disk"))
     if PY2:
         fullname = node.findtext("name").encode("utf-8")
-        fullname += " - "
+        fullname += u" - "
         fullname += node.findtext("artist").encode("utf-8")
     else:
         #no encode utf-8 in python3, not necessary
@@ -72,7 +72,11 @@ def get_album_artist_name(node):
         fullname += node.findtext("artist")
     #disknumber = "None" when disk number is not sent
     if disknumber!="None" and disknumber != "1" and disknumber !="0":
-        fullname = fullname + " - [ " + ut.tString(30195) + " " + disknumber + " ]"
+        if PY2:
+            fullname = fullname + u" - [ " + ut.tString(30195) + u" " +\
+               disknumber + u" ]"
+        else:
+            fullname = fullname + " - [ " + ut.tString(30195) + " " + disknumber + " ]"
     return fullname
 
 def getRating(node):
