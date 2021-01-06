@@ -433,3 +433,23 @@ msgstr ""
 msgctxt "#30195"
 msgid "Disk"
 msgstr ""
+
+msgctxt "#30197"
+msgid "Information"
+msgstr ""
+
+msgctxt "#30198"
+msgid "Error"
+msgstr ""
+
+msgctxt "#30202"
+msgid "Connection Error"
+msgstr ""
+
+msgctxt "#30203"
+msgid "Connection OK"
+msgstr ""
+
+msgctxt "#30204"
+msgid "Permission error. If you are using Nextcloud don't check api_key box"
+msgstr ""

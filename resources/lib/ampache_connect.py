@@ -6,13 +6,14 @@ from builtins import object
 import hashlib
 import ssl
 import socket
-import time, urllib.request, urllib.parse, urllib.error,urllib.request,urllib.error,urllib.parse
+import time
+import urllib.request, urllib.parse, urllib.error
 import xbmc, xbmcaddon
 import sys
 import xml.etree.ElementTree as ET
 
 from resources.lib import json_storage
-from resources.lib import utils
+from resources.lib import utils as ut
 
 class AmpacheConnect(object):
     
@@ -67,7 +68,7 @@ class AmpacheConnect(object):
         ssl_certs_str = self._ampache.getSetting("disable_ssl_certs")
         try:
             req = urllib.request.Request(url)
-            if utils.strBool_to_bool(ssl_certs_str):
+            if ut.strBool_to_bool(ssl_certs_str):
                 gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
                 response = urllib.request.urlopen(req, context=gcontext, timeout=400)
                 xbmc.log("AmpachePlugin::handle_request: ssl",xbmc.LOGDEBUG)
@@ -75,15 +76,17 @@ class AmpacheConnect(object):
                 response = urllib.request.urlopen(req, timeout=400)
                 xbmc.log("AmpachePlugin::handle_request: nossl",xbmc.LOGDEBUG)
         except urllib.error.HTTPError as e:
-            xbmc.log("AmpachePlugin::handle_request: HTTPError, reason " + e.reason ,xbmc.LOGDEBUG)
+            xbmc.log("AmpachePlugin::handle_request: HTTPError " +\
+                    repr(e),xbmc.LOGDEBUG)
             xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
         except urllib.error.URLError as e:
-            xbmc.log("AmpachePlugin::handle_request: URLError, reason " + e.reason,xbmc.LOGDEBUG)
+            xbmc.log("AmpachePlugin::handle_request: URLError " +\
+                    repr(e),xbmc.LOGDEBUG)
             xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
         except Exception  as e:
-            xbmc.log("AmpachePlugin::handle_request: ConnectionError "  +\
+            xbmc.log("AmpachePlugin::handle_request: Generic Error "  +\
                     repr(e),xbmc.LOGDEBUG)
             xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
@@ -92,12 +95,13 @@ class AmpacheConnect(object):
         response.close()
         return headers,contents
 
-    def AMPACHECONNECT(self):
+    def AMPACHECONNECT(self,showok=False):
+        amp_notif = ""
         version = 350001
         socket.setdefaulttimeout(3600)
         nTime = int(time.time())
         use_api_key = self._connectionData["use_api_key"]
-        if utils.strBool_to_bool(use_api_key):
+        if ut.strBool_to_bool(use_api_key):
             xbmc.log("AmpachePlugin::AMPACHECONNECT api_key",xbmc.LOGDEBUG)
             myURL = self.get_auth_key_login_url()
         else: 
@@ -107,8 +111,15 @@ class AmpacheConnect(object):
             headers,contents = self.handle_request(myURL)
         except self.ConnectionError:
             xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
-            xbmc.executebuiltin("Notification(Error,Connection error)")
+            amp_notif = "Notification(" + ut.tString(30198)  +  "," +\
+                    ut.tString(30202)   + ")"
+            print(amp_notif)
+            #connection error
+            xbmc.executebuiltin(amp_notif)
             raise self.ConnectionError
+        except Exception  as e:
+            xbmc.log("AmpachePlugin::AMPACHECONNECT: Generic Error "  +\
+                    repr(e),xbmc.LOGDEBUG)
         xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
         try:
             xbmc.log("AmpachePlugin::AMPACHECONNECT: contents " +\
@@ -122,12 +133,26 @@ class AmpacheConnect(object):
             errornode = tree.find("error")
             if errornode.attrib["code"]=="401":
                 if "time" in errormess:
-                    xbmc.executebuiltin("Notification(Error,If you are using Nextcloud don't check api_key box)")
+                    amp_notif = "Notification(" + ut.tString(30198)   +\
+                            "," + ut.tString(30204) + ")"
+                    #permission error, check password or api_key
+                    xbmc.executebuiltin(amp_notif)
                 else:
-                    xbmc.executebuiltin("Notification(Error,Connection error)")
+                    amp_notif = "Notification(" + ut.tString(30198)   +\
+                            "," + ut.tString(30202)  + ")"
+                    #connection error
+                    xbmc.executebuiltin(amp_notif)
             raise self.ConnectionError
             return
-        #xbmc.executebuiltin("Notification(Information,Connection Ok)")
+        if showok:
+                #use it only if notification of connection is necessary, like
+                #switch server, display connection ok and the name of the
+                #current server
+                amp_notif = "Notification(" + ut.tString(30197)   +\
+                        "," + ut.tString(30203) + "\n" + ut.tString(30181) +\
+                        " : " + self._connectionData["name"] + ")"
+                #connection ok
+                xbmc.executebuiltin(amp_notif)
         token = tree.findtext('auth')
         version = tree.findtext('api')
         if not version:
@@ -192,7 +217,7 @@ class AmpacheConnect(object):
         return tree
     
     def build_ampache_url(self,action):
-        if utils.check_tokenexp():
+        if ut.check_tokenexp():
             xbmc.log("refreshing token...", xbmc.LOGDEBUG )
             try:
                 self.AMPACHECONNECT()

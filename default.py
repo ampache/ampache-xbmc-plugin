@@ -144,7 +144,7 @@ def fillListItemWithSongInfo(liz,node):
         album_id = int(album_elem.attrib["id"])
         albumArt = art.get_art(album_id,"album",node)
     except:
-        albumArt = art.get_art(None,"album")
+        albumArt = art.get_art(None,"album",node)
     liz.setLabel(str(node.findtext("title")))
     liz.setArt( art.get_artLabels(albumArt) )
     #needed by play_track to play the song, added here to uniform api

@@ -90,7 +90,7 @@ def switchServer():
     #if we switch, reconnect
     try:
         ampacheConnect = ampache_connect.AmpacheConnect()
-        ampacheConnect.AMPACHECONNECT()
+        ampacheConnect.AMPACHECONNECT(showok=True)
     except:
         pass
 
