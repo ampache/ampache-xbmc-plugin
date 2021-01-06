@@ -70,7 +70,8 @@ def get_album_artist_name(node):
         fullname = node.findtext("name")
         fullname += " - "
         fullname += node.findtext("artist")
-    if disknumber != "1" and disknumber !="0":
+    #disknumber = "None" when disk number is not sent
+    if disknumber!="None" and disknumber != "1" and disknumber !="0":
         fullname = fullname + " - [ " + ut.tString(30195) + " " + disknumber + " ]"
     return fullname
 
