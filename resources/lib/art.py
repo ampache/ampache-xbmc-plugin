@@ -55,7 +55,7 @@ def cacheArt(imageID,elem_type,url=None):
                 maintype, subtype = mimetype.split("/")
             except ValueError:
                 xbmc.log("AmpachePlugin::CacheArt: content-type not standard " +\
-                        maintype,xbmc.LOGDEBUG)
+                        mimetype,xbmc.LOGDEBUG)
         if maintype == 'image':
             if subtype == "jpeg":
                 fname = str(imageID) + ".jpg"
