@@ -82,6 +82,7 @@ def get_album_artist_name(node):
 def getRating(node):
     rating = node.findtext("rating")
     if rating:
+        #converts from five stats ampache rating to ten stars kodi rating
         rating = int(float(rating)*2)
     else:
         rating = 0
@@ -123,6 +124,8 @@ def get_infolabels(object_type , node):
 
     return infoLabels
 
+#this function is used to speed up the loading of the images using differents
+#theads, one for request
 def precacheArt(elem,object_type):
     elem_type = ut.otype_to_type(object_type)
     if elem_type != "album" or elem_type != "song":
@@ -276,7 +279,8 @@ def addSongLinks(elem):
     #@xbmc.log("AmpachePlugin::addSongLinks " + str(ok), xbmc.LOGDEBUG)
     return ok
 
-# The function that actually plays an Ampache URL by using setResolvedUrl. 
+#The function that actually plays an Ampache URL by using setResolvedUrl ( via
+#AmpachePlayer class
 def play_track(object_id,song_url):
     if song_url == None or object_id == None:
         xbmc.log("AmpachePlugin::play_track object or song null", xbmc.LOGNOTICE )
@@ -284,7 +288,7 @@ def play_track(object_id,song_url):
 
     old_object_id = None
 
-    #check if we need the song infolabels ( object_id cached is different from
+    #it checks if we need the song infolabels ( object_id cached is different from
     #object_id of the song, for instance as kore app call the song
     try:
             plugin_url = xbmc.getInfoLabel('ListItem.FileNameAndPath')
@@ -309,7 +313,6 @@ def play_track(object_id,song_url):
         pass
 
     liz.setPath(song_url)
-    #rating = xbmc.getInfoLabel('ListItem.UserRating')
     AmpachePlayer = player.AmpachePlayer()
     AmpachePlayer.play( int(sys.argv[1]) , liz )
     #xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
@@ -333,8 +336,7 @@ def addDir(name,object_id,mode,offset=None):
     #xbmc.log("AmpachePlugin::addDir ok " + str(ok), xbmc.LOGDEBUG)
     return ok
 
-#catch all function to add items to the directory using the low level addDir
-#or addSongLinks functions
+#this function add items to the directory using the low level addLinks of ddSongLinks functions
 def addItem( object_type, mode , elem, useCacheArt=True):
     image = "DefaultFolder.png"
     xbmc.log("AmpachePlugin::addItem: object_type - " + str(object_type) , xbmc.LOGDEBUG )
@@ -368,6 +370,8 @@ def get_all(object_type,offset=None):
     else:
         return None
 
+#this functions handles the majority of the requests to the server
+#so, we have a lot of optional params
 def get_items(object_type, object_id=None, add=None,\
         thisFilter=None,limit=5000,useCacheArt=True, object_subtype=None,\
         exact=None, offset=None ):
@@ -375,7 +379,7 @@ def get_items(object_type, object_id=None, add=None,\
     if object_type:
         xbmc.log("AmpachePlugin::get_items: object_type " + object_type, xbmc.LOGDEBUG)
     else:
-        #should be not possible
+        #it should be not possible
         xbmc.log("AmpachePlugin::get_items: object_type set to None" , xbmc.LOGDEBUG)
         return
 
@@ -438,6 +442,18 @@ def get_items(object_type, object_id=None, add=None,\
         elif object_subtype == 'tag_songs':
             mode = 21
 
+    #here the documentation for an ampache connection
+    #first create the connection object
+    #second choose the api function to call in action variable
+    #third add params using public AmpacheConnect attributes
+    #( i know, it is ugly, but python doesnt' support structs, so..., if
+    #someone has a better idea, i'm open to change )
+    #if the params are not set, they simply are not added to the url
+    #forth call ampache_http_request if the server return an xml file
+    #or ampache_binary_request if the server return a binary file (eg. an
+    #image )
+    #it could be very simply to add json api, but we have to rewrite all
+    #function that rely on xml input, like additem
   
     try:
         ampConn = ampache_connect.AmpacheConnect()
@@ -482,6 +498,7 @@ def setRating():
         rating = "0"
 
     xbmc.log("AmpachePlugin::setRating, user Rating " + rating , xbmc.LOGDEBUG)
+    #converts from five stats ampache rating to ten stars kodi rating
     amp_rating = math.ceil(int(rating)/2.0)
 
     ampConn = ampache_connect.AmpacheConnect()
@@ -727,7 +744,9 @@ def Main():
     ampacheConnect = ampache_connect.AmpacheConnect()
 
     #check if the connection is expired
-    #initialisation
+    #connect to the server
+    #do not connect on main screen and when we operate setting; 
+    #do not block the main screen in case the connection to a server it is not available and we kwow it
     if mode!=None and mode < endDirectoryMode:
         if ut.check_tokenexp():
             try:
@@ -752,7 +771,6 @@ def Main():
         
     #artist mode ( called from search screen ( mode 4 ), recent ( mode 5 )  )
     #and others
-
     elif mode==1:
         #artist, album, songs, playlist follow the same structure
         #search function
@@ -799,7 +817,7 @@ def Main():
             get_items(object_type="albums",object_id=object_id,object_subtype="artist_albums")
 
     #song mode ( called from search screen ( mode 4 ) and recent ( mode 5 )  )
-            
+    #and others
     elif mode == 3:
         num_items = (int(ampache.getSetting("random_items"))*3)+3
         if object_id == None:
@@ -840,7 +858,6 @@ def Main():
 
     #screen with recent time possibilities ( subscreen of recent artists,
     #recent albums, recent songs ) ( called from mode 5 )
-
     elif mode==6:
         #not clean, but i don't want to change too much the old code
         if object_id > 9999995:
