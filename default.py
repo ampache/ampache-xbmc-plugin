@@ -601,7 +601,7 @@ def get_random(object_type):
             except:
                 pass
    
-if (__name__ == '__main__'):
+def Main():
 
     name=None
     mode=None
@@ -609,6 +609,7 @@ if (__name__ == '__main__'):
     title=None
     song_url=None
     offset=None
+    endDirectoryMode = 40
 
     handle = int(sys.argv[1])
     plugin_url=sys.argv[2]
@@ -653,7 +654,7 @@ if (__name__ == '__main__'):
 
     #check if the connection is expired
     #initialisation
-    if mode==None:
+    if mode!=None and mode < endDirectoryMode:
         if ut.check_tokenexp():
             try:
                 ampacheConnect.AMPACHECONNECT()
@@ -1035,6 +1036,10 @@ if (__name__ == '__main__'):
     elif mode==47:
         setRating()
 
-    if mode == None or mode < 40:
+    if mode == None or mode < endDirectoryMode:
         xbmc.log("AmpachePlugin::endOfDirectory " + str(handle),  xbmc.LOGDEBUG)
         xbmcplugin.endOfDirectory(handle)
+
+
+if (__name__ == '__main__'):
+    Main()
