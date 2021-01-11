@@ -141,7 +141,7 @@ def precacheArt(elem,object_type):
         x.start()
     x.join()
 
-#handle albumArt and song info
+#it handles albumArt and song info
 def fillListItemWithSongInfo(liz,node):
     object_id = int(node.attrib["id"])
     try:
@@ -225,8 +225,8 @@ def addLinks(elem,object_type,useCacheArt,mode):
     #xbmc.log("AmpachePlugin::addItems: ok - " + str(ok), xbmc.LOGDEBUG )
     return ok
 
-# Used to populate items for songs on XBMC. Calls plugin script with mode == 9 and object_id == (ampache song id)
-# TODO: Merge with addDir(). Same basic idea going on, this one adds links all at once, that one does it one at a time
+# Used to populate items for songs on XBMC. Calls plugin script with mode == 45 and object_id == (ampache song id)
+# TODO: Merge with addLinks(). Same basic idea going on, this one adds links  all at once, as the other one
 #       Also, some property things, some different context menu things.
 def addSongLinks(elem):
    
@@ -314,7 +314,7 @@ def play_track(object_id,song_url):
     AmpachePlayer.play( int(sys.argv[1]) , liz )
     #xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
 
-# Main function for adding xbmc plugin elements
+#Main function to add xbmc plugin elements
 def addDir(name,object_id,mode,offset=None):
     infoLabels={ "Title": name }
     
@@ -358,6 +358,7 @@ def get_all(object_type,offset=None):
     #to not overload servers
     step = 100
     newLimit = offset+step
+    #load images in long list
     if (ut.strBool_to_bool(ampache.getSetting("images-long-list"))):
         get_items(object_type, limit=step, offset=offset)
     else:
@@ -492,8 +493,15 @@ def setRating():
 
     elem = ampConn.ampache_http_request(action)
 
-
 def do_search(object_type,object_subtype=None,thisFilter=None):
+    """
+    do_search(object_type,object_subtype=None,thisFilter=None) -> boolean
+    requires:
+    object_type : ( albums, songs... )
+    object_subtype :  ( search song, tag artists )
+    filter : the test to search
+    return true or false, used to check if call endDirectoryItem or not
+    """
     if not thisFilter:
         thisFilter = gui.getFilterFromUser()
     if thisFilter:
@@ -601,9 +609,15 @@ def get_random(object_type):
             except:
                 pass
 
-def checkCloseBusyDialog(addon_url, mode, object_id=None, title=None):
+def checkCloseMusicPlaylist(addon_url, mode, object_id=None, title=None):
+    """
+    this function checks if musicplaylist window is active and switchs to the music window
+    If this is not done, the behaviour of the windows becames problematic in the case 
+    of a search for album by current song and other functions
+    """
     if xbmc.getCondVisibility("Window.IsActive(musicplaylist)"):
-    #close busydialog to activate music window
+        #close busydialog to activate music window
+        #remove the line below once the busydialog bug is correct
         xbmc.executebuiltin('Dialog.Close(busydialog)')
         xbmc.executebuiltin("ActivateWindow(music)")
         if object_id:
@@ -615,12 +629,22 @@ def checkCloseBusyDialog(addon_url, mode, object_id=None, title=None):
 
 
 def main_params(plugin_url):
+    """
+    main_params(plugin_url) -> associative array
+    this function extracts the params from plugin url
+    and put the in an associative array
+    not all params are present in url so we need to handle it with exceptions
+    """
     m_params={}
+    #currently unused
     m_params['name'] = None
     m_params['mode'] = None
     m_params['object_id'] = None
+    #currently unused
     m_params['title'] = None
+    #used only in play tracks
     m_params['song_url'] = None
+    #used to managed very long lists
     m_params['offset'] = None
 
     params=ut.get_params(plugin_url)
@@ -663,6 +687,8 @@ def manage_get_all(object_type, mode ,offset):
     if new_offset:
         addDir(ut.tString(30194),None,mode,new_offset)
 
+#add new line in case of new stat function implemented, checking the version
+#in menus
 def manage_stats_menu(object_id, object_type, num_items):
     if object_id == 9999993:
         get_stats(object_type=object_type,object_subtype="highest",limit=num_items)
@@ -711,15 +737,21 @@ def Main():
 
     #start menu
     if mode==None:
+        #search
         addDir(ut.tString(30101),None,4)
+        #quick access
         addDir(ut.tString(30102),None,25)
+        #explore
         addDir(ut.tString(30103),None,23)
+        #library
         addDir(ut.tString(30104),None,24)
+        #switch server
         addDir(ut.tString(30023),None,44)
+        #settings
         addDir(ut.tString(30105),None,40)
         
-    #   artist list ( called from main screen  ( mode None ) , search
-    #   screen ( mode 4 ) and recent ( mode 5 )  )
+    #artist mode ( called from search screen ( mode 4 ), recent ( mode 5 )  )
+    #and others
 
     elif mode==1:
         #artist, album, songs, playlist follow the same structure
@@ -737,14 +769,16 @@ def Main():
         elif object_id == 9999994:
             #removed cause nasty recursive call using some commands in web interface
             #addDir("Refresh..",9999994,2,os.path.join(imagepath,'refresh_icon.png'))
+            #get random is separated from stats to mantain compatibility with
+            #older ampache api
             get_random('artists')
         #object_id between 99..93 e 99..88 ( highest .. recent )
         elif object_id >= 9999988 and object_id <=9999993:
             manage_stats_menu(object_id, "artists", num_items)
-           
-    #   albums list ( called from main screen ( mode None ) , search
-    #   screen ( mode 4 ) and recent ( mode 5 )
-
+    
+    
+    #albums mode ( called from search screen ( mode 4 ) , recent ( mode 5 )
+    #and others
     elif mode==2:
         num_items = (int(ampache.getSetting("random_items"))*3)+3
         #get all albums
@@ -764,7 +798,7 @@ def Main():
         elif object_id:
             get_items(object_type="albums",object_id=object_id,object_subtype="artist_albums")
 
-    #   song mode ( called from search screen ( mode 4 ) and recent ( mode 5 )  )
+    #song mode ( called from search screen ( mode 4 ) and recent ( mode 5 )  )
             
     elif mode == 3:
         num_items = (int(ampache.getSetting("random_items"))*3)+3
@@ -784,8 +818,7 @@ def Main():
         else:
             get_items(object_type="songs",object_id=object_id,object_subtype="album_songs")
 
-    # search screen ( called from main screen )
-
+    #search mode
     elif mode==4:
         if not (ut.strBool_to_bool(ampache.getSetting("old-search-gui"))):
             endDir = searchGui()
@@ -798,15 +831,15 @@ def Main():
             addDir(ut.tString(30125),9999999,18)
 
 
-    # recently additions screen ( called from main screen )
+    # recently added screen
     elif mode==5:
         addDir(ut.tString(30126),9999998,6)
         addDir(ut.tString(30127),9999997,6)
         addDir(ut.tString(30128),9999996,6)
         addDir(ut.tString(30129),9999995,6)
 
-    #   screen with recent time possibilities ( subscreen of recent artists,
-    #   recent albums, recent songs ) ( called from mode 5 )
+    #screen with recent time possibilities ( subscreen of recent artists,
+    #recent albums, recent songs ) ( called from mode 5 )
 
     elif mode==6:
         #not clean, but i don't want to change too much the old code
@@ -822,20 +855,12 @@ def Main():
         addDir(ut.tString(30132),9999996,mode_new)
         addDir(ut.tString(30133),9999995,mode_new)
 
-    # general random mode screen ( called from main screen )
-
+    #general random mode screen
     elif mode==7:
         addDir(ut.tString(30134),9999994,1)
         addDir(ut.tString(30135),9999994,2)
         addDir(ut.tString(30136),9999994,3)
         addDir(ut.tString(30137),9999994,13)
-
-    #old mode 
-    #
-    #random mode screen ( display artists, albums or songs ) ( called from mode
-    #   7  )
-    #elif mode==8:
-    #end old mode
 
     # mode 11 : search all
     elif mode==11:
@@ -845,8 +870,7 @@ def Main():
     elif mode==12:
         get_items(object_type="songs",object_id=object_id,object_subtype="artist_songs" )
 
-    #   playlist full list ( called from main screen )
-
+    #playlist full list
     elif mode==13:
         if object_id == None:
             manage_get_all("playlists", mode ,m_params['offset'])
@@ -862,21 +886,20 @@ def Main():
         elif object_id:
             get_items(object_type="playlists",object_id=object_id)
 
-    #   playlist song mode
-
+    #playlist song mode
     elif mode==14:
         get_items(object_type="songs",object_id=object_id,object_subtype="playlist_songs")
 
     elif mode==15:
-        checkCloseBusyDialog(addon_url, mode, object_id=object_id )
+        checkCloseMusicPlaylist(addon_url, mode, object_id=object_id )
         get_items(object_type="artists",object_id=object_id,object_subtype="artist")
 
     elif mode==16:
-        checkCloseBusyDialog(addon_url, mode, object_id=object_id )
+        checkCloseMusicPlaylist(addon_url, mode, object_id=object_id )
         get_items(object_type="albums",object_id=object_id,object_subtype="album")
 
     elif mode==17:
-        checkCloseBusyDialog(addon_url, mode, title=title )
+        checkCloseMusicPlaylist(addon_url, mode, object_id=object_id )
         endDir = do_search("songs",thisFilter=title)
 
     #tags
@@ -977,10 +1000,12 @@ def Main():
         addDir(ut.tString(30190),9999988,1)
         addDir(ut.tString(30191),9999988,2)
         addDir(ut.tString(30192),9999988,3)
- 
+
+    #settings
     elif mode==40:
         ampache.openSettings()
 
+    #the four modes below are used to manage servers
     elif mode==41:
         if servers_manager.addServer():
             servers_manager.switchServer()
