@@ -658,6 +658,11 @@ def main_params(plugin_url):
 
     return m_params
 
+def manage_get_all(object_type, mode ,offset):
+    new_offset=get_all(object_type,offset)
+    if new_offset:
+        addDir(ut.tString(30194),None,mode,new_offset)
+
 def manage_stats_menu(object_id, object_type, num_items):
     if object_id == 9999993:
         get_stats(object_type=object_type,object_subtype="highest",limit=num_items)
@@ -722,9 +727,7 @@ def Main():
         num_items = (int(ampache.getSetting("random_items"))*3)+3
         #get all artists
         if object_id == None:
-            new_offset=get_all("artists",m_params['offset'])
-            if new_offset:
-                addDir(ut.tString(30194),None,1,new_offset)
+            manage_get_all("artists", mode ,m_params['offset'])
             #get_items("artists", limit=None, useCacheArt=False)
         elif object_id == 9999999:
             endDir = do_search("artists")
@@ -746,9 +749,7 @@ def Main():
         num_items = (int(ampache.getSetting("random_items"))*3)+3
         #get all albums
         if object_id == None:
-            new_offset=get_all("albums",m_params['offset'])
-            if new_offset:
-                addDir(ut.tString(30194),None,2,new_offset)
+            manage_get_all("albums", mode ,m_params['offset'])
             #get_items("albums", limit=None, useCacheArt=False)
         elif object_id == 9999999:
             endDir = do_search("albums")
@@ -848,9 +849,7 @@ def Main():
 
     elif mode==13:
         if object_id == None:
-            new_offset=get_all("playlists",m_params['offset'])
-            if new_offset:
-                addDir(ut.tString(30194),None,13,new_offset)
+            manage_get_all("playlists", mode ,m_params['offset'])
             #get_items(object_type="playlists")
         elif object_id == 9999999:
             endDir = do_search("playlists")
