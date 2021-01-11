@@ -677,6 +677,8 @@ def Main():
     mode=None
     object_id=None
     endDirectoryMode = 40
+    modeMax = 100
+    endDir = True
 
     addon_url = sys.argv[0]
     handle = int(sys.argv[1])
@@ -726,9 +728,6 @@ def Main():
             #get_items("artists", limit=None, useCacheArt=False)
         elif object_id == 9999999:
             endDir = do_search("artists")
-            if endDir == False:
-                #no end directory item
-                mode = 100
         #recent function
         elif object_id > 9999994 and object_id < 9999999:
             get_recent( "artists", object_id )
@@ -753,9 +752,6 @@ def Main():
             #get_items("albums", limit=None, useCacheArt=False)
         elif object_id == 9999999:
             endDir = do_search("albums")
-            if endDir == False:
-                #no end directory item
-                mode = 100
         elif object_id > 9999994 and object_id < 9999999:
             get_recent( "albums", object_id )
         elif object_id == 9999994:
@@ -778,9 +774,6 @@ def Main():
             get_recent( "songs", object_id )
         elif object_id == 9999999:
             endDir = do_search("songs")
-            if endDir == False:
-                #no end directory item
-                mode = 100
         elif object_id == 9999994:
             #removed cause nasty recursive call using some commands in web interface
             #addDir("Refresh..",9999994,2,os.path.join(imagepath, 'refresh_icon.png'))
@@ -795,9 +788,6 @@ def Main():
     elif mode==4:
         if not (ut.strBool_to_bool(ampache.getSetting("old-search-gui"))):
             endDir = searchGui()
-            if endDir == False:
-                #no end directory item
-                mode = 100
         else:
             addDir(ut.tString(30120),9999999,1)
             addDir(ut.tString(30121),9999999,2)
@@ -849,9 +839,6 @@ def Main():
     # mode 11 : search all
     elif mode==11:
         endDir = do_search("songs","search_songs")
-        if endDir == False:
-            #no end directory item
-            mode = 100
 
     # mode 12 : artist_songs
     elif mode==12:
@@ -867,9 +854,6 @@ def Main():
             #get_items(object_type="playlists")
         elif object_id == 9999999:
             endDir = do_search("playlists")
-            if endDir == False:
-                #no end directory item
-                mode = 100
         elif object_id > 9999994 and object_id < 9999999:
             get_recent( "playlists", object_id )
         elif object_id == 9999994:
@@ -895,9 +879,6 @@ def Main():
     elif mode==17:
         checkCloseBusyDialog(addon_url, mode, title=title )
         endDir = do_search("songs",thisFilter=title)
-        if endDir == False:
-            #no end directory item
-            mode = 100
 
     #tags
     elif mode==18:
@@ -908,9 +889,6 @@ def Main():
     elif mode==19:
         if object_id == 9999999:
             endDir = do_search("tags","tag_artists")
-            if endDir == False:
-                #no end directory item
-                mode = 100
         elif object_id:
             get_items(object_type="artists", object_subtype="tag_artists",object_id=object_id)
         else:
@@ -919,9 +897,6 @@ def Main():
     elif mode==20:
         if object_id == 9999999:
             endDir = do_search("tags","tag_albums")
-            if endDir == False:
-                #no end directory item
-                mode = 100
         elif object_id:
             get_items(object_type="albums", object_subtype="tag_albums",object_id=object_id)
         else:
@@ -930,9 +905,6 @@ def Main():
     elif mode==21:
         if object_id == 9999999:
             endDir = do_search("tags","tag_songs")
-            if endDir == False:
-                #no end directory item
-                mode = 100
         elif object_id:
             get_items(object_type="songs", object_subtype="tag_songs",object_id=object_id)
         else:
@@ -1034,6 +1006,11 @@ def Main():
     #change rating
     elif mode==47:
         setRating()
+
+    #no end directory item ( problem with failed searches )
+    #endDir is the result of the search function
+    if endDir == False:
+        mode = modeMax
 
     if mode == None or mode < endDirectoryMode:
         xbmc.log("AmpachePlugin::endOfDirectory " + str(handle),  xbmc.LOGDEBUG)
