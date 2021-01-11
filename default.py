@@ -600,6 +600,18 @@ def get_random(object_type):
                 addItem( object_type, mode , elem)
             except:
                 pass
+
+def checkCloseBusyDialog(addon_url, mode, object_id=None, title=None):
+    if xbmc.getCondVisibility("Window.IsActive(musicplaylist)"):
+    #close busydialog to activate music window
+        xbmc.executebuiltin('Dialog.Close(busydialog)')
+        xbmc.executebuiltin("ActivateWindow(music)")
+        if object_id:
+            xbmc.executebuiltin("Container.Update(%s?object_id=%s&mode=%s)" %\
+                    ( addon_url,object_id, mode ) )
+        elif title:
+            xbmc.executebuiltin("Container.Update(%s?title=%s&mode=%s)" %\
+                    ( addon_url,title, mode ) )
    
 def Main():
 
@@ -611,6 +623,7 @@ def Main():
     offset=None
     endDirectoryMode = 40
 
+    addon_url = sys.argv[0]
     handle = int(sys.argv[1])
     plugin_url=sys.argv[2]
 
@@ -873,28 +886,15 @@ def Main():
         get_items(object_type="songs",object_id=object_id,object_subtype="playlist_songs")
 
     elif mode==15:
-        if xbmc.getCondVisibility("Window.IsActive(musicplaylist)"):
-            #close busydialog to activate music window
-            xbmc.executebuiltin('Dialog.Close(busydialog)')
-            xbmc.executebuiltin("ActivateWindow(music)")
-            xbmc.executebuiltin("Container.Update(%s?object_id=%s&mode=15)" %\
-                    ( sys.argv[0],object_id ) )
+        checkCloseBusyDialog(addon_url, mode, object_id=object_id )
         get_items(object_type="artists",object_id=object_id,object_subtype="artist")
 
     elif mode==16:
-        if xbmc.getCondVisibility("Window.IsActive(musicplaylist)"):
-            xbmc.executebuiltin('Dialog.Close(busydialog)')
-            xbmc.executebuiltin("ActivateWindow(music)")
-            xbmc.executebuiltin("Container.Update(%s?object_id=%s&mode=16)" %\
-                    ( sys.argv[0],object_id ) )
+        checkCloseBusyDialog(addon_url, mode, object_id=object_id )
         get_items(object_type="albums",object_id=object_id,object_subtype="album")
 
     elif mode==17:
-        if xbmc.getCondVisibility("Window.IsActive(musicplaylist)"):
-            xbmc.executebuiltin('Dialog.Close(busydialog)')
-            xbmc.executebuiltin("ActivateWindow(music)")
-            xbmc.executebuiltin("Container.Update(%s?title=%s&mode=17)" %\
-                    ( sys.argv[0],title ) )
+        checkCloseBusyDialog(addon_url, mode, title=title )
         endDir = do_search("songs",thisFilter=title)
         if endDir == False:
             #no end directory item
