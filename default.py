@@ -612,54 +612,69 @@ def checkCloseBusyDialog(addon_url, mode, object_id=None, title=None):
         elif title:
             xbmc.executebuiltin("Container.Update(%s?title=%s&mode=%s)" %\
                     ( addon_url,title, mode ) )
-   
+
+
+def main_params(plugin_url):
+    m_params={}
+    m_params['name'] = None
+    m_params['mode'] = None
+    m_params['object_id'] = None
+    m_params['title'] = None
+    m_params['song_url'] = None
+    m_params['offset'] = None
+
+    params=ut.get_params(plugin_url)
+
+    try:
+            m_params['name']=urllib.parse.unquote_plus(params["name"])
+            xbmc.log("AmpachePlugin::name " + m_params['name'], xbmc.LOGDEBUG)
+    except:
+            pass
+    try:
+            m_params['mode']=int(params["mode"])
+            xbmc.log("AmpachePlugin::mode " + str(m_params['mode']), xbmc.LOGDEBUG)
+    except:
+            pass
+    try:
+            m_params['object_id']=int(params["object_id"])
+            xbmc.log("AmpachePlugin::object_id " + str(m_params['object_id']), xbmc.LOGDEBUG)
+    except:
+            pass
+    try:
+            m_params['title']=urllib.parse.unquote_plus(params["title"])
+            xbmc.log("AmpachePlugin::title " + m_params['title'], xbmc.LOGDEBUG)
+    except:
+            pass
+    try:
+            m_params['song_url']=urllib.parse.unquote_plus(params["song_url"])
+            xbmc.log("AmpachePlugin::song_url " + m_params['song_url'], xbmc.LOGDEBUG)
+    except:
+            pass
+    try:
+            m_params['offset']=int(params["offset"])
+            xbmc.log("AmpachePlugin::offset " + str(m_params['offset']), xbmc.LOGDEBUG)
+    except:
+            pass
+
+    return m_params
+
+
 def Main():
 
-    name=None
     mode=None
     object_id=None
-    title=None
-    song_url=None
-    offset=None
     endDirectoryMode = 40
 
     addon_url = sys.argv[0]
     handle = int(sys.argv[1])
     plugin_url=sys.argv[2]
 
-    params=ut.get_params(plugin_url)
     xbmc.log("AmpachePlugin::init handle: " + str(handle) + " url: " + plugin_url, xbmc.LOGDEBUG)
 
-    try:
-            name=urllib.parse.unquote_plus(params["name"])
-            xbmc.log("AmpachePlugin::name " + name, xbmc.LOGDEBUG)
-    except:
-            pass
-    try:
-            mode=int(params["mode"])
-            xbmc.log("AmpachePlugin::mode " + str(mode), xbmc.LOGDEBUG)
-    except:
-            pass
-    try:
-            object_id=int(params["object_id"])
-            xbmc.log("AmpachePlugin::object_id " + str(object_id), xbmc.LOGDEBUG)
-    except:
-            pass
-    try:
-            title=urllib.parse.unquote_plus(params["title"])
-            xbmc.log("AmpachePlugin::title " + title, xbmc.LOGDEBUG)
-    except:
-            pass
-    try:
-            song_url=urllib.parse.unquote_plus(params["song_url"])
-            xbmc.log("AmpachePlugin::song_url " + song_url, xbmc.LOGDEBUG)
-    except:
-            pass
-    try:
-            offset=int(params["offset"])
-            xbmc.log("AmpachePlugin::offset " + str(offset), xbmc.LOGDEBUG)
-    except:
-            pass
+    m_params=main_params(plugin_url)
+    #faster to change variable
+    mode = m_params['mode']
+    object_id = m_params['object_id']
 
     servers_manager.initializeServer()
     
@@ -692,7 +707,7 @@ def Main():
         num_items = (int(ampache.getSetting("random_items"))*3)+3
         #get all artists
         if object_id == None:
-            new_offset=get_all("artists",offset)
+            new_offset=get_all("artists",m_params['offset'])
             if new_offset:
                 addDir(ut.tString(30194),None,1,new_offset)
             #get_items("artists", limit=None, useCacheArt=False)
@@ -728,7 +743,7 @@ def Main():
         num_items = (int(ampache.getSetting("random_items"))*3)+3
         #get all albums
         if object_id == None:
-            new_offset=get_all("albums",offset)
+            new_offset=get_all("albums",m_params['offset'])
             if new_offset:
                 addDir(ut.tString(30194),None,2,new_offset)
             #get_items("albums", limit=None, useCacheArt=False)
@@ -862,7 +877,7 @@ def Main():
 
     elif mode==13:
         if object_id == None:
-            new_offset=get_all("playlists",offset)
+            new_offset=get_all("playlists",m_params['offset'])
             if new_offset:
                 addDir(ut.tString(30194),None,13,new_offset)
             #get_items(object_type="playlists")
@@ -1030,7 +1045,7 @@ def Main():
     elif mode==45:
         #workaround busydialog bug
         xbmc.executebuiltin('Dialog.Close(busydialog)')
-        play_track(object_id, song_url)
+        play_track(object_id, m_params['song_url'])
 
     #change rating
     elif mode==47:
