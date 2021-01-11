@@ -658,6 +658,19 @@ def main_params(plugin_url):
 
     return m_params
 
+def manage_stats_menu(object_id, object_type, num_items):
+    if object_id == 9999993:
+        get_stats(object_type=object_type,object_subtype="highest",limit=num_items)
+    elif object_id == 9999992:
+        get_stats(object_type=object_type,object_subtype="frequent",limit=num_items)
+    elif object_id == 9999991:
+        get_stats(object_type=object_type,object_subtype="flagged",limit=num_items)
+    elif object_id == 9999990:
+        get_stats(object_type=object_type,object_subtype="forgotten",limit=num_items)
+    elif object_id == 9999989:
+        get_stats(object_type=object_type,object_subtype="newest",limit=num_items)
+    elif object_id == 9999988:
+        get_stats(object_type=object_type,object_subtype="recent",limit=num_items)
 
 def Main():
 
@@ -723,18 +736,9 @@ def Main():
             #removed cause nasty recursive call using some commands in web interface
             #addDir("Refresh..",9999994,2,os.path.join(imagepath,'refresh_icon.png'))
             get_random('artists')
-        elif object_id == 9999993:
-            get_stats(object_type="artists",object_subtype="highest",limit=num_items)
-        elif object_id == 9999992:
-            get_stats(object_type="artists",object_subtype="frequent",limit=num_items)
-        elif object_id == 9999991:
-            get_stats(object_type="artists",object_subtype="flagged",limit=num_items)
-        elif object_id == 9999990:
-            get_stats(object_type="artists",object_subtype="forgotten",limit=num_items)
-        elif object_id == 9999989:
-            get_stats(object_type="artists",object_subtype="newest",limit=num_items)
-        elif object_id == 9999988:
-            get_stats(object_type="artists",object_subtype="recent",limit=num_items)
+        #object_id between 99..93 e 99..88 ( highest .. recent )
+        elif object_id >= 9999988 and object_id <=9999993:
+            manage_stats_menu(object_id, "artists", num_items)
            
     #   albums list ( called from main screen ( mode None ) , search
     #   screen ( mode 4 ) and recent ( mode 5 )
@@ -758,18 +762,8 @@ def Main():
             #removed cause nasty recursive call using some commands in web interface
             #addDir("Refresh..",9999990,2,os.path.join(imagepath, 'refresh_icon.png'))
             get_random('albums')
-        elif object_id == 9999993:
-            get_stats(object_type="albums",object_subtype="highest",limit=num_items)
-        elif object_id == 9999992:
-            get_stats(object_type="albums",object_subtype="frequent",limit=num_items)
-        elif object_id == 9999991:
-            get_stats(object_type="albums",object_subtype="flagged",limit=num_items)
-        elif object_id == 9999990:
-            get_stats(object_type="albums",object_subtype="forgotten",limit=num_items)
-        elif object_id == 9999989:
-            get_stats(object_type="albums",object_subtype="newest",limit=num_items)
-        elif object_id == 9999988:
-            get_stats(object_type="albums",object_subtype="recent",limit=num_items)
+        elif object_id >= 9999988 and object_id <=9999993:
+            manage_stats_menu(object_id, "albums", num_items)
         elif object_id:
             get_items(object_type="albums",object_id=object_id,object_subtype="artist_albums")
 
@@ -791,18 +785,8 @@ def Main():
             #removed cause nasty recursive call using some commands in web interface
             #addDir("Refresh..",9999994,2,os.path.join(imagepath, 'refresh_icon.png'))
             get_random('songs')
-        elif object_id == 9999993:
-            get_stats(object_type="songs",object_subtype="highest",limit=num_items)
-        elif object_id == 9999992:
-            get_stats(object_type="songs",object_subtype="frequent",limit=num_items)
-        elif object_id == 9999991:
-            get_stats(object_type="songs",object_subtype="flagged",limit=num_items)
-        elif object_id == 9999990:
-            get_stats(object_type="songs",object_subtype="forgotten",limit=num_items)
-        elif object_id == 9999989:
-            get_stats(object_type="songs",object_subtype="newest",limit=num_items)
-        elif object_id == 9999988:
-            get_stats(object_type="songs",object_subtype="recent",limit=num_items)
+        elif object_id >= 9999988 and object_id <=9999993:
+            manage_stats_menu(object_id, "songs", num_items)
         else:
             get_items(object_type="songs",object_id=object_id,object_subtype="album_songs")
 
