@@ -140,19 +140,32 @@ def precacheArt(elem,object_type):
                 object_id = None
         else:
             object_id = int(node.attrib["id"])
-        x = threading.Thread(target=art.get_art,args=(object_id,art_type,node,))
+        image_url = check_get_art_url(node)
+        x = threading.Thread(target=art.get_art,args=(object_id,art_type,image_url,))
         x.start()
     x.join()
+
+def check_get_art_url(node):
+    url = None
+    if(int(ampache.getSetting("api-version"))) < 400001:
+        url = node.findtext("art")
+    return url
+
+def getSuperId(node,elem_type):
+    obj_elem = node.find(elem_type)
+    obj_id = int(obj_elem.attrib["id"])
+    return obj_id
+
 
 #it handles albumArt and song info
 def fillListItemWithSongInfo(liz,node):
     object_id = int(node.attrib["id"])
+    image_url = check_get_art_url(node)
     try:
-        album_elem = node.find("album")
-        album_id = int(album_elem.attrib["id"])
-        albumArt = art.get_art(album_id,"album",node)
+        album_id = getSuperId(node,"album")
+        albumArt = art.get_art(album_id,"album",image_url)
     except:
-        albumArt = art.get_art(None,"album",node)
+        albumArt = art.get_art(None,"album",image_url)
     liz.setLabel(str(node.findtext("title")))
     liz.setArt( art.get_artLabels(albumArt) )
     #needed by play_track to play the song, added here to uniform api
@@ -186,15 +199,15 @@ def addLinks(elem,object_type,useCacheArt,mode):
                 else:
                     continue
                 try:
-                    artist_elem = node.find("artist")
-                    artist_id = int(artist_elem.attrib["id"])
+                    artist_id = getSuperId(node,"artist")
                     cm.append( ( ut.tString(30141), "Container.Update(%s?object_id=%s&mode=2)" % ( sys.argv[0],artist_id ) ) )
                 except:
                     pass
 
                 name = get_album_artist_name(node)
                 if useCacheArt:
-                    image = art.get_art(object_id,elem_type,node)
+                    image_url = check_get_art_url(node)
+                    image = art.get_art(object_id,elem_type,image_url)
             except:
                 xbmc.log("AmpachePlugin::addLinks: album_id error", xbmc.LOGDEBUG)
         else:
@@ -243,8 +256,7 @@ def addSongLinks(elem):
 
         cm = []
         try:
-            artist_elem = node.find("artist")
-            artist_id = artist_elem.attrib["id"]
+            artist_id = getSuperId(node,"artist")
             cm.append( ( ut.tString(30138),
             "Container.Update(%s?object_id=%s&mode=15)" % (
                 sys.argv[0],artist_id ) ) )
@@ -252,8 +264,7 @@ def addSongLinks(elem):
             pass
         
         try:
-            album_elem = node.find("album")
-            album_id = album_elem.attrib["id"]
+            album_id = getSuperId(node,"album")
             cm.append( ( ut.tString(30139),
             "Container.Update(%s?object_id=%s&mode=16)" % (
                 sys.argv[0],album_id ) ) )
@@ -653,11 +664,8 @@ def main_params(plugin_url):
     not all params are present in url so we need to handle it with exceptions
     """
     m_params={}
-    #currently unused
-    m_params['name'] = None
     m_params['mode'] = None
     m_params['object_id'] = None
-    #currently unused
     m_params['title'] = None
     #used only in play tracks
     m_params['song_url'] = None
@@ -666,11 +674,6 @@ def main_params(plugin_url):
 
     params=ut.get_params(plugin_url)
 
-    try:
-            m_params['name']=urllib.parse.unquote_plus(params["name"])
-            xbmc.log("AmpachePlugin::name " + m_params['name'], xbmc.LOGDEBUG)
-    except:
-            pass
     try:
             m_params['mode']=int(params["mode"])
             xbmc.log("AmpachePlugin::mode " + str(m_params['mode']), xbmc.LOGDEBUG)
@@ -917,7 +920,7 @@ def Main():
 
     elif mode==17:
         checkCloseMusicPlaylist(addon_url, mode, object_id=object_id )
-        endDir = do_search("songs",thisFilter=title)
+        endDir = do_search("songs",thisFilter=m_params['title'])
 
     #tags
     elif mode==18:

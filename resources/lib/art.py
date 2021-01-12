@@ -82,11 +82,9 @@ def get_artLabels(albumArt):
             }
     return art_labels
 
-def get_art(object_id,elem_type,node=None):
+#get_art, url is used for legacy purposes
+def get_art(object_id,elem_type,url=None):
     try:
-        url = None
-        if(int(ampache.getSetting("api-version"))) < 400001:
-            url = node.findtext("art")
         albumArt = cacheArt(object_id,elem_type,url)
     except NameError:
         albumArt = "DefaultFolder.png"
