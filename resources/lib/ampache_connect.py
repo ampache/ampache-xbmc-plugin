@@ -50,7 +50,7 @@ class AmpacheConnect(object):
         hasher.update(sdf)
         myKey = hasher.hexdigest()
         hasher = hashlib.new('sha256')
-        timeK = myTimeStamp + myKey
+        timeK = timeStamp + myKey
         timeK = timeK.encode()
         hasher.update(timeK)
         passwordHash = hasher.hexdigest()
