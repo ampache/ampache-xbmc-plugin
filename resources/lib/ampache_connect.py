@@ -58,14 +58,14 @@ class AmpacheConnect(object):
 
     def get_user_pwd_login_url(self,nTime):
         myTimeStamp = str(nTime)
-        myPassphrase = getHashedPassword(myTimeStamp)
-        myURL = self._connectionData["url"] + getBaseUrl() + '?action=handshake&auth='
+        myPassphrase = self.getHashedPassword(myTimeStamp)
+        myURL = self._connectionData["url"] + self.getBaseUrl() + '?action=handshake&auth='
         myURL += myPassphrase + "&timestamp=" + myTimeStamp
         myURL += '&version=' + self._ampache.getSetting("api-version") + '&user=' + self._connectionData["username"]
         return myURL
 
     def get_auth_key_login_url(self):
-        myURL = self._connectionData["url"] +  getBaseUrl() + '?action=handshake&auth='
+        myURL = self._connectionData["url"] +  self.getBaseUrl() + '?action=handshake&auth='
         myURL += self._connectionData["api_key"]
         myURL += '&version=' + self._ampache.getSetting("api-version")
         return myURL
@@ -230,7 +230,7 @@ class AmpacheConnect(object):
             except:
                 return
         token = self._ampache.getSetting("token")
-        thisURL = self._connectionData["url"] +  getBaseUrl() + '?action=' + action
+        thisURL = self._connectionData["url"] +  self.getBaseUrl() + '?action=' + action
         thisURL += '&auth=' + token
         if self.limit:
             thisURL += '&limit=' +str(self.limit)
