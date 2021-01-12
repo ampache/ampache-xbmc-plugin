@@ -79,18 +79,18 @@ def get_album_artist_name(node):
             fullname = fullname + " - [ " + ut.tString(30195) + " " + disknumber + " ]"
     return fullname
 
-def getRating(node):
-    rating = node.findtext("rating")
+def getRating(rating):
     if rating:
         #converts from five stats ampache rating to ten stars kodi rating
         rating = int(float(rating)*2)
     else:
+        #zero equals no rating
         rating = 0
     return rating
 
 def get_infolabels(object_type , node):
     infoLabels = None
-    rating = getRating(node)
+    rating = getRating(node.findtext("rating"))
     if object_type == 'albums':
         infoLabels = {
             'Title' : str(node.findtext("name")) ,

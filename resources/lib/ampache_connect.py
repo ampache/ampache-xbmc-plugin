@@ -35,9 +35,11 @@ class AmpacheConnect(object):
         self.mode=None
         self.id=None
         self.rating=None
-  
-    def get_user_pwd_login_url(self,nTime):
-        myTimeStamp = str(nTime)
+
+    def getBaseUrl(self):
+        return '/server/xml.server.php'
+
+    def getHashedPassword(self,timeStamp):
         enablePass = self._connectionData["enable_password"]
         if enablePass:
             sdf = self._connectionData["password"]
@@ -51,14 +53,19 @@ class AmpacheConnect(object):
         timeK = myTimeStamp + myKey
         timeK = timeK.encode()
         hasher.update(timeK)
-        myPassphrase = hasher.hexdigest()
-        myURL = self._connectionData["url"] + '/server/xml.server.php?action=handshake&auth='
+        passwordHash = hasher.hexdigest()
+        return passwordHash
+
+    def get_user_pwd_login_url(self,nTime):
+        myTimeStamp = str(nTime)
+        myPassphrase = getHashedPassword(myTimeStamp)
+        myURL = self._connectionData["url"] + getBaseUrl() + '?action=handshake&auth='
         myURL += myPassphrase + "&timestamp=" + myTimeStamp
         myURL += '&version=' + self._ampache.getSetting("api-version") + '&user=' + self._connectionData["username"]
         return myURL
 
     def get_auth_key_login_url(self):
-        myURL = self._connectionData["url"] + '/server/xml.server.php?action=handshake&auth='
+        myURL = self._connectionData["url"] +  getBaseUrl() + '?action=handshake&auth='
         myURL += self._connectionData["api_key"]
         myURL += '&version=' + self._ampache.getSetting("api-version")
         return myURL
@@ -223,7 +230,7 @@ class AmpacheConnect(object):
             except:
                 return
         token = self._ampache.getSetting("token")
-        thisURL = self._connectionData["url"] + '/server/xml.server.php?action=' + action 
+        thisURL = self._connectionData["url"] +  getBaseUrl() + '?action=' + action
         thisURL += '&auth=' + token
         if self.limit:
             thisURL += '&limit=' +str(self.limit)
