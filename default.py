@@ -727,7 +727,13 @@ def Main():
 
     mode=None
     object_id=None
+    #sometimes we need to not endDirectory, but
+    #we need to check if the connection is alive
+    #until endDirectoryMode -> endDirectoy and checkConnection
+    #from endDirectoryMode to endCheckConnection  -> no endDirectory but checkConnection
+    #else no end and no check
     endDirectoryMode = 40
+    endCheckConnection = 50
     modeMax = 100
     endDir = True
 
@@ -750,7 +756,7 @@ def Main():
     #connect to the server
     #do not connect on main screen and when we operate setting; 
     #do not block the main screen in case the connection to a server it is not available and we kwow it
-    if mode!=None and mode < endDirectoryMode:
+    if mode!=None and mode < endCheckConnection:
         if ut.check_tokenexp():
             try:
                 ampacheConnect.AMPACHECONNECT()
@@ -768,9 +774,9 @@ def Main():
         #library
         addDir(ut.tString(30104),None,24)
         #switch server
-        addDir(ut.tString(30023),None,44)
+        addDir(ut.tString(30023),None,54)
         #settings
-        addDir(ut.tString(30105),None,40)
+        addDir(ut.tString(30105),None,50)
         
     #artist mode ( called from search screen ( mode 4 ), recent ( mode 5 )  )
     #and others
@@ -1021,25 +1027,6 @@ def Main():
         addDir(ut.tString(30191),9999988,2)
         addDir(ut.tString(30192),9999988,3)
 
-    #settings
-    elif mode==40:
-        ampache.openSettings()
-
-    #the four modes below are used to manage servers
-    elif mode==41:
-        if servers_manager.addServer():
-            servers_manager.switchServer()
-    
-    elif mode==42:
-        if servers_manager.deleteServer():
-            servers_manager.switchServer()
-    
-    elif mode==43:
-        servers_manager.modifyServer()
-    
-    elif mode==44:
-        servers_manager.switchServer()
-
     #play track mode  ( mode set in add_links function )
     #mode 45 to avoid endDirectory
     elif mode==45:
@@ -1050,6 +1037,25 @@ def Main():
     #change rating
     elif mode==47:
         setRating()
+
+    #settings
+    elif mode==50:
+        ampache.openSettings()
+
+    #the four modes below are used to manage servers
+    elif mode==51:
+        if servers_manager.addServer():
+            servers_manager.switchServer()
+    
+    elif mode==52:
+        if servers_manager.deleteServer():
+            servers_manager.switchServer()
+    
+    elif mode==53:
+        servers_manager.modifyServer()
+    
+    elif mode==54:
+        servers_manager.switchServer()
 
     #no end directory item ( problem with failed searches )
     #endDir is the result of the search function
