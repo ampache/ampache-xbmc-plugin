@@ -640,8 +640,7 @@ def get_random(object_type):
 def checkCloseMusicPlaylist(addon_url, mode, object_id=None, title=None):
     """
     this function checks if musicplaylist window is active and switchs to the music window
-    If this is not done, the behaviour of the windows becames problematic in the case 
-    of a search for album by current song and other functions
+    necessary when we have to display albums or songs
     """
     if xbmc.getCondVisibility("Window.IsActive(musicplaylist)"):
         #close busydialog to activate music window
