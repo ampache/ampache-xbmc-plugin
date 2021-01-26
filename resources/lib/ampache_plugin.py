@@ -16,7 +16,6 @@ from resources.lib import servers_manager
 from resources.lib import gui
 from resources.lib import utils as ut
 from resources.lib import art
-from resources.lib import player
 
 # Shared resources
 
@@ -287,8 +286,7 @@ def addSongLinks(elem):
     
     xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(elem))
 
-#The function that actually plays an Ampache URL by using setResolvedUrl ( via
-#AmpachePlayer class
+#The function that actually plays an Ampache URL by using setResolvedUrl
 def play_track(object_id,song_url):
     if song_url == None or object_id == None:
         xbmc.log("AmpachePlugin::play_track object or song null", xbmc.LOGNOTICE )
@@ -321,9 +319,7 @@ def play_track(object_id,song_url):
         pass
 
     liz.setPath(song_url)
-    AmpachePlayer = player.AmpachePlayer()
-    AmpachePlayer.play( int(sys.argv[1]) , liz )
-    #xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
+    xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
 
 #Main function to add xbmc plugin elements
 def addDir(name,object_id,mode,offset=None):
@@ -481,27 +477,14 @@ def get_items(object_type, object_id=None, add=None,\
 
 
 def setRating():
-    xbmc.log("AmpachePlugin::setRating " , xbmc.LOGDEBUG)
     try:
-        plugin_url = xbmc.Player().getPlayingFile()
-        xbmc.log("AmpachePlugin::setRating url " + plugin_url , xbmc.LOGDEBUG)
+        file_url = xbmc.Player().getPlayingFile()
+        xbmc.log("AmpachePlugin::setRating url " + file_url , xbmc.LOGDEBUG)
     except:
         xbmc.log("AmpachePlugin::no playing file " , xbmc.LOGDEBUG)
         return
-    params = ut.get_params(plugin_url)
-    object_id = None
-    #i use two kind of object_id, i don't know, but sometime i have different
-    #url, btw, no problem, i handle both and i solve the problem in this way
-    try:
-            object_id=int(params["object_id"])
-            xbmc.log("AmpachePlugin::object_id " + str(object_id), xbmc.LOGDEBUG)
-    except:
-            pass
-    try:
-            object_id=int(params["oid"])
-            xbmc.log("AmpachePlugin::object_id " + str(object_id), xbmc.LOGDEBUG)
-    except:
-            pass
+
+    object_id = ut.get_objectId_from_fileURL( file_url )
     if object_id == None:
         pass
     rating = xbmc.getInfoLabel('MusicPlayer.UserRating')
