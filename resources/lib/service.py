@@ -5,30 +5,26 @@ from art import clean_cache_art
  
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
-class Main():
+class Main( xbmc.Monitor ):
+
+    onPlay = False
 
     def __init__(self):
-        self.monitor = ServiceMonitor()
+        clean_cache_art()
+
+        xbmc.log( 'AmpachePlugin::ServiceMonitor called', xbmc.LOGDEBUG)
 
         # start mainloop
         self.main_loop()
 
     def main_loop(self):
-        while not self.monitor.abortRequested():
-            if self.monitor.waitForAbort(1):
+        while not self.abortRequested():
+            if self.waitForAbort(1):
                 # Abort was requested while waiting. We should exit
                 break
 
-    def close():
+    def close(self):
         pass
-
-class ServiceMonitor( xbmc.Monitor ):
-
-    onPlay = False
-
-    def __init__( self, *args, **kwargs ):
-        xbmc.log( 'AmpachePlugin::ServiceMonitor called', xbmc.LOGDEBUG)
-        #pass
 
     def onNotification(self, sender, method, data):
         #i don't know why i have called monitor.onNotification, but now it
@@ -48,5 +44,4 @@ class ServiceMonitor( xbmc.Monitor ):
                 xbmc.executebuiltin('RunPlugin(plugin://plugin.audio.ampache/?mode=47)')
 
 if __name__ == '__main__':
-    clean_cache_art()
     Main()
