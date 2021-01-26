@@ -92,7 +92,7 @@ class AmpacheConnect(object):
                     repr(e),xbmc.LOGDEBUG)
             xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
-        except Exception  as e:
+        except Exception as e:
             xbmc.log("AmpachePlugin::handle_request: Generic Error "  +\
                     repr(e),xbmc.LOGDEBUG)
             xbmc.executebuiltin("ConnectionError" )
@@ -103,7 +103,6 @@ class AmpacheConnect(object):
         return headers,contents
 
     def AMPACHECONNECT(self,showok=False):
-        amp_notif = ""
         version = 350001
         socket.setdefaulttimeout(3600)
         nTime = int(time.time())
@@ -118,12 +117,10 @@ class AmpacheConnect(object):
             headers,contents = self.handle_request(myURL)
         except self.ConnectionError:
             xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
-            amp_notif = "Notification(" + ut.tString(30198)  +  "," +\
-                    ut.tString(30202)   + ")"
             #connection error
-            xbmc.executebuiltin(amp_notif)
+            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
             raise self.ConnectionError
-        except Exception  as e:
+        except Exception as e:
             xbmc.log("AmpachePlugin::AMPACHECONNECT: Generic Error "  +\
                     repr(e),xbmc.LOGDEBUG)
         xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
@@ -139,26 +136,21 @@ class AmpacheConnect(object):
             errornode = tree.find("error")
             if errornode.attrib["code"]=="401":
                 if "time" in errormess:
-                    amp_notif = "Notification(" + ut.tString(30198)   +\
-                            "," + ut.tString(30204) + ")"
                     #permission error, check password or api_key
-                    xbmc.executebuiltin(amp_notif)
+                    xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30204))
                 else:
-                    amp_notif = "Notification(" + ut.tString(30198)   +\
-                            "," + ut.tString(30202)  + ")"
                     #connection error
-                    xbmc.executebuiltin(amp_notif)
+                    xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
             raise self.ConnectionError
             return
         if showok:
                 #use it only if notification of connection is necessary, like
                 #switch server, display connection ok and the name of the
                 #current server
-                amp_notif = "Notification(" + ut.tString(30197)   +\
-                        "," + ut.tString(30203) + "\n" + ut.tString(30181) +\
-                        " : " + self._connectionData["name"] + ")"
+                amp_notif = ut.tString(30203) + "\n" + ut.tString(30181) +\
+                        " : " + self._connectionData["name"]
                 #connection ok
-                xbmc.executebuiltin(amp_notif)
+                xbmcgui.Dialog().notification(ut.tString(30197),amp_notif)
         token = tree.findtext('auth')
         version = tree.findtext('api')
         if not version:

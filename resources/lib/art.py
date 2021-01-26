@@ -63,7 +63,9 @@ def cacheArt(imageID,elem_type,url=None):
             else:
                 fname = str(imageID) + '.' + subtype
             pathImage = os.path.join( cacheDir , fname )
-            open( pathImage, 'wb').write(contents)
+            with open( pathImage, 'wb') as f:
+                f.write(contents)
+                f.close()
             #xbmc.log("AmpachePlugin::CacheArt: Cached " + str(fname), xbmc.LOGDEBUG )
             return pathImage
         else:

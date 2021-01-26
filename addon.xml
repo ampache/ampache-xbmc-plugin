@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.audio.ampache" version="1.2.0" name="Ampache" provider-name="lusum">
     <requires>
+        <import addon="xbmc.python" version="2.25.0"/>
         <import addon="script.module.future" version="0.16.0"/>
     </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
@@ -16,9 +17,10 @@
     <platform>all</platform>
     <forum>https://forum.kodi.tv/showthread.php?tid=230736</forum>
     <website>http://ampache.org/</website>
-		<assets>
-			<icon>resources/icon.png</icon>
-      <fanart>resources/fanart.jpg</fanart>
-		</assets>
+    <license>GPL-2.0-or-later</license>
+    <assets>
+        <icon>resources/icon.png</icon>
+        <fanart>resources/fanart.jpg</fanart>
+    </assets>
   </extension>
 </addon>
