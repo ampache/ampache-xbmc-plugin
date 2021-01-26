@@ -5,7 +5,7 @@ import cgi
 import xbmc,xbmcaddon
 import xbmcvfs
 
-from resources.lib import ampache_connect
+import ampache_connect
 
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
@@ -74,6 +74,23 @@ def cacheArt(imageID,elem_type,url=None):
     else:
         xbmc.log("AmpachePlugin::CacheArt: No file found, id " + str(imageID) , xbmc.LOGDEBUG )
         raise NameError
+
+def clean_cache_art():
+    #hack to force the creation of profile directory if don't exists
+    if not os.path.isdir(user_dir):
+        ampache.setSetting("api-version","350001")
+
+    #if cacheDir doesn't exist, create it
+    if not os.path.isdir(user_mediaDir):
+        os.mkdir(user_mediaDir)
+        if not os.path.isdir(cacheDir):
+            os.mkdir(cacheDir)
+
+    #clean cache on start
+    for currentFile in os.listdir(cacheDir):
+        #xbmc.log("Clear Cache Art " + str(currentFile),xbmc.LOGDEBUG)
+        pathDel = os.path.join( cacheDir, currentFile)
+        os.remove(pathDel)
 
 def get_artLabels(albumArt):
     art_labels = {

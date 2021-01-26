@@ -1,8 +1,7 @@
-from future.utils import PY2
 import xbmc
-import os
 import xbmcaddon
-import xbmcvfs
+
+from art import clean_cache_art
  
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
@@ -48,32 +47,6 @@ class ServiceMonitor( xbmc.Monitor ):
             if xbmc.Player().isPlaying():
                 xbmc.executebuiltin('RunPlugin(plugin://plugin.audio.ampache/?mode=47)')
 
-
-def clean_cache():
-    if PY2:
-        base_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
-        base_dir = base_dir.decode('utf-8')
-    else:
-        base_dir = xbmcvfs.translatePath( ampache.getAddonInfo('profile'))
-    #hack to force the creation of profile directory if don't exists
-    if not os.path.isdir(base_dir):
-        ampache.setSetting("api-version","350001")
-    mediaDir = os.path.join( base_dir , 'media' )
-    cacheDir = os.path.join( mediaDir , 'cache' )
-
-    #if cacheDir doesn't exist, create it
-    if not os.path.isdir(mediaDir):
-        os.mkdir(mediaDir)
-        if not os.path.isdir(cacheDir):
-            os.mkdir(cacheDir)
-
-    #clean cache on start
-    for currentFile in os.listdir(cacheDir):
-        #xbmc.log("Clear Cache Art " + str(currentFile),xbmc.LOGDEBUG)
-        pathDel = os.path.join( cacheDir, currentFile)
-        os.remove(pathDel)
-
-
 if __name__ == '__main__':
-    clean_cache()
+    clean_cache_art()
     Main()

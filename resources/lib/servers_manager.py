@@ -2,11 +2,11 @@ from __future__ import print_function
 
 import xbmc,xbmcgui
 
-from resources.lib import gui
-from resources.lib import utils as ut
-from resources.lib import json_storage
-from resources.lib import ampache_connect
-from resources.lib.service import clean_cache
+import gui
+from art import clean_cache_art
+import utils as ut
+import json_storage
+import ampache_connect
 
 def initializeServer():
     jsStorServer = json_storage.JsonStorage("servers.json")
@@ -86,7 +86,7 @@ def switchServer():
     serverData["current_server"] = i_curr
     jsStorServer.save(serverData)
     #clean cache_art, the server is different, so the cache is invalid
-    clean_cache()
+    clean_cache_art()
     #if we switch, reconnect
     try:
         ampacheConnect = ampache_connect.AmpacheConnect()
