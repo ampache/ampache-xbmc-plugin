@@ -10,12 +10,13 @@ import math,random
 import xml.etree.ElementTree as ET
 import threading
 
-import ampache_connect
-import servers_manager
-import gui
-import utils as ut
-import art
-import player
+#main plugin
+from resources.lib import ampache_connect
+from resources.lib import servers_manager
+from resources.lib import gui
+from resources.lib import utils as ut
+from resources.lib import art
+from resources.lib import player
 
 # Shared resources
 

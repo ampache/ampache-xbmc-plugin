@@ -1,8 +1,7 @@
 import xbmc
 import xbmcaddon
 
-from art import clean_cache_art
- 
+#service class
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
 class AmpacheMonitor( xbmc.Monitor ):
@@ -10,7 +9,6 @@ class AmpacheMonitor( xbmc.Monitor ):
     onPlay = False
 
     def __init__(self):
-        clean_cache_art()
         xbmc.log( 'AmpachePlugin::ServiceMonitor called', xbmc.LOGDEBUG)
 
     # start mainloop

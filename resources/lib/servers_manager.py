@@ -2,11 +2,13 @@ from __future__ import print_function
 
 import xbmc,xbmcgui
 
-import gui
-from art import clean_cache_art
-import utils as ut
-import json_storage
-import ampache_connect
+#main plugin library
+
+from resources.lib import gui
+from resources.lib.art_clean import clean_cache_art
+from resources.lib import utils as ut
+from resources.lib import json_storage
+from resources.lib import ampache_connect
 
 def initializeServer():
     jsStorServer = json_storage.JsonStorage("servers.json")

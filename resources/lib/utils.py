@@ -2,6 +2,7 @@ import time
 import datetime
 import xbmcaddon
 
+#main plugin library
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
 def otype_to_type(object_type):

@@ -1,6 +1,8 @@
 import xbmc
 import xbmcplugin
 
+#main plugin library
+
 class AmpachePlayer( xbmc.Player ):
 
     def __init__( self, *args ):

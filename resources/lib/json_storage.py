@@ -7,6 +7,8 @@ import xbmcaddon
 import xbmcvfs
 from copy import deepcopy
 
+#main plugin library
+
 class JsonStorage(object):
 
     def __init__(self,filename):

@@ -12,8 +12,9 @@ import xbmc, xbmcaddon
 import sys
 import xml.etree.ElementTree as ET
 
-import json_storage
-import utils as ut
+#main plugin library
+from resources.lib import json_storage
+from resources.lib import utils as ut
 
 class AmpacheConnect(object):
     
