@@ -8,7 +8,7 @@ import ssl
 import socket
 import time
 import urllib.request, urllib.parse, urllib.error
-import xbmc, xbmcaddon
+import xbmc, xbmcaddon, xbmcgui
 import sys
 import xml.etree.ElementTree as ET
 
@@ -86,17 +86,14 @@ class AmpacheConnect(object):
         except urllib.error.HTTPError as e:
             xbmc.log("AmpachePlugin::handle_request: HTTPError " +\
                     repr(e),xbmc.LOGDEBUG)
-            xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
         except urllib.error.URLError as e:
             xbmc.log("AmpachePlugin::handle_request: URLError " +\
                     repr(e),xbmc.LOGDEBUG)
-            xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
         except Exception as e:
             xbmc.log("AmpachePlugin::handle_request: Generic Error "  +\
                     repr(e),xbmc.LOGDEBUG)
-            xbmc.executebuiltin("ConnectionError" )
             raise self.ConnectionError
         headers = response.headers
         contents = response.read()
