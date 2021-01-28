@@ -128,9 +128,10 @@ def get_infolabels(object_type , node):
 #theads, one for request
 def precacheArt(elem,object_type):
     elem_type = ut.otype_to_type(object_type)
-    if elem_type != "album" or elem_type != "song":
+    if elem_type != "album" and elem_type != "song":
         return
     art_type = "album"
+    threadList = []
     for node in elem.iter(elem_type):
         if elem_type == "song":
             try:
@@ -142,8 +143,13 @@ def precacheArt(elem,object_type):
             object_id = int(node.attrib["id"])
         image_url = check_get_art_url(node)
         x = threading.Thread(target=art.get_art,args=(object_id,art_type,image_url,))
+        threadList.append(x)
+    #start threads
+    for x in threadList:
         x.start()
-    x.join()
+    #join threads
+    for x in threadList:
+        x.join()
 
 def check_get_art_url(node):
     url = None
