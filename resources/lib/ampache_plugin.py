@@ -393,11 +393,6 @@ def get_items(object_type, object_id=None, add=None,\
         xbmc.log("AmpachePlugin::get_items: object_type set to None" , xbmc.LOGDEBUG)
         return
 
-    #get recent has object_id == None and thisFilter == None, but add is the
-    #date
-    if object_id == None and thisFilter==None and add==None:
-        return
-
     if object_subtype:
         xbmc.log("AmpachePlugin::get_items: object_subtype " + object_subtype, xbmc.LOGDEBUG)
     if object_id:
