@@ -295,7 +295,7 @@ def addSongLinks(elem):
 #The function that actually plays an Ampache URL by using setResolvedUrl
 def play_track(object_id,song_url):
     if song_url == None or object_id == None:
-        xbmc.log("AmpachePlugin::play_track object or song null", xbmc.LOGNOTICE )
+        xbmc.log("AmpachePlugin::play_track object or song null", xbmc.LOGINFO )
         return
 
     old_object_id = None
@@ -558,7 +558,7 @@ def get_recent(object_type,object_id,object_subtype=None):
 
     if object_id == 9999998:
         update = ampache.getSetting("add")
-        xbmc.log(update[:10],xbmc.LOGNOTICE)
+        xbmc.log(update[:10],xbmc.LOGINFO)
         get_items(object_type=object_type,add=update[:10],object_subtype=object_subtype)
     elif object_id == 9999997:
         get_items(object_type=object_type,add=ut.get_time(-7),object_subtype=object_subtype)
