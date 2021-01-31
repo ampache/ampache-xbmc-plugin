@@ -128,7 +128,7 @@ def get_infolabels(object_type , node):
 #theads, one for request
 def precacheArt(elem,object_type):
     elem_type = ut.otype_to_type(object_type)
-    if elem_type != "album" and elem_type != "song":
+    if elem_type != "album" and elem_type != "song" and elem_type != "artist":
         return
     art_type = "album"
     threadList = []
@@ -161,7 +161,6 @@ def getSuperId(node,elem_type):
     obj_elem = node.find(elem_type)
     obj_id = int(obj_elem.attrib["id"])
     return obj_id
-
 
 #it handles albumArt and song info
 def fillListItemWithSongInfo(liz,node):
@@ -216,6 +215,10 @@ def addLinks(elem,object_type,useCacheArt,mode):
                     image = art.get_art(object_id,elem_type,image_url)
             except:
                 xbmc.log("AmpachePlugin::addLinks: album_id error", xbmc.LOGDEBUG)
+        elif elem_type == "artist":
+            useCacheArt = True
+            image_url = check_get_art_url(node)
+            image = art.get_art(object_id,elem_type,image_url)
         else:
             useCacheArt = False
 
