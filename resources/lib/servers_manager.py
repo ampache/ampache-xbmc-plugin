@@ -163,6 +163,8 @@ def modifyServer():
     if i == False:
         return
     while True:
+        if xbmc.Monitor().abortRequested():
+            return
         key = showServerData(serverData["servers"][i])
         if key == False:
             break
