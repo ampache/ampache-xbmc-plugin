@@ -398,6 +398,9 @@ def get_items(object_type, object_id=None, add=None,\
 
     if object_subtype:
         xbmc.log("AmpachePlugin::get_items: object_subtype " + object_subtype, xbmc.LOGDEBUG)
+
+    #object_id could be None in some requests, like recently added and get_all
+    #items
     if object_id:
         xbmc.log("AmpachePlugin::get_items: object_id " + str(object_id), xbmc.LOGDEBUG)
 
@@ -526,8 +529,8 @@ def do_search(object_type,object_subtype=None,thisFilter=None):
         return True
     return False
 
-def get_stats(object_type, object_subtype=None, limit=5000 ):       
-    
+def get_stats(object_type, object_subtype=None, limit=5000 ):
+
     ampConn = ampache_connect.AmpacheConnect()
     
     xbmc.log("AmpachePlugin::get_stats ",  xbmc.LOGDEBUG)
@@ -557,7 +560,7 @@ def get_stats(object_type, object_subtype=None, limit=5000 ):
     except:
         return
 
-def get_recent(object_type,object_id,object_subtype=None):   
+def get_recent(object_type,object_id,object_subtype=None):
 
     if object_id == 9999998:
         update = ampache.getSetting("add")
