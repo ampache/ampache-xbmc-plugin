@@ -841,11 +841,18 @@ def Main():
         if not (ut.strBool_to_bool(ampache.getSetting("old-search-gui"))):
             endDir = searchGui()
         else:
+            #old search gui
+            #search artist
             addDir(ut.tString(30120),9999999,1)
+            #search album
             addDir(ut.tString(30121),9999999,2)
+            #search song
             addDir(ut.tString(30122),9999999,3)
+            #search playlist
             addDir(ut.tString(30123),9999999,13)
+            #search all
             addDir(ut.tString(30124),9999999,11)
+            #search tag
             addDir(ut.tString(30125),9999999,18)
 
 
@@ -921,8 +928,12 @@ def Main():
 
     #tags
     elif mode==18:
+        #object_id always 9999999
+        #search tag_artist
         addDir(ut.tString(30142),object_id,19)
+        #search tag_album
         addDir(ut.tString(30143),object_id,20)
+        #search tag_song
         addDir(ut.tString(30144),object_id,21)
 
     elif mode==19:
@@ -951,14 +962,22 @@ def Main():
 
     #explore
     elif mode==23:
+        #recently added
         addDir(ut.tString(30145),None,5)
+        #random
         addDir(ut.tString(30146),None,7)
         if(int(ampache.getSetting("api-version"))) >= 400001:
+            #highest
             addDir(ut.tString(30148),9999993,30)
+            #frequent
             addDir(ut.tString(30164),9999992,31)
+            #flagged
             addDir(ut.tString(30165),9999991,32)
+            #forgotten
             addDir(ut.tString(30166),9999990,33)
+            #newest
             addDir(ut.tString(30167),9999989,34)
+            #recent
             addDir(ut.tString(30193),9999988,35)
 
     #Library
@@ -972,20 +991,28 @@ def Main():
 
     #quick access
     elif mode==25:
+        #random album
         addDir(ut.tString(30135),9999994,2)
         if(int(ampache.getSetting("api-version"))) >= 400001:
+            #newest albums
             addDir(ut.tString(30162),9999989,2)
+            #frequent albums
             addDir(ut.tString(30153),9999992,2)
+            #recently played albums
             addDir(ut.tString(30191),9999988,2)
         else:
-            #use recently added for old api versions
+            #use recently added albums for old api versions
             addDir(ut.tString(30127),9999997,6)
+        #server playlist ( AKA random songs )
         addDir(ut.tString(30147),9999994,3)
 
     #highest
     elif mode==30:
+        #artist
         addDir(ut.tString(30149),9999993,1)
+        #album
         addDir(ut.tString(30150),9999993,2)
+        #song
         addDir(ut.tString(30151),9999993,3)
 
     #frequent
