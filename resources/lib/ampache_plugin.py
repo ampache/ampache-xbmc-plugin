@@ -124,6 +124,11 @@ def get_infolabels(object_type , node):
 
     return infoLabels
 
+def getNestedTypeId(node,elem_type):
+    obj_elem = node.find(elem_type)
+    obj_id = int(obj_elem.attrib["id"])
+    return obj_id
+
 #this function is used to speed up the loading of the images using differents
 #theads, one for request
 def precacheArt(elem,object_type):
@@ -135,12 +140,16 @@ def precacheArt(elem,object_type):
     for node in elem.iter(elem_type):
         if elem_type == "song":
             try:
-                album_elem = node.find("album")
-                object_id = int(album_elem.attrib["id"])
+                object_id = getNestedTypeId(node,"album")
             except:
                 object_id = None
         else:
-            object_id = int(node.attrib["id"])
+            try:
+                object_id = int(node.attrib["id"])
+            except:
+                object_id = None
+        if object_id == None:
+            continue
         image_url = check_get_art_url(node)
         x = threading.Thread(target=art.get_art,args=(object_id,art_type,image_url,))
         threadList.append(x)
@@ -156,11 +165,6 @@ def check_get_art_url(node):
     if(int(ampache.getSetting("api-version"))) < 400001:
         url = node.findtext("art")
     return url
-
-def getNestedTypeId(node,elem_type):
-    obj_elem = node.find(elem_type)
-    obj_id = int(obj_elem.attrib["id"])
-    return obj_id
 
 #it handles albumArt and song info
 def fillListItemWithSongInfo(liz,node):
@@ -187,7 +191,11 @@ def addLinks(elem,object_type,useCacheArt,mode):
 
     for node in elem.iter(elem_type):
         cm = []
-        object_id = int(node.attrib["id"])
+        try:
+            object_id = int(node.attrib["id"])
+        except:
+            object_id == None
+            continue
         #xbmc.log("AmpachePlugin::addLinks: object_id  - " + str(object_id) , xbmc.LOGDEBUG )
         #xbmc.log("AmpachePlugin::addLinks: node " + ET.tostring(node) , xbmc.LOGDEBUG )
 
@@ -257,6 +265,11 @@ def addSongLinks(elem):
     ok=True
     it=[]
     for node in elem.iter("song"):
+        try:
+            song_id = int(node.attrib["id"])
+        except:
+            song_id = None
+            continue
         liz=xbmcgui.ListItem()
         fillListItemWithSongInfo(liz,node)
         liz.setProperty("IsPlayable", "true")
@@ -287,7 +300,6 @@ def addSongLinks(elem):
             liz.addContextMenuItems(cm)
 
         song_url = node.findtext("url")
-        song_id = int(node.attrib["id"])
         track_parameters = { "mode": 45, "song_url" : song_url, "object_id" : song_id}
         url = sys.argv[0] + '?' + urllib.parse.urlencode(track_parameters)
         tu= (url,liz)
@@ -495,7 +507,7 @@ def setRating():
 
     object_id = ut.get_objectId_from_fileURL( file_url )
     if object_id == None:
-        pass
+        return
     rating = xbmc.getInfoLabel('MusicPlayer.UserRating')
     if rating == "":
         rating = "0"

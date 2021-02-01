@@ -88,6 +88,8 @@ def get_artLabels(albumArt):
 
 #get_art, url is used for legacy purposes
 def get_art(object_id,elem_type,url=None):
+    if object_id == None:
+        albumArt = "DefaultFolder.png"
     try:
         albumArt = cacheArt(object_id,elem_type,url)
     except NameError:
