@@ -198,16 +198,7 @@ class AmpacheConnect(object):
         if tree.findtext("error"):
             errornode = tree.find("error")
             if errornode.attrib["code"]=="401":
-                try:
-                    self.AMPACHECONNECT()
-                except self.ConnectionError:
-                    raise self.ConnectionError
-                thisURL = self.build_ampache_url(action)
-                try:
-                    headers,contents = self.handle_request(thisURL)
-                except self.ConnectionError:
-                    raise self.ConnectionError
-                tree=ET.XML(contents)
+                xbmc.log("AmpachePlugin::ampache_http_request Forbidden",xbmc.LOGDEBUG)
             elif errornode.attrib["code"]=="400":
                 xbmc.log("AmpachePlugin::ampache_http_request Bad Request",xbmc.LOGDEBUG)
             elif errornode.attrib["code"]=="404":
