@@ -56,6 +56,16 @@ class AmpacheConnect(object):
         self._ampache.setSetting("token", token)
         self._ampache.setSetting("token-exp", str(nTime+24000))
 
+    def getCodeMessError(self,tree):
+        code = None
+        errormess = tree.findtext('error')
+        if errormess:
+            errornode = tree.find("error")
+            code = errornode.attrib["code"]
+            xbmc.log("AmpachePlugin::getCodeMessError: Client error code " + \
+                   str(code) + " message " + str(errormess) , xbmc.LOGDEBUG)
+        return code, errormess
+
     def getHashedPassword(self,timeStamp):
         enablePass = self._connectionData["enable_password"]
         if enablePass:
@@ -145,18 +155,18 @@ class AmpacheConnect(object):
             xbmc.log("AmpachePlugin::AMPACHECONNECT: unable to print contents " + \
                    repr(e) , xbmc.LOGDEBUG)
         tree=ET.XML(contents)
-        errormess = tree.findtext('error')
+        code, errormess = self.getCodeMessError(tree)
         if errormess:
-            errornode = tree.find("error")
-            if errornode.attrib["code"]=="401":
+            if code == "401":
                 if "time" in errormess:
                     #permission error, check password or api_key
                     xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30204))
                 else:
-                    #connection error
                     xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
+            else:
+                #connection error
+                xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
             raise self.ConnectionError
-            return
         if showok:
                 #use it only if notification of connection is necessary, like
                 #switch server, display connection ok and the name of the
@@ -186,8 +196,6 @@ class AmpacheConnect(object):
             raise self.ConnectionError
         if PY2:
             contents = contents.replace("\0", "")
-        #parser = ET.XMLParser(recover=True)
-        #tree=ET.XML(contents, parser = parser)
         try:
             xbmc.log("AmpachePlugin::ampache_http_request: contents " + \
                     contents.decode(),xbmc.LOGDEBUG)
@@ -195,15 +203,10 @@ class AmpacheConnect(object):
             xbmc.log("AmpachePlugin::ampache_http_request: unable print contents " + \
                     repr(e) , xbmc.LOGDEBUG)
         tree=ET.XML(contents)
-        if tree.findtext("error"):
-            errornode = tree.find("error")
-            if errornode.attrib["code"]=="401":
-                xbmc.log("AmpachePlugin::ampache_http_request Forbidden",xbmc.LOGDEBUG)
-            elif errornode.attrib["code"]=="400":
-                xbmc.log("AmpachePlugin::ampache_http_request Bad Request",xbmc.LOGDEBUG)
-            elif errornode.attrib["code"]=="404":
-                xbmc.log("AmpachePlugin::ampache_http_request Not Found",xbmc.LOGDEBUG)
-
+        code, errormess = self.getCodeMessError(tree)
+        if errormess:
+            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
+            raise self.ConnectionError
         return tree
     
     def build_ampache_url(self,action):
