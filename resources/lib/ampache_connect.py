@@ -157,12 +157,9 @@ class AmpacheConnect(object):
         tree=ET.XML(contents)
         code, errormess = self.getCodeMessError(tree)
         if errormess:
-            if code == "401":
-                if "time" in errormess:
-                    #permission error, check password or api_key
-                    xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30204))
-                else:
-                    xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
+            if "time" in errormess and code == "401":
+                #permission error, check password or api_key
+                xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30204))
             else:
                 #connection error
                 xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
