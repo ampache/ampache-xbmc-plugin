@@ -40,6 +40,22 @@ class AmpacheConnect(object):
     def getBaseUrl(self):
         return '/server/xml.server.php'
 
+    def fillConnectionSettings(self,tree,nTime):
+        token = tree.findtext('auth')
+        version = tree.findtext('api')
+        if not version:
+        #old api
+            version = tree.findtext('version')
+        #setSettings only string or unicode
+        self._ampache.setSetting("api-version",version)
+        self._ampache.setSetting("artists", tree.findtext("artists"))
+        self._ampache.setSetting("albums", tree.findtext("albums"))
+        self._ampache.setSetting("songs", tree.findtext("songs"))
+        self._ampache.setSetting("playlists", tree.findtext("playlists"))
+        self._ampache.setSetting("add", tree.findtext("add"))
+        self._ampache.setSetting("token", token)
+        self._ampache.setSetting("token-exp", str(nTime+24000))
+
     def getHashedPassword(self,timeStamp):
         enablePass = self._connectionData["enable_password"]
         if enablePass:
@@ -149,20 +165,7 @@ class AmpacheConnect(object):
                         " : " + self._connectionData["name"]
                 #connection ok
                 xbmcgui.Dialog().notification(ut.tString(30197),amp_notif)
-        token = tree.findtext('auth')
-        version = tree.findtext('api')
-        if not version:
-        #old api
-            version = tree.findtext('version')
-        #setSettings only string or unicode
-        self._ampache.setSetting("api-version",version)
-        self._ampache.setSetting("artists", tree.findtext("artists"))
-        self._ampache.setSetting("albums", tree.findtext("albums"))
-        self._ampache.setSetting("songs", tree.findtext("songs"))
-        self._ampache.setSetting("playlists", tree.findtext("playlists"))
-        self._ampache.setSetting("add", tree.findtext("add"))
-        self._ampache.setSetting("token", token)
-        self._ampache.setSetting("token-exp", str(nTime+24000))
+        self.fillConnectionSettings(tree,nTime)
         return
 
     #handle request to the xml api that return binary files
