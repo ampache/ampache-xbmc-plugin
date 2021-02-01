@@ -204,7 +204,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
                 else:
                     continue
                 try:
-                    artist_id = getNestedTypeId,"artist")
+                    artist_id = getNestedTypeId(node,"artist")
                     cm.append( ( ut.tString(30141), "Container.Update(%s?object_id=%s&mode=2)" % ( sys.argv[0],artist_id ) ) )
                 except:
                     pass
