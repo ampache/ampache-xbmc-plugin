@@ -157,7 +157,7 @@ def check_get_art_url(node):
         url = node.findtext("art")
     return url
 
-def getSuperId(node,elem_type):
+def getNestedTypeId(node,elem_type):
     obj_elem = node.find(elem_type)
     obj_id = int(obj_elem.attrib["id"])
     return obj_id
@@ -167,7 +167,7 @@ def fillListItemWithSongInfo(liz,node):
     object_id = int(node.attrib["id"])
     image_url = check_get_art_url(node)
     try:
-        album_id = getSuperId(node,"album")
+        album_id = getNestedTypeId(node,"album")
         albumArt = art.get_art(album_id,"album",image_url)
     except:
         albumArt = art.get_art(None,"album",image_url)
@@ -204,7 +204,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
                 else:
                     continue
                 try:
-                    artist_id = getSuperId(node,"artist")
+                    artist_id = getNestedTypeId,"artist")
                     cm.append( ( ut.tString(30141), "Container.Update(%s?object_id=%s&mode=2)" % ( sys.argv[0],artist_id ) ) )
                 except:
                     pass
@@ -263,7 +263,7 @@ def addSongLinks(elem):
 
         cm = []
         try:
-            artist_id = getSuperId(node,"artist")
+            artist_id = getNestedTypeId(node,"artist")
             cm.append( ( ut.tString(30138),
             "Container.Update(%s?object_id=%s&mode=15)" % (
                 sys.argv[0],artist_id ) ) )
@@ -271,7 +271,7 @@ def addSongLinks(elem):
             pass
         
         try:
-            album_id = getSuperId(node,"album")
+            album_id = getNestedTypeId(node,"album")
             cm.append( ( ut.tString(30139),
             "Container.Update(%s?object_id=%s&mode=16)" % (
                 sys.argv[0],album_id ) ) )
