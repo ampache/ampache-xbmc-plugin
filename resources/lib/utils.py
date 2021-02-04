@@ -1,6 +1,7 @@
 import time
 import datetime
 import xbmcaddon
+import sys
 
 #main plugin/service library
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
@@ -37,13 +38,26 @@ def strBool_to_bool(s):
         raise ValueError
 
 def check_tokenexp():
-    try:
-        tokenexp = int(ampache.getSetting("token-exp"))
-        if int(time.time()) > tokenexp:
+    tokenexp = int(ampache.getSetting("token-exp"))
+    #form python 3.7 we can easly compare the dates, otherwise we use the old
+    #method
+    if sys.version_info >= (3, 7):
+        try:
+            session_time = ampache.getSetting("session_expire")
+            s_time = datetime.datetime.fromisoformat(session_time)
+            if datetime.datetime.now() > s_time.replace(tzinfo=None):
+                return True
+            return False
+        except:
+            return False
+    else:
+        try:
+            tokenexp = int(ampache.getSetting("token-exp"))
+            if int(time.time()) > tokenexp:
+                return True
+            return False
+        except:
             return True
-        return False
-    except:
-        return True
 
 def get_time(time_offset):
     d = datetime.date.today()
