@@ -24,16 +24,23 @@ def clean_cache_art():
     if not os.path.isdir(user_dir):
         ampache.setSetting("api-version","350001")
 
+    cacheTypes = ["album", "artist" , "song"]
     #if cacheDir doesn't exist, create it
     if not os.path.isdir(user_mediaDir):
         os.mkdir(user_mediaDir)
-        if not os.path.isdir(cacheDir):
-            os.mkdir(cacheDir)
+    if not os.path.isdir(cacheDir):
+        os.mkdir(cacheDir)
+    for c_type in cacheTypes:
+        cacheDirType = os.path.join( cacheDir , c_type )
+        if not os.path.isdir(cacheDirType):
+            os.mkdir( cacheDirType )
 
     #clean cache on start
-    for currentFile in os.listdir(cacheDir):
-        #xbmc.log("Clear Cache Art " + str(currentFile),xbmc.LOGDEBUG)
-        pathDel = os.path.join( cacheDir, currentFile)
-        os.remove(pathDel)
+    for c_type in cacheTypes:
+        cacheDirType = os.path.join( cacheDir , c_type )
+        for currentFile in os.listdir(cacheDirType):
+            #xbmc.log("Clear Cache Art " + str(currentFile),xbmc.LOGDEBUG)
+            pathDel = os.path.join( cacheDirType, currentFile)
+            os.remove(pathDel)
 
 
