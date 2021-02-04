@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.audio.ampache" version="1.2.1" name="Ampache" provider-name="lusum">
     <requires>
-        <import addon="script.module.future" version="0.16.0"/>
+        <import addon="script.module.future" version="0.17.1"/>
     </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>audio</provides>

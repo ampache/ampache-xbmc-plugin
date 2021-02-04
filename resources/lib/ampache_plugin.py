@@ -248,7 +248,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
 
         handle=int(sys.argv[1])
 
-        u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)
+        u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)
         #xbmc.log("AmpachePlugin::addLinks: u - " + u, xbmc.LOGDEBUG )
         isFolder=True
         tu= (u,liz,isFolder)
