@@ -39,13 +39,15 @@ def strBool_to_bool(s):
 
 def check_tokenexp():
     tokenexp = int(ampache.getSetting("token-exp"))
-    #form python 3.7 we can easly compare the dates, otherwise we use the old
+
+    #from python 3.7 we can easly compare the dates, otherwise we use the old
     #method
+
     if sys.version_info >= (3, 7):
         try:
             session_time = ampache.getSetting("session_expire")
             s_time = datetime.datetime.fromisoformat(session_time)
-            if datetime.datetime.now() > s_time.replace(tzinfo=None):
+            if datetime.datetime.now(datetime.timezone.utc) > s_time:
                 return True
             return False
         except:
