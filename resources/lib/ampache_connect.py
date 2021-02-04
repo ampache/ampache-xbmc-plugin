@@ -150,7 +150,7 @@ class AmpacheConnect(object):
         xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
         try:
             xbmc.log("AmpachePlugin::AMPACHECONNECT: contents " +\
-                    repr(contents),xbmc.LOGDEBUG)
+                    contents.decode(),xbmc.LOGDEBUG)
         except Exception as e:
             xbmc.log("AmpachePlugin::AMPACHECONNECT: unable to print contents " + \
                    repr(e) , xbmc.LOGDEBUG)
