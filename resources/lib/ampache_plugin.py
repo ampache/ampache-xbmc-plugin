@@ -124,23 +124,32 @@ def get_infolabels(object_type , node):
 
     return infoLabels
 
+def getNestedTypeId(node,elem_type):
+    obj_elem = node.find(elem_type)
+    obj_id = int(obj_elem.attrib["id"])
+    return obj_id
+
 #this function is used to speed up the loading of the images using differents
 #theads, one for request
 def precacheArt(elem,object_type):
     elem_type = ut.otype_to_type(object_type)
-    if elem_type != "album" and elem_type != "song":
+    if elem_type != "album" and elem_type != "song" and elem_type != "artist":
         return
     art_type = "album"
     threadList = []
     for node in elem.iter(elem_type):
         if elem_type == "song":
             try:
-                album_elem = node.find("album")
-                object_id = int(album_elem.attrib["id"])
+                object_id = getNestedTypeId(node,"album")
             except:
                 object_id = None
         else:
-            object_id = int(node.attrib["id"])
+            try:
+                object_id = int(node.attrib["id"])
+            except:
+                object_id = None
+        if object_id == None:
+            continue
         image_url = check_get_art_url(node)
         x = threading.Thread(target=art.get_art,args=(object_id,art_type,image_url,))
         threadList.append(x)
@@ -157,18 +166,12 @@ def check_get_art_url(node):
         url = node.findtext("art")
     return url
 
-def getSuperId(node,elem_type):
-    obj_elem = node.find(elem_type)
-    obj_id = int(obj_elem.attrib["id"])
-    return obj_id
-
-
 #it handles albumArt and song info
 def fillListItemWithSongInfo(liz,node):
     object_id = int(node.attrib["id"])
     image_url = check_get_art_url(node)
     try:
-        album_id = getSuperId(node,"album")
+        album_id = getNestedTypeId(node,"album")
         albumArt = art.get_art(album_id,"album",image_url)
     except:
         albumArt = art.get_art(None,"album",image_url)
@@ -188,7 +191,11 @@ def addLinks(elem,object_type,useCacheArt,mode):
 
     for node in elem.iter(elem_type):
         cm = []
-        object_id = int(node.attrib["id"])
+        try:
+            object_id = int(node.attrib["id"])
+        except:
+            object_id == None
+            continue
         #xbmc.log("AmpachePlugin::addLinks: object_id  - " + str(object_id) , xbmc.LOGDEBUG )
         #xbmc.log("AmpachePlugin::addLinks: node " + ET.tostring(node) , xbmc.LOGDEBUG )
 
@@ -205,7 +212,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
                 else:
                     continue
                 try:
-                    artist_id = getSuperId(node,"artist")
+                    artist_id = getNestedTypeId(node,"artist")
                     cm.append( ( ut.tString(30141), "Container.Update(%s?object_id=%s&mode=2)" % ( sys.argv[0],artist_id ) ) )
                 except:
                     pass
@@ -216,6 +223,10 @@ def addLinks(elem,object_type,useCacheArt,mode):
                     image = art.get_art(object_id,elem_type,image_url)
             except:
                 xbmc.log("AmpachePlugin::addLinks: album_id error", xbmc.LOGDEBUG)
+        elif elem_type == "artist":
+            useCacheArt = True
+            image_url = check_get_art_url(node)
+            image = art.get_art(object_id,elem_type,image_url)
         else:
             useCacheArt = False
 
@@ -237,7 +248,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
 
         handle=int(sys.argv[1])
 
-        u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)
+        u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)
         #xbmc.log("AmpachePlugin::addLinks: u - " + u, xbmc.LOGDEBUG )
         isFolder=True
         tu= (u,liz,isFolder)
@@ -254,13 +265,18 @@ def addSongLinks(elem):
     ok=True
     it=[]
     for node in elem.iter("song"):
+        try:
+            song_id = int(node.attrib["id"])
+        except:
+            song_id = None
+            continue
         liz=xbmcgui.ListItem()
         fillListItemWithSongInfo(liz,node)
         liz.setProperty("IsPlayable", "true")
 
         cm = []
         try:
-            artist_id = getSuperId(node,"artist")
+            artist_id = getNestedTypeId(node,"artist")
             cm.append( ( ut.tString(30138),
             "Container.Update(%s?object_id=%s&mode=15)" % (
                 sys.argv[0],artist_id ) ) )
@@ -268,7 +284,7 @@ def addSongLinks(elem):
             pass
         
         try:
-            album_id = getSuperId(node,"album")
+            album_id = getNestedTypeId(node,"album")
             cm.append( ( ut.tString(30139),
             "Container.Update(%s?object_id=%s&mode=16)" % (
                 sys.argv[0],album_id ) ) )
@@ -284,7 +300,6 @@ def addSongLinks(elem):
             liz.addContextMenuItems(cm)
 
         song_url = node.findtext("url")
-        song_id = int(node.attrib["id"])
         track_parameters = { "mode": 45, "song_url" : song_url, "object_id" : song_id}
         url = sys.argv[0] + '?' + urllib.parse.urlencode(track_parameters)
         tu= (url,liz)
@@ -395,6 +410,9 @@ def get_items(object_type, object_id=None, add=None,\
 
     if object_subtype:
         xbmc.log("AmpachePlugin::get_items: object_subtype " + object_subtype, xbmc.LOGDEBUG)
+
+    #object_id could be None in some requests, like recently added and get_all
+    #items
     if object_id:
         xbmc.log("AmpachePlugin::get_items: object_id " + str(object_id), xbmc.LOGDEBUG)
 
@@ -489,7 +507,7 @@ def setRating():
 
     object_id = ut.get_objectId_from_fileURL( file_url )
     if object_id == None:
-        pass
+        return
     rating = xbmc.getInfoLabel('MusicPlayer.UserRating')
     if rating == "":
         rating = "0"
@@ -523,8 +541,8 @@ def do_search(object_type,object_subtype=None,thisFilter=None):
         return True
     return False
 
-def get_stats(object_type, object_subtype=None, limit=5000 ):       
-    
+def get_stats(object_type, object_subtype=None, limit=5000 ):
+
     ampConn = ampache_connect.AmpacheConnect()
     
     xbmc.log("AmpachePlugin::get_stats ",  xbmc.LOGDEBUG)
@@ -554,7 +572,7 @@ def get_stats(object_type, object_subtype=None, limit=5000 ):
     except:
         return
 
-def get_recent(object_type,object_id,object_subtype=None):   
+def get_recent(object_type,object_id,object_subtype=None):
 
     if object_id == 9999998:
         update = ampache.getSetting("add")
@@ -835,11 +853,18 @@ def Main():
         if not (ut.strBool_to_bool(ampache.getSetting("old-search-gui"))):
             endDir = searchGui()
         else:
+            #old search gui
+            #search artist
             addDir(ut.tString(30120),9999999,1)
+            #search album
             addDir(ut.tString(30121),9999999,2)
+            #search song
             addDir(ut.tString(30122),9999999,3)
+            #search playlist
             addDir(ut.tString(30123),9999999,13)
+            #search all
             addDir(ut.tString(30124),9999999,11)
+            #search tag
             addDir(ut.tString(30125),9999999,18)
 
 
@@ -915,8 +940,12 @@ def Main():
 
     #tags
     elif mode==18:
+        #object_id always 9999999
+        #search tag_artist
         addDir(ut.tString(30142),object_id,19)
+        #search tag_album
         addDir(ut.tString(30143),object_id,20)
+        #search tag_song
         addDir(ut.tString(30144),object_id,21)
 
     elif mode==19:
@@ -945,14 +974,22 @@ def Main():
 
     #explore
     elif mode==23:
+        #recently added
         addDir(ut.tString(30145),None,5)
+        #random
         addDir(ut.tString(30146),None,7)
         if(int(ampache.getSetting("api-version"))) >= 400001:
+            #highest
             addDir(ut.tString(30148),9999993,30)
+            #frequent
             addDir(ut.tString(30164),9999992,31)
+            #flagged
             addDir(ut.tString(30165),9999991,32)
+            #forgotten
             addDir(ut.tString(30166),9999990,33)
+            #newest
             addDir(ut.tString(30167),9999989,34)
+            #recent
             addDir(ut.tString(30193),9999988,35)
 
     #Library
@@ -966,20 +1003,28 @@ def Main():
 
     #quick access
     elif mode==25:
+        #random album
         addDir(ut.tString(30135),9999994,2)
         if(int(ampache.getSetting("api-version"))) >= 400001:
+            #newest albums
             addDir(ut.tString(30162),9999989,2)
+            #frequent albums
             addDir(ut.tString(30153),9999992,2)
+            #recently played albums
             addDir(ut.tString(30191),9999988,2)
         else:
-            #use recently added for old api versions
+            #use recently added albums for old api versions
             addDir(ut.tString(30127),9999997,6)
+        #server playlist ( AKA random songs )
         addDir(ut.tString(30147),9999994,3)
 
     #highest
     elif mode==30:
+        #artist
         addDir(ut.tString(30149),9999993,1)
+        #album
         addDir(ut.tString(30150),9999993,2)
+        #song
         addDir(ut.tString(30151),9999993,3)
 
     #frequent

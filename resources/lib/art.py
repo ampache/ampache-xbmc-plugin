@@ -20,6 +20,7 @@ user_mediaDir = os.path.join( user_dir , 'media' )
 cacheDir = os.path.join( user_mediaDir , 'cache' )
 
 def cacheArt(imageID,elem_type,url=None):
+    cacheDirType = os.path.join( cacheDir , elem_type )
     #security check
     if imageID == None:
         raise NameError
@@ -27,7 +28,7 @@ def cacheArt(imageID,elem_type,url=None):
     possible_ext = ["jpg", "png" , "bmp", "gif", "tiff"]
     for ext in possible_ext:
         imageName = str(imageID) + "." + ext
-        pathImage = os.path.join( cacheDir , imageName )
+        pathImage = os.path.join( cacheDirType , imageName )
         if os.path.exists( pathImage ):
             xbmc.log("AmpachePlugin::CacheArt: cached, id " + str(imageID) +  " extension " + ext ,xbmc.LOGDEBUG)
             return pathImage
@@ -63,7 +64,7 @@ def cacheArt(imageID,elem_type,url=None):
                 fname = str(imageID) + ".jpg"
             else:
                 fname = str(imageID) + '.' + subtype
-            pathImage = os.path.join( cacheDir , fname )
+            pathImage = os.path.join( cacheDirType , fname )
             with open( pathImage, 'wb') as f:
                 f.write(contents)
                 f.close()
@@ -87,6 +88,8 @@ def get_artLabels(albumArt):
 
 #get_art, url is used for legacy purposes
 def get_art(object_id,elem_type,url=None):
+    if object_id == None:
+        albumArt = "DefaultFolder.png"
     try:
         albumArt = cacheArt(object_id,elem_type,url)
     except NameError:
