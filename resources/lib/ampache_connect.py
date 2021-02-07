@@ -59,12 +59,30 @@ class AmpacheConnect(object):
 
     def getCodeMessError(self,tree):
         code = None
-        errormess = tree.findtext('error')
-        if errormess:
-            errornode = tree.find("error")
-            code = errornode.attrib["code"]
-            xbmc.log("AmpachePlugin::getCodeMessError: Client error code " + \
-                   str(code) + " message " + str(errormess) , xbmc.LOGDEBUG)
+        errormess = None
+        errornode = tree.find("error")
+        if errornode is not None:
+            #ampache api 4 and below
+            try:
+                errormess = tree.findtext('error')
+                code = errornode.attrib["code"]
+                xbmc.log("AmpachePlugin::getCodeMessError: Client error code " + \
+                       str(code) + " message " + str(errormess) , xbmc.LOGDEBUG)
+                return code, errormess
+            except:
+                #do nothing
+                pass
+            #ampache api 5 and above
+            try:
+                errormess = errornode.findtext("errorMessage")
+                code = errornode.attrib["errorCode"]
+                xbmc.log("AmpachePlugin::getCodeMessError: Client error code " + \
+                       str(code) + " message " + str(errormess) , xbmc.LOGDEBUG)
+                return code, errormess
+            except:
+                #do nothing
+                pass
+
         return code, errormess
 
     def getHashedPassword(self,timeStamp):
@@ -148,7 +166,6 @@ class AmpacheConnect(object):
         except Exception as e:
             xbmc.log("AmpachePlugin::AMPACHECONNECT: Generic Error "  +\
                     repr(e),xbmc.LOGDEBUG)
-        xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
         try:
             xbmc.log("AmpachePlugin::AMPACHECONNECT: contents " +\
                     contents.decode(),xbmc.LOGDEBUG)
@@ -165,6 +182,7 @@ class AmpacheConnect(object):
                 #connection error
                 xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
             raise self.ConnectionError
+        xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
         if showok:
                 #use it only if notification of connection is necessary, like
                 #switch server, display connection ok and the name of the
