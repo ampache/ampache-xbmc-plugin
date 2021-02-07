@@ -294,7 +294,7 @@ def addSongLinks(elem):
         song_title = str(node.findtext("title"))
         cm.append( ( ut.tString(30140),
         "Container.Update(%s?title=%s&mode=17)" % (
-            sys.argv[0],song_title) ) )
+            sys.argv[0],urllib.parse.quote_plus(song_title) ) ) )
 
         if cm != []:
             liz.addContextMenuItems(cm)
@@ -328,10 +328,12 @@ def play_track(object_id,song_url):
     liz = xbmcgui.ListItem()
     try:
         if old_object_id == None or old_object_id != object_id:
-            ampConn = ampache_connect.AmpacheConnect()
             xbmc.log("AmpachePlugin::play_track refresh infoLabels", xbmc.LOGDEBUG)
+
+            ampConn = ampache_connect.AmpacheConnect()
             ampConn.filter = object_id
             elem = ampConn.ampache_http_request("song")
+
             for thisnode in elem:
                 node = thisnode
             fillListItemWithSongInfo(liz,node)
@@ -352,14 +354,12 @@ def addDir(name,object_id,mode,offset=None):
 
     handle=int(sys.argv[1])
 
-    u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)
+    u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)
     #offset, in case of very long lists
     if offset:
         u = u + "&offset="+str(offset)
     xbmc.log("AmpachePlugin::addDir url " + u, xbmc.LOGDEBUG)
-    ok=xbmcplugin.addDirectoryItem(handle=handle,url=u,listitem=liz,isFolder=True)
-    #xbmc.log("AmpachePlugin::addDir ok " + str(ok), xbmc.LOGDEBUG)
-    return ok
+    xbmcplugin.addDirectoryItem(handle=handle,url=u,listitem=liz,isFolder=True)
 
 #this function add items to the directory using the low level addLinks of ddSongLinks functions
 def addItem( object_type, mode , elem, useCacheArt=True):
@@ -516,14 +516,18 @@ def setRating():
     #converts from five stats ampache rating to ten stars kodi rating
     amp_rating = math.ceil(int(rating)/2.0)
 
-    ampConn = ampache_connect.AmpacheConnect()
+    try:
+        ampConn = ampache_connect.AmpacheConnect()
 
-    action = "rate"
-    ampConn.id = str(object_id)
-    ampConn.type = "song"
-    ampConn.rating = str(amp_rating)
+        action = "rate"
+        ampConn.id = str(object_id)
+        ampConn.type = "song"
+        ampConn.rating = str(amp_rating)
 
-    elem = ampConn.ampache_http_request(action)
+        ampConn.ampache_http_request(action)
+    except:
+        #do nothing
+        return
 
 def do_search(object_type,object_subtype=None,thisFilter=None):
     """
