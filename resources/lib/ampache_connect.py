@@ -65,25 +65,19 @@ class AmpacheConnect(object):
             #ampache api 4 and below
             try:
                 errormess = tree.findtext('error')
-                code = errornode.attrib["code"]
-                xbmc.log("AmpachePlugin::getCodeMessError: Client error code " + \
-                       str(code) + " message " + str(errormess) , xbmc.LOGDEBUG)
-                return code, errormess
+                return errormess
             except:
                 #do nothing
                 pass
             #ampache api 5 and above
             try:
                 errormess = errornode.findtext("errorMessage")
-                code = errornode.attrib["errorCode"]
-                xbmc.log("AmpachePlugin::getCodeMessError: Client error code " + \
-                       str(code) + " message " + str(errormess) , xbmc.LOGDEBUG)
-                return code, errormess
+                return errormess
             except:
                 #do nothing
                 pass
 
-        return code, errormess
+        return errormess
 
     def getHashedPassword(self,timeStamp):
         enablePass = self._connectionData["enable_password"]
@@ -173,14 +167,10 @@ class AmpacheConnect(object):
             xbmc.log("AmpachePlugin::AMPACHECONNECT: unable to print contents " + \
                    repr(e) , xbmc.LOGDEBUG)
         tree=ET.XML(contents)
-        code, errormess = self.getCodeMessError(tree)
+        errormess = self.getCodeMessError(tree)
         if errormess:
-            if "time" in errormess and code == "401":
-                #permission error, check password or api_key
-                xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30204))
-            else:
-                #connection error
-                xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
+            #connection error
+            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
             raise self.ConnectionError
         xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
         if showok:
@@ -219,9 +209,8 @@ class AmpacheConnect(object):
             xbmc.log("AmpachePlugin::ampache_http_request: unable print contents " + \
                     repr(e) , xbmc.LOGDEBUG)
         tree=ET.XML(contents)
-        code, errormess = self.getCodeMessError(tree)
+        errormess = self.getCodeMessError(tree)
         if errormess:
-            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
             raise self.ConnectionError
         return tree
     
