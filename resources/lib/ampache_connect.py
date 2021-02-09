@@ -58,7 +58,6 @@ class AmpacheConnect(object):
         self._ampache.setSetting("token-exp", str(nTime+24000))
 
     def getCodeMessError(self,tree):
-        code = None
         errormess = None
         errornode = tree.find("error")
         if errornode is not None:
