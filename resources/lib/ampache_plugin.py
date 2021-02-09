@@ -641,10 +641,11 @@ def get_random(object_type, random_items):
             except:
                 pass
 
-def checkCloseMusicPlaylist(addon_url, mode, submode, object_id=None, title=None):
+def switchFromMusicPlaylist(addon_url, mode, submode, object_id=None, title=None):
     """
     this function checks if musicplaylist window is active and switchs to the music window
-    necessary when we have to display albums or songs
+    necessary when we have to call a function like "get album from this
+    artist"
     """
     if xbmc.getCondVisibility("Window.IsActive(musicplaylist)"):
         #close busydialog to activate music window
@@ -797,7 +798,7 @@ def Main():
             #get_items("artists", limit=None, useCacheArt=False)
         #get the artist from this album's artist_id
         elif submode == 6:
-            checkCloseMusicPlaylist(addon_url, mode, submode, object_id=object_id )
+            switchFromMusicPlaylist(addon_url, mode, submode, object_id=object_id )
             get_items(object_type="artists",object_id=object_id,object_subtype="artist")
         #search function
         #10-30 search
@@ -828,7 +829,7 @@ def Main():
             #get_items("albums", limit=None, useCacheArt=False)
         #get the album from the song's album_id
         elif submode == 6:
-            checkCloseMusicPlaylist(addon_url, mode, submode, object_id=object_id )
+            switchFromMusicPlaylist(addon_url, mode, submode, object_id=object_id )
             get_items(object_type="albums",object_id=object_id,object_subtype="album")
         elif submode == 10:
             endDir = do_search("albums")
@@ -851,7 +852,7 @@ def Main():
             endDir = do_search("songs","search_songs")
         #get all song with this title
         elif submode == 12:
-            checkCloseMusicPlaylist(addon_url, mode,submode,title=m_params['title'] )
+            switchFromMusicPlaylist(addon_url, mode,submode,title=m_params['title'] )
             endDir = do_search("songs",thisFilter=m_params['title'])
         #30-40 recent
         elif submode > 30 and submode < 35:
