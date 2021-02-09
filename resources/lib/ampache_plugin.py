@@ -79,18 +79,9 @@ def get_album_artist_name(node):
             fullname = fullname + " - [ " + ut.tString(30195) + " " + disknumber + " ]"
     return fullname
 
-def getRating(rating):
-    if rating:
-        #converts from five stats ampache rating to ten stars kodi rating
-        rating = int(float(rating)*2)
-    else:
-        #zero equals no rating
-        rating = 0
-    return rating
-
 def get_infolabels(object_type , node):
     infoLabels = None
-    rating = getRating(node.findtext("rating"))
+    rating = ut.getRating(node.findtext("rating"))
     if object_type == 'albums':
         infoLabels = {
             'Title' : str(node.findtext("name")) ,
@@ -453,19 +444,7 @@ def get_items(object_type, object_id=None, add=None,\
 
   #set the mode 
 
-    if object_type == 'artists':
-        mode = 1
-    elif object_type == 'albums':
-        mode = 2
-    elif object_type == 'playlists':
-        mode = 4
-    elif object_type == 'tags':
-        if object_subtype == 'tag_artists':
-            mode = 19
-        elif object_subtype == 'tag_albums':
-            mode = 20
-        elif object_subtype == 'tag_songs':
-            mode = 21
+    mode = ut.otype_to_mode(object_type, object_subtype)
 
     #here the documentation for an ampache connection
     #first create the connection object
@@ -545,11 +524,8 @@ def do_search(object_type,object_subtype=None,thisFilter=None):
 def get_stats(object_type, object_subtype=None, limit=5000 ):
 
     xbmc.log("AmpachePlugin::get_stats ",  xbmc.LOGDEBUG)
-    mode = None
-    if object_type == 'artists':
-        mode = 1
-    elif object_type == 'albums':
-        mode = 2
+
+    mode = ut.otype_to_mode(object_type)
    
     xbmcplugin.setContent(int(sys.argv[1]), object_type)
 
@@ -594,13 +570,8 @@ def get_random(object_type, random_items):
     ampConn = ampache_connect.AmpacheConnect()
     
     amtype = ut.otype_to_type(object_type)
-    if object_type == 'albums':
-        mode = 2
-    elif object_type == 'artists':
-        mode = 1
-    elif object_type == 'playlists':
-        mode = 4
-    #song is the same mode
+
+    mode = ut.otype_to_mode(object_type)
 
     xbmcplugin.setContent(int(sys.argv[1]), object_type)
 

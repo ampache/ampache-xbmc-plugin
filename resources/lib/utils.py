@@ -6,6 +6,42 @@ import sys
 #main plugin/service library
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
+def otype_to_mode(object_type, object_subtype=None):
+    mode = None
+    if object_type == 'artists':
+        mode = 1
+    elif object_type == 'albums':
+        mode = 2
+    elif object_type == 'songs':
+        mode = 3
+    elif object_type == 'playlists':
+        mode = 4
+    elif object_type == 'tags' or object_type == 'genres':
+        if object_subtype == 'tag_artists' or object_subtype == 'genre_artists':
+            mode = 19
+        elif object_subtype == 'tag_albums' or object_subtype == 'genre_albums':
+            mode = 20
+        elif object_subtype == 'tag_songs' or object_subtype == 'genre_songs':
+            mode = 21
+
+    return mode
+
+def mode_to_tags(mode):
+    if(int(ampache.getSetting("api-version"))) < 500000:
+        if mode == 19:
+            return "tags","tag_artists"
+        if mode == 20:
+            return "tags","tag_albums"
+        if mode == 21:
+            return "tags","tag_songs"
+    else:
+        if mode == 19:
+            return "genres","genre_artists"
+        if mode == 20:
+            return "genres","genre_albums"
+        if mode == 21:
+            return "genres","genre_songs"
+
 def otype_to_type(object_type):
     if object_type == 'albums':
         return 'album'
@@ -105,3 +141,12 @@ def get_objectId_from_fileURL( file_url ):
     except:
             pass
     return object_id
+
+def getRating(rating):
+    if rating:
+        #converts from five stats ampache rating to ten stars kodi rating
+        rating = int(float(rating)*2)
+    else:
+        #zero equals no rating
+        rating = 0
+    return rating
