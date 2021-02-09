@@ -49,12 +49,20 @@ def searchGui():
         endDir = do_search("songs","search_songs")
     elif ret == 5:
         ret2 = dialog.contextmenu([ut.tString(30112),ut.tString(30113),ut.tString(30114)])
-        if ret2 == 0:
-            endDir = do_search("tags","tag_artists")
-        elif ret2 == 1:
-            endDir = do_search("tags","tag_albums")
-        elif ret2 == 2:
-            endDir = do_search("tags","tag_songs")
+        if(int(ampache.getSetting("api-version"))) < 500000:
+            if ret2 == 0:
+                endDir = do_search("tags","tag_artists")
+            elif ret2 == 1:
+                endDir = do_search("tags","tag_albums")
+            elif ret2 == 2:
+                endDir = do_search("tags","tag_songs")
+        else:
+            if ret2 == 0:
+                endDir = do_search("genres","genre_artists")
+            elif ret2 == 1:
+                endDir = do_search("genres","genre_albums")
+            elif ret2 == 2:
+                endDir = do_search("genres","genre_songs")
 
     return endDir
 
@@ -420,16 +428,22 @@ def get_items(object_type, object_id=None, add=None,\
             addDir("All Songs",1,72, object_id=object_id)
         elif object_subtype == 'tag_albums':
             action = 'tag_albums'
+        elif object_subtype == 'genre_albums':
+            action = 'genre_albums'
         elif object_subtype == 'album':
             action = 'album'
     elif object_type == 'artists':
         if object_subtype == 'tag_artists':
             action = 'tag_artists'
-        if object_subtype == 'artist':
+        elif object_subtype == 'genre_artists':
+            action = 'genre_artists'
+        elif object_subtype == 'artist':
             action = 'artist'
     elif object_type == 'songs':
         if object_subtype == 'tag_songs':
             action = 'tag_songs'
+        elif object_subtype == 'genre_songs':
+            action = 'genre_songs'
         elif object_subtype == 'playlist_songs':
             action = 'playlist_songs'
         elif object_subtype == 'album_songs':
@@ -852,32 +866,22 @@ def Main():
     #mode 5 podcast
 
     #19-21 tags/genres mode
-    elif mode==19:
+    elif mode>=19  and mode <=21:
+        object_type, object_subtype = ut.mode_to_tags(mode)
         #get_all tags/genres
         if submode == 5:
-            get_items(object_type = "tags", object_subtype="tag_artists")
+            get_items(object_type = object_type, object_subtype=object_subtype)
         #search tag/genre
         elif submode == 10:
-            endDir = do_search("tags","tag_artists")
+            endDir = do_search(object_type,object_subtype)
         #get all songs from a tag_id/genre_id
         elif submode == 71:
-            get_items(object_type="artists", object_subtype="tag_artists",object_id=object_id)
-
-    elif mode==20:
-        if submode == 5:
-            get_items(object_type = "tags", object_subtype="tag_albums")
-        elif submode == 10:
-            endDir = do_search("tags","tag_albums")
-        elif submode == 71:
-            get_items(object_type="albums", object_subtype="tag_albums",object_id=object_id)
-
-    elif mode==21:
-        if submode == 5:
-            get_items(object_type = "tags", object_subtype="tag_songs")
-        elif submode == 10:
-            endDir = do_search("tags","tag_songs")
-        elif submode == 71:
-            get_items(object_type="songs", object_subtype="tag_songs",object_id=object_id)
+            if mode == 19:
+                get_items(object_type="artists", object_subtype=object_subtype,object_id=object_id)
+            elif mode == 20:
+                get_items(object_type="albums", object_subtype=object_subtype,object_id=object_id)
+            elif mode == 21:
+                get_items(object_type="songs", object_subtype=object_subtype,object_id=object_id)
 
     #main meus 50-100
     #explore

@@ -53,6 +53,8 @@ def otype_to_type(object_type):
         return 'playlist'
     elif object_type == 'tags':
         return 'tag'
+    elif object_type == 'genres':
+        return 'genre'
     return None
 
 def int_to_strBool(s):
