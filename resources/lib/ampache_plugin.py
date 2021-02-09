@@ -313,35 +313,9 @@ def play_track(object_id,song_url):
         xbmc.log("AmpachePlugin::play_track object or song null", xbmc.LOGINFO )
         return
 
-    old_object_id = None
-
-    #it checks if we need the song infolabels ( object_id cached is different from
-    #object_id of the song, for instance as kore app call the song
-    try:
-            plugin_url = xbmc.getInfoLabel('ListItem.FileNameAndPath')
-            params=ut.get_params(plugin_url)
-            old_object_id=int(params["object_id"])
-            xbmc.log("AmpachePlugin::play_track old_object_id " + str(old_object_id), xbmc.LOGDEBUG)
-    except:
-            pass
-
     liz = xbmcgui.ListItem()
-    try:
-        if old_object_id == None or old_object_id != object_id:
-            xbmc.log("AmpachePlugin::play_track refresh infoLabels", xbmc.LOGDEBUG)
-
-            ampConn = ampache_connect.AmpacheConnect()
-            ampConn.filter = object_id
-            elem = ampConn.ampache_http_request("song")
-
-            for thisnode in elem:
-                node = thisnode
-            fillListItemWithSongInfo(liz,node)
-            liz.setProperty("IsPlayable", "true")
-    except:
-        pass
-
     liz.setPath(song_url)
+
     xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
 
 #Main function to add xbmc plugin elements
