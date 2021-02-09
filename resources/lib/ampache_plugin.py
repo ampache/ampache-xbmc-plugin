@@ -126,7 +126,7 @@ def get_infolabels(object_type , node):
 
 def getNestedTypeId(node,elem_type):
     obj_elem = node.find(elem_type)
-    obj_id = int(obj_elem.attrib["id"])
+    obj_id = obj_elem.attrib["id"]
     return obj_id
 
 #this function is used to speed up the loading of the images using differents
@@ -145,7 +145,7 @@ def precacheArt(elem,object_type):
                 object_id = None
         else:
             try:
-                object_id = int(node.attrib["id"])
+                object_id = node.attrib["id"]
             except:
                 object_id = None
         if object_id == None:
@@ -168,7 +168,7 @@ def check_get_art_url(node):
 
 #it handles albumArt and song info
 def fillListItemWithSongInfo(liz,node):
-    object_id = int(node.attrib["id"])
+    object_id = node.attrib["id"]
     image_url = check_get_art_url(node)
     try:
         album_id = getNestedTypeId(node,"album")
@@ -191,10 +191,8 @@ def addLinks(elem,object_type,useCacheArt,mode):
 
     for node in elem.iter(elem_type):
         cm = []
-        try:
-            object_id = int(node.attrib["id"])
-        except:
-            object_id == None
+        object_id = node.attrib["id"]
+        if object_id is None or object_id == "":
             continue
         #xbmc.log("AmpachePlugin::addLinks: object_id  - " + str(object_id) , xbmc.LOGDEBUG )
         #xbmc.log("AmpachePlugin::addLinks: node " + ET.tostring(node) , xbmc.LOGDEBUG )
@@ -211,12 +209,10 @@ def addLinks(elem,object_type,useCacheArt,mode):
                     allid.add(object_id)
                 else:
                     continue
-                try:
-                    artist_id = getNestedTypeId(node,"artist")
+                artist_id = getNestedTypeId(node,"artist")
+                if artist_id is not None and artist_id <> "":
                     cm.append( ( ut.tString(30141),"Container.Update(%s?object_id=%s&mode=1&submode=6)" % 
                         ( sys.argv[0],artist_id ) ) )
-                except:
-                    pass
 
                 name = get_album_artist_name(node)
                 if useCacheArt:
@@ -249,7 +245,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
 
         handle=int(sys.argv[1])
 
-        u=sys.argv[0]+"?object_id="+str(object_id)+"&mode="+str(mode)+"&submode=71"
+        u=sys.argv[0]+"?object_id="+object_id+"&mode="+str(mode)+"&submode=71"
         #xbmc.log("AmpachePlugin::addLinks: u - " + u, xbmc.LOGDEBUG )
         isFolder=True
         tu= (u,liz,isFolder)
@@ -266,31 +262,26 @@ def addSongLinks(elem):
     ok=True
     it=[]
     for node in elem.iter("song"):
-        try:
-            song_id = int(node.attrib["id"])
-        except:
-            song_id = None
+        song_id = node.attrib["id"]
+        if song_id is None or song_id == "":
             continue
         liz=xbmcgui.ListItem()
         fillListItemWithSongInfo(liz,node)
         liz.setProperty("IsPlayable", "true")
 
         cm = []
-        try:
-            artist_id = getNestedTypeId(node,"artist")
+
+        artist_id = getNestedTypeId(node,"artist")
+        if artist_id is not None and artist_id <> "":
             cm.append( ( ut.tString(30138),
             "Container.Update(%s?object_id=%s&mode=1&submode=6)" % (
                 sys.argv[0],artist_id ) ) )
-        except:
-            pass
         
-        try:
-            album_id = getNestedTypeId(node,"album")
+        album_id = getNestedTypeId(node,"album")
+        if album_id is not None and album_id <> "":
             cm.append( ( ut.tString(30139),
             "Container.Update(%s?object_id=%s&mode=2&submode=6)" % (
                 sys.argv[0],album_id ) ) )
-        except:
-            pass
         
         song_title = str(node.findtext("title"))
         cm.append( ( ut.tString(30140),
@@ -321,8 +312,8 @@ def play_track(object_id,song_url):
     try:
             plugin_url = xbmc.getInfoLabel('ListItem.FileNameAndPath')
             params=ut.get_params(plugin_url)
-            old_object_id=int(params["object_id"])
-            xbmc.log("AmpachePlugin::play_track old_object_id " + str(old_object_id), xbmc.LOGDEBUG)
+            old_object_id=params["object_id"]
+            xbmc.log("AmpachePlugin::play_track old_object_id " + old_object_id, xbmc.LOGDEBUG)
     except:
             pass
 
@@ -360,7 +351,7 @@ def addDir(name,mode,submode,offset=None,object_id=None):
     if offset:
         u = u + "&offset="+str(offset)
     if object_id:
-        u = u + "&object_id="+str(object_id)
+        u = u + "&object_id="+object_id
     xbmc.log("AmpachePlugin::addDir url " + u, xbmc.LOGDEBUG)
     xbmcplugin.addDirectoryItem(handle=handle,url=u,listitem=liz,isFolder=True)
 
@@ -420,7 +411,7 @@ def get_items(object_type, object_id=None, add=None,\
     #object_id could be None in some requests, like recently added and get_all
     #items
     if object_id:
-        xbmc.log("AmpachePlugin::get_items: object_id " + str(object_id), xbmc.LOGDEBUG)
+        xbmc.log("AmpachePlugin::get_items: object_id " + object_id, xbmc.LOGDEBUG)
 
     if limit == None:
         limit = int(ampache.getSetting(object_type))
@@ -512,7 +503,7 @@ def setRating():
         return
 
     object_id = ut.get_objectId_from_fileURL( file_url )
-    if object_id == None:
+    if object_id is None or object_id == "":
         return
     rating = xbmc.getInfoLabel('MusicPlayer.UserRating')
     if rating == "":
@@ -526,7 +517,7 @@ def setRating():
         ampConn = ampache_connect.AmpacheConnect()
 
         action = "rate"
-        ampConn.id = str(object_id)
+        ampConn.id = object_id
         ampConn.type = "song"
         ampConn.rating = str(amp_rating)
 
@@ -698,8 +689,8 @@ def main_params(plugin_url):
     except:
             pass
     try:
-            m_params['object_id']=int(params["object_id"])
-            xbmc.log("AmpachePlugin::object_id " + str(m_params['object_id']), xbmc.LOGDEBUG)
+            m_params['object_id']=params["object_id"]
+            xbmc.log("AmpachePlugin::object_id " + m_params['object_id'], xbmc.LOGDEBUG)
     except:
             pass
     try:
@@ -860,7 +851,7 @@ def Main():
             endDir = do_search("songs","search_songs")
         #get all song with this title
         elif submode == 12:
-            checkCloseMusicPlaylist(addon_url, mode,submode, object_id=object_id )
+            checkCloseMusicPlaylist(addon_url, mode,submode,title=m_params['title'] )
             endDir = do_search("songs",thisFilter=m_params['title'])
         #30-40 recent
         elif submode > 30 and submode < 35:

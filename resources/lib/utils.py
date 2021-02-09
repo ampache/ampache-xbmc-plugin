@@ -95,13 +95,13 @@ def get_objectId_from_fileURL( file_url ):
     #i use two kind of object_id, i don't know, but sometime i have different
     #url, btw, no problem, i handle both and i solve the problem in this way
     try:
-            object_id=int(params["object_id"])
-            xbmc.log("AmpachePlugin::object_id " + str(object_id), xbmc.LOGDEBUG)
+            object_id=params["object_id"]
+            xbmc.log("AmpachePlugin::object_id " + object_id, xbmc.LOGDEBUG)
     except:
             pass
     try:
-            object_id=int(params["oid"])
-            xbmc.log("AmpachePlugin::object_id " + str(object_id), xbmc.LOGDEBUG)
+            object_id=params["oid"]
+            xbmc.log("AmpachePlugin::object_id " + object_id, xbmc.LOGDEBUG)
     except:
             pass
     return object_id
