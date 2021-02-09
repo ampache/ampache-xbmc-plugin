@@ -209,7 +209,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
                 else:
                     continue
                 artist_id = getNestedTypeId(node,"artist")
-                if artist_id is not None and artist_id <> "":
+                if artist_id is not None and artist_id != "":
                     cm.append( ( ut.tString(30141),"Container.Update(%s?object_id=%s&mode=1&submode=6)" % 
                         ( sys.argv[0],artist_id ) ) )
 
@@ -271,13 +271,13 @@ def addSongLinks(elem):
         cm = []
 
         artist_id = getNestedTypeId(node,"artist")
-        if artist_id is not None and artist_id <> "":
+        if artist_id is not None and artist_id != "":
             cm.append( ( ut.tString(30138),
             "Container.Update(%s?object_id=%s&mode=1&submode=6)" % (
                 sys.argv[0],artist_id ) ) )
         
         album_id = getNestedTypeId(node,"album")
-        if album_id is not None and album_id <> "":
+        if album_id is not None and album_id != "":
             cm.append( ( ut.tString(30139),
             "Container.Update(%s?object_id=%s&mode=2&submode=6)" % (
                 sys.argv[0],album_id ) ) )
