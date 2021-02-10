@@ -699,8 +699,6 @@ def Main():
 
     servers_manager.initializeServer()
     
-    ampacheConnect = ampache_connect.AmpacheConnect()
-
     #check if the connection is expired
     #connect to the server
     #do not connect on main screen and when we operate setting; 
@@ -708,6 +706,7 @@ def Main():
     if mode!=None and mode < endCheckConnection:
         if ut.check_tokenexp():
             try:
+                ampacheConnect = ampache_connect.AmpacheConnect()
                 ampacheConnect.AMPACHECONNECT()
             except:
                 pass
