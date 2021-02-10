@@ -49,7 +49,7 @@ def cacheArt(imageID,elem_type,url=None):
     if extension:
         mimetype, options = cgi.parse_header(extension)
         #little hack when content-type is not standard
-        if mimetype == "JPG":
+        if mimetype == "JPG" or mimetype == "jpeg":
             maintype = "image"
             subtype = "jpg"
         else:
