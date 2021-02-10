@@ -19,6 +19,12 @@ else:
 user_mediaDir = os.path.join( user_dir , 'media' )
 cacheDir = os.path.join( user_mediaDir , 'cache' )
 
+def clean_settings():
+    ampache.setSetting("session_expire", "")
+    ampache.setSetting("add", "")
+    ampache.setSetting("token", "")
+    ampache.setSetting("token-exp", "")
+
 def clean_cache_art():
     #hack to force the creation of profile directory if don't exists
     if not os.path.isdir(user_dir):
