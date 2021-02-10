@@ -300,7 +300,7 @@ def addSongLinks(elem):
 #The function that actually plays an Ampache URL by using setResolvedUrl
 def play_track(song_url):
     if song_url == None:
-        xbmc.log("AmpachePlugin::play_track object or song null", xbmc.LOGINFO )
+        xbmc.log("AmpachePlugin::play_track song null", xbmc.LOGINFO )
         return
 
     liz = xbmcgui.ListItem()
@@ -387,7 +387,6 @@ def get_items(object_type, object_id=None, add=None,\
 
     if limit == None:
         limit = int(ampache.getSetting(object_type))
-    mode = None
 
     xbmcplugin.setContent(int(sys.argv[1]), object_type)
     #default: object_type is the action,otherwise see the if list below
@@ -551,53 +550,31 @@ def get_recent(object_type,submode,object_subtype=None):
 
 def get_random(object_type, random_items):
     xbmc.log("AmpachePlugin::get_random: object_type " + object_type, xbmc.LOGDEBUG)
-    mode = None
     #object type can be : albums, artists, songs, playlists
     
-    ampConn = ampache_connect.AmpacheConnect()
-    
-    amtype = ut.otype_to_type(object_type)
-
     mode = ut.otype_to_mode(object_type)
 
     xbmcplugin.setContent(int(sys.argv[1]), object_type)
 
-    try:
-        xbmc.log("AmpachePlugin::get_random: random_items " + str(random_items), xbmc.LOGDEBUG )
-        items = int(ampache.getSetting(object_type))
-        xbmc.log("AmpachePlugin::get_random: total items in the catalog " + str(items), xbmc.LOGDEBUG )
-    except:
-        return
+    items = int(ampache.getSetting(object_type))
     if random_items > items:
         #if items are less than random_itmes, return all items
         get_items(object_type, limit=items)
         return
-    #playlists are not in the new stats api, so, use the old mode
-    if(int(ampache.getSetting("api-version"))) >= 400001 and object_type != 'playlists':
-        action = 'stats'
-        thisFilter = 'random'
-        try:
-            ampConn.filter = thisFilter
-            ampConn.limit = random_items
-            ampConn.type = amtype
 
-            elem = ampConn.ampache_http_request(action)
+    seq = random.sample(list(range(items)),random_items)
+    xbmc.log("AmpachePlugin::get_random: seq " + str(seq), xbmc.LOGDEBUG )
+    elements = []
+    for item_id in seq:
+        try:
+            ampConn = ampache_connect.AmpacheConnect()
+
+            ampConn.offset = item_id
+            ampConn.limit = 1
+            elem = ampConn.ampache_http_request(object_type)
             addItem( object_type, mode , elem)
         except:
-            return
-    
-    else: 
-        seq = random.sample(list(range(items)),random_items)
-        xbmc.log("AmpachePlugin::get_random: seq " + str(seq), xbmc.LOGDEBUG )
-        elements = []
-        for item_id in seq:
-            try:
-                ampConn.offset = item_id
-                ampConn.limit = 1
-                elem = ampConn.ampache_http_request(object_type)
-                addItem( object_type, mode , elem)
-            except:
-                pass
+            pass
 
 def switchFromMusicPlaylist(addon_url, mode, submode, object_id=None, title=None):
     """
@@ -677,7 +654,11 @@ def manage_stats_menu(submode, object_type):
     num_items = (int(ampache.getSetting("random_items"))*3)+3
 
     if submode == 40:
-        get_random(object_type, num_items)
+        #playlists are not in the new stats api, so, use the old mode
+        if(int(ampache.getSetting("api-version"))) < 400001 or object_type == 'playlists':
+            get_random(object_type, num_items)
+        else:
+            get_stats(object_type=object_type,object_subtype="random",limit=num_items)
     elif submode == 41:
         get_stats(object_type=object_type,object_subtype="highest",limit=num_items)
     elif submode == 42:
