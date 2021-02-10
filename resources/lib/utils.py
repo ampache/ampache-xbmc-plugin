@@ -16,6 +16,8 @@ def otype_to_mode(object_type, object_subtype=None):
         mode = 3
     elif object_type == 'playlists':
         mode = 4
+    elif object_type == 'videos':
+        mode = 8
     elif object_type == 'tags' or object_type == 'genres':
         if object_subtype == 'tag_artists' or object_subtype == 'genre_artists':
             mode = 19
@@ -55,6 +57,8 @@ def otype_to_type(object_type):
         return 'tag'
     elif object_type == 'genres':
         return 'genre'
+    elif object_type == 'videos':
+        return 'video'
     return None
 
 def int_to_strBool(s):

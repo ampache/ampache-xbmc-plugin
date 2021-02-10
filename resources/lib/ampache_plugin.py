@@ -35,7 +35,7 @@ ampache = xbmcaddon.Addon("plugin.audio.ampache")
 def searchGui():
     dialog = xbmcgui.Dialog()
     ret = dialog.contextmenu([ut.tString(30106),ut.tString(30107),ut.tString(30108),\
-                              ut.tString(30109),ut.tString(30110),ut.tString(30111)])
+                              ut.tString(30109),ut.tString(30110),ut.tString(30220),ut.tString(30111)])
     endDir = False
     if ret == 0:
         endDir = do_search("artists")
@@ -48,6 +48,8 @@ def searchGui():
     elif ret == 4:
         endDir = do_search("songs","search_songs")
     elif ret == 5:
+        endDir = do_search("videos")
+    elif ret == 6:
         ret2 = dialog.contextmenu([ut.tString(30112),ut.tString(30113),ut.tString(30114)])
         if(int(ampache.getSetting("api-version"))) < 500000:
             if ret2 == 0:
@@ -119,6 +121,14 @@ def get_infolabels(object_type , node):
             'TrackNumber' : node.findtext("track"),
             'UserRating' : rating,
             'Mediatype' : 'song'
+        }
+
+    elif object_type == 'videos':
+        infoLabels = {
+            'Title' : str(node.findtext("name")) ,
+            'VideoResolution' : node.findtext("resolution") ,
+            'Size' : node.findtext("size") ,
+            'Mediatype' : 'video'
         }
 
     return infoLabels
@@ -242,7 +252,6 @@ def addLinks(elem,object_type,useCacheArt,mode):
 def addSongLinks(elem):
    
     xbmcplugin.setContent(int(sys.argv[1]), "songs")
-    ok=True
     it=[]
     for node in elem.iter("song"):
         song_id = node.attrib["id"]
@@ -289,21 +298,47 @@ def addSongLinks(elem):
         if cm != []:
             liz.addContextMenuItems(cm)
 
-        track_parameters = { "mode": 200, "song_url" : song_url}
+        track_parameters = { "mode": 200, "play_url" : song_url}
         url = sys.argv[0] + '?' + urllib.parse.urlencode(track_parameters)
         tu= (url,liz)
         it.append(tu)
     
     xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(elem))
 
+def addVideoLinks(elem):
+    xbmcplugin.setContent(int(sys.argv[1]), "videos")
+    it=[]
+    for node in elem.iter("video"):
+        video_id = node.attrib["id"]
+        if video_id is None or video_id == "":
+            continue
+
+        video_url = str(node.findtext("url"))
+        video_title = str(node.findtext("title"))
+
+        liz=xbmcgui.ListItem()
+
+        liz.setLabel(video_title)
+        liz.setInfo( type="video", infoLabels=get_infolabels("videos", node) )
+        liz.setMimeType(node.findtext("mime"))
+        liz.setProperty("IsPlayable", "true")
+        liz.setPath(video_url)
+
+        track_parameters = { "mode": 200, "play_url" : video_url}
+        url = sys.argv[0] + '?' + urllib.parse.urlencode(track_parameters)
+        tu= (url,liz)
+        it.append(tu)
+
+    xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(elem))
+
 #The function that actually plays an Ampache URL by using setResolvedUrl
-def play_track(song_url):
-    if song_url == None:
-        xbmc.log("AmpachePlugin::play_track song null", xbmc.LOGINFO )
+def play_track(url):
+    if url == None:
+        xbmc.log("AmpachePlugin::play_track url null", xbmc.LOGINFO )
         return
 
     liz = xbmcgui.ListItem()
-    liz.setPath(song_url)
+    liz.setPath(url)
 
     xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
 
@@ -327,15 +362,17 @@ def addDir(name,mode,submode,offset=None,object_id=None):
     xbmcplugin.addDirectoryItem(handle=handle,url=u,listitem=liz,isFolder=True)
 
 #this function add items to the directory using the low level addLinks of ddSongLinks functions
-def addItem( object_type, mode , elem, useCacheArt=True):
+def addItems( object_type, mode , elem, useCacheArt=True):
     image = "DefaultFolder.png"
-    xbmc.log("AmpachePlugin::addItem: object_type - " + str(object_type) , xbmc.LOGDEBUG )
+    xbmc.log("AmpachePlugin::addItems: object_type - " + str(object_type) , xbmc.LOGDEBUG )
 
     if useCacheArt:
         precacheArt(elem,object_type)
 
     if object_type == 'songs':
         addSongLinks(elem)
+    elif object_type == 'videos':
+        addVideoLinks(elem)
     else:
         addLinks(elem,object_type,useCacheArt,mode)
     return
@@ -442,7 +479,7 @@ def get_items(object_type, object_id=None, add=None,\
     #or ampache_binary_request if the server return a binary file (eg. an
     #image )
     #it could be very simply to add json api, but we have to rewrite all
-    #function that rely on xml input, like additem
+    #function that rely on xml input, like additems
   
     try:
         ampConn = ampache_connect.AmpacheConnect()
@@ -453,7 +490,7 @@ def get_items(object_type, object_id=None, add=None,\
         ampConn.offset = offset
 
         elem = ampConn.ampache_http_request(action)
-        addItem( object_type, mode , elem, useCacheArt)
+        addItems( object_type, mode , elem, useCacheArt)
     except:
         return
 
@@ -530,7 +567,7 @@ def get_stats(object_type, object_subtype=None, limit=5000 ):
         ampConn.type = amtype
                 
         elem = ampConn.ampache_http_request(action)
-        addItem( object_type, mode , elem)
+        addItems( object_type, mode , elem)
     except:
         return
 
@@ -571,7 +608,7 @@ def get_random(object_type, random_items):
             ampConn.offset = item_id
             ampConn.limit = 1
             elem = ampConn.ampache_http_request(object_type)
-            addItem( object_type, mode , elem)
+            addItems( object_type, mode , elem)
         except:
             pass
 
@@ -607,7 +644,7 @@ def main_params(plugin_url):
     m_params['object_id'] = None
     m_params['title'] = None
     #used only in play tracks
-    m_params['song_url'] = None
+    m_params['play_url'] = None
     #used to managed very long lists
     m_params['offset'] = None
 
@@ -634,8 +671,8 @@ def main_params(plugin_url):
     except:
             pass
     try:
-            m_params['song_url']=urllib.parse.unquote_plus(params["song_url"])
-            xbmc.log("AmpachePlugin::song_url " + m_params['song_url'], xbmc.LOGDEBUG)
+            m_params['play_url']=urllib.parse.unquote_plus(params["play_url"])
+            xbmc.log("AmpachePlugin::play_url " + m_params['play_url'], xbmc.LOGDEBUG)
     except:
             pass
     try:
@@ -815,6 +852,14 @@ def Main():
 
     #mode 5 podcast
 
+    #video
+    elif mode==8:
+        if submode == 5:
+            get_all("videos", mode ,m_params['offset'])
+            #get_items(object_type="playlists")
+        elif submode == 10:
+            endDir = do_search("videos")
+
     #19-21 tags/genres mode
     elif mode>=19  and mode <=21:
         object_type, object_subtype = ut.mode_to_tags(mode)
@@ -859,6 +904,8 @@ def Main():
         addDir(ut.tString(30115) +" (" + ampache.getSetting("artists")+ ")",1,5)
         addDir(ut.tString(30116) + " (" + ampache.getSetting("albums") + ")",2,5)
         addDir(ut.tString(30118) + " (" + ampache.getSetting("playlists")+ ")",4,5)
+        if ampache.getSetting("videos"):
+            addDir(ut.tString(30221) + " (" + ampache.getSetting("videos")+ ")",8,5)
         apiVersion = int(ampache.getSetting("api-version"))
         if apiVersion >= 380001:
             #get all tags ( submode 5 )
@@ -897,6 +944,8 @@ def Main():
             addDir(ut.tString(30123),4,10)
             #search all
             addDir(ut.tString(30124),3,11)
+            #search video
+            addDir(ut.tString(30222),8,10)
             #search tag
             addDir(ut.tString(30125),54,10)
 
@@ -992,7 +1041,7 @@ def Main():
     elif mode==200:
         #workaround busydialog bug
         xbmc.executebuiltin('Dialog.Close(busydialog)')
-        play_track(m_params['song_url'])
+        play_track(m_params['play_url'])
 
     #change rating
     elif mode==205:
