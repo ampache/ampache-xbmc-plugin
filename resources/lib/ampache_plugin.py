@@ -165,22 +165,6 @@ def check_get_art_url(node):
         url = node.findtext("art")
     return url
 
-#it handles albumArt and song info
-def fillListItemWithSongInfo(liz,node):
-    object_id = node.attrib["id"]
-    image_url = check_get_art_url(node)
-    try:
-        album_id = getNestedTypeId(node,"album")
-        albumArt = art.get_art(album_id,"album",image_url)
-    except:
-        albumArt = art.get_art(None,"album",image_url)
-    liz.setLabel(str(node.findtext("title")))
-    liz.setArt( art.get_artLabels(albumArt) )
-    #needed by play_track to play the song, added here to uniform api
-    liz.setPath(node.findtext("url"))
-    liz.setInfo( type="music", infoLabels=get_infolabels("songs", node) )
-    liz.setMimeType(node.findtext("mime"))
-
 def addLinks(elem,object_type,useCacheArt,mode):
 
     image = "DefaultFolder.png"
@@ -264,9 +248,26 @@ def addSongLinks(elem):
         song_id = node.attrib["id"]
         if song_id is None or song_id == "":
             continue
+
+        song_url = str(node.findtext("url"))
+        song_title = str(node.findtext("title"))
+
         liz=xbmcgui.ListItem()
-        fillListItemWithSongInfo(liz,node)
+
+        image_url = check_get_art_url(node)
+        try:
+            album_id = getNestedTypeId(node,"album")
+            albumArt = art.get_art(album_id,"album",image_url)
+        except:
+            albumArt = art.get_art(None,"album",image_url)
+
+        liz.setLabel(song_title)
+        liz.setArt( art.get_artLabels(albumArt) )
+        #needed by play_track to play the song, added here to uniform api
+        liz.setInfo( type="music", infoLabels=get_infolabels("songs", node) )
+        liz.setMimeType(node.findtext("mime"))
         liz.setProperty("IsPlayable", "true")
+        liz.setPath(song_url)
 
         cm = []
 
@@ -282,7 +283,6 @@ def addSongLinks(elem):
             "Container.Update(%s?object_id=%s&mode=2&submode=6)" % (
                 sys.argv[0],album_id ) ) )
         
-        song_title = str(node.findtext("title"))
         cm.append( ( ut.tString(30140),
         "Container.Update(%s?title=%s&mode=3&submode=12)" % (
             sys.argv[0],urllib.parse.quote_plus(song_title) ) ) )
@@ -290,8 +290,7 @@ def addSongLinks(elem):
         if cm != []:
             liz.addContextMenuItems(cm)
 
-        song_url = node.findtext("url")
-        track_parameters = { "mode": 200, "song_url" : song_url, "object_id" : song_id}
+        track_parameters = { "mode": 200, "song_url" : song_url}
         url = sys.argv[0] + '?' + urllib.parse.urlencode(track_parameters)
         tu= (url,liz)
         it.append(tu)
@@ -299,8 +298,8 @@ def addSongLinks(elem):
     xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(elem))
 
 #The function that actually plays an Ampache URL by using setResolvedUrl
-def play_track(object_id,song_url):
-    if song_url == None or object_id == None:
+def play_track(song_url):
+    if song_url == None:
         xbmc.log("AmpachePlugin::play_track object or song null", xbmc.LOGINFO )
         return
 
@@ -1016,7 +1015,7 @@ def Main():
     elif mode==200:
         #workaround busydialog bug
         xbmc.executebuiltin('Dialog.Close(busydialog)')
-        play_track(object_id, m_params['song_url'])
+        play_track(m_params['song_url'])
 
     #change rating
     elif mode==205:
