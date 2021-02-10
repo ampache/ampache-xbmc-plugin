@@ -214,12 +214,6 @@ class AmpacheConnect(object):
         return tree
     
     def build_ampache_url(self,action):
-        if ut.check_tokenexp():
-            xbmc.log("refreshing token...", xbmc.LOGDEBUG )
-            try:
-                self.AMPACHECONNECT()
-            except:
-                return
         token = self._ampache.getSetting("token")
         thisURL = self._connectionData["url"] +  self.getBaseUrl() + '?action=' + action
         thisURL += '&auth=' + token

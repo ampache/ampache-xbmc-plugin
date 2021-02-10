@@ -263,7 +263,6 @@ def addSongLinks(elem):
 
         liz.setLabel(song_title)
         liz.setArt( art.get_artLabels(albumArt) )
-        #needed by play_track to play the song, added here to uniform api
         liz.setInfo( type="music", infoLabels=get_infolabels("songs", node) )
         liz.setMimeType(node.findtext("mime"))
         liz.setProperty("IsPlayable", "true")
