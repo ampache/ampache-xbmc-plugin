@@ -24,14 +24,6 @@ from resources.lib import art
 #possible to start a song without initialising the plugin
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
-#ampache_addon_path =  ampache.getAddonInfo('path')
-#ampache_dir = xbmc.translatePath( ampache_addon_path )
-#if PY2:
-#    ampache_dir = ampache_dir.decode('utf-8')
-#BASE_RESOURCE_PATH = os.path.join( ampache_dir, 'resources' )
-#mediaDir = os.path.join( BASE_RESOURCE_PATH , 'media' )
-#imagepath = os.path.join( mediaDir ,'images')
-
 def searchGui():
     dialog = xbmcgui.Dialog()
     ret = dialog.contextmenu([ut.tString(30106),ut.tString(30107),ut.tString(30108),\
@@ -187,8 +179,6 @@ def addLinks(elem,object_type,useCacheArt,mode):
         object_id = node.attrib["id"]
         if object_id is None or object_id == "":
             continue
-        #xbmc.log("AmpachePlugin::addLinks: object_id  - " + str(object_id) , xbmc.LOGDEBUG )
-        #xbmc.log("AmpachePlugin::addLinks: node " + ET.tostring(node) , xbmc.LOGDEBUG )
 
         name = str(node.findtext("name"))
 
@@ -424,7 +414,6 @@ def get_items(object_type, object_id=None, add=None,\
     if limit == None:
         limit = int(ampache.getSetting(object_type))
 
-    xbmcplugin.setContent(int(sys.argv[1]), object_type)
     #default: object_type is the action,otherwise see the if list below
     action = object_type
     
@@ -736,6 +725,8 @@ def Main():
 
     servers_manager.initializeServer()
     
+    ampacheConnect = ampache_connect.AmpacheConnect()
+
     #check if the connection is expired
     #connect to the server
     #do not connect on main screen and when we operate setting; 
@@ -743,7 +734,6 @@ def Main():
     if mode!=None and mode < endCheckConnection:
         if ut.check_tokenexp():
             try:
-                ampacheConnect = ampache_connect.AmpacheConnect()
                 ampacheConnect.AMPACHECONNECT()
             except:
                 pass
@@ -769,7 +759,6 @@ def Main():
         #get all artists
         if submode == 5:
             get_all("artists", mode ,m_params['offset'])
-            #get_items("artists", limit=None, useCacheArt=False)
         #get the artist from this album's artist_id
         elif submode == 6:
             switchFromMusicPlaylist(addon_url, mode, submode, object_id=object_id )
@@ -799,7 +788,6 @@ def Main():
         #get all albums
         if submode == 5:
             get_all("albums", mode ,m_params['offset'])
-            #get_items("albums", limit=None, useCacheArt=False)
         #get the album from the song's album_id
         elif submode == 6:
             switchFromMusicPlaylist(addon_url, mode, submode, object_id=object_id )
@@ -837,15 +825,12 @@ def Main():
     elif mode==4:
         if submode == 5:
             get_all("playlists", mode ,m_params['offset'])
-            #get_items(object_type="playlists")
         elif submode == 10:
             endDir = do_search("playlists")
         elif submode > 30 and submode < 35:
             get_recent( "playlists", submode )
         elif submode == 40:
             manage_stats_menu(submode, "playlists")
-        #elif object_id:
-        #    get_items(object_type="playlists",object_id=object_id)
         #get all songs from a playlist_id
         elif submode == 71:
             get_items(object_type="songs",object_id=object_id,object_subtype="playlist_songs")
@@ -856,7 +841,6 @@ def Main():
     elif mode==8:
         if submode == 5:
             get_all("videos", mode ,m_params['offset'])
-            #get_items(object_type="playlists")
         elif submode == 10:
             endDir = do_search("videos")
 
