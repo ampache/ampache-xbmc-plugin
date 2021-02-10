@@ -759,7 +759,6 @@ def Main():
     
     
     #albums mode
-    #and others
     elif mode==2:
         #get all albums
         if submode == 5:
@@ -780,7 +779,6 @@ def Main():
             get_items(object_type="songs",object_id=object_id,object_subtype="album_songs")
 
     #song mode
-    #and others
     elif mode == 3:
         #10-30 search
         if submode == 10:
