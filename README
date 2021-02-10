@@ -28,7 +28,7 @@ due to a kodi bug, playing next song generates a busy dialog ( impossible to avo
 and operating on kodi generates another busy dialog.
 The combination of two busy dialogs working crashes kodi (https://github.com/xbmc/xbmc/issues/16756)
 
-When you update the 2.0 version from an old version, expecially on raspberri pi, the plugin could not work.
+When you update the 2.0 version from an old version, expecially on raspberry pi, the plugin could not work.
 This behaviour is due to the kodi addon cache. To correct this one time problem, it is necessary to reboot the
 mediacenter or, if the problem continues, uninstall and reinstall the plugin.
 
