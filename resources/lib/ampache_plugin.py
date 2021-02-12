@@ -27,7 +27,7 @@ ampache = xbmcaddon.Addon("plugin.audio.ampache")
 def searchGui():
     dialog = xbmcgui.Dialog()
     ret = dialog.contextmenu([ut.tString(30106),ut.tString(30107),ut.tString(30108),\
-                              ut.tString(30109),ut.tString(30110),ut.tString(30220),ut.tString(30111)])
+                              ut.tString(30109),ut.tString(30110),ut.tString(30220),ut.tString(30225),ut.tString(30111)])
     endDir = False
     if ret == 0:
         endDir = do_search("artists")
@@ -877,7 +877,7 @@ def Main():
         if ampache.getSetting("videos"):
             addDir(ut.tString(30221) + " (" + ampache.getSetting("videos")+ ")",8,5)
         if ampache.getSetting("podcasts"):
-            addDir(ut.tString(30221) + " (" + ampache.getSetting("podcasts")+ ")",8,5)
+            addDir(ut.tString(30226) + " (" + ampache.getSetting("podcasts")+ ")",8,5)
         apiVersion = int(ampache.getSetting("api-version"))
         if apiVersion >= 380001:
             #get all tags ( submode 5 )
@@ -921,7 +921,7 @@ def Main():
             #search video
             addDir(ut.tString(30222),8,10)
             #search podcast
-            #addDir(ut.tString(30222),8,10)
+            addDir(ut.tString(30227),8,10)
 
     #search tags
     elif mode==54:
