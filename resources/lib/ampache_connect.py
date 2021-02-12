@@ -55,6 +55,9 @@ class AmpacheConnect(object):
         videos = tree.findtext("videos")
         if videos:
             self._ampache.setSetting("videos", videos)
+        podcasts = tree.findtext("podcasts")
+        if podcasts:
+            self._ampache.setSetting("podcasts", podcasts)
         self._ampache.setSetting("session_expire", tree.findtext("session_expire"))
         self._ampache.setSetting("add", tree.findtext("add"))
         self._ampache.setSetting("token", token)

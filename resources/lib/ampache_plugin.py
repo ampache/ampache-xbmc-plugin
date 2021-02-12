@@ -40,8 +40,6 @@ def searchGui():
     elif ret == 4:
         endDir = do_search("songs","search_songs")
     elif ret == 5:
-        endDir = do_search("videos")
-    elif ret == 6:
         ret2 = dialog.contextmenu([ut.tString(30112),ut.tString(30113),ut.tString(30114)])
         if(int(ampache.getSetting("api-version"))) < 500000:
             if ret2 == 0:
@@ -57,8 +55,11 @@ def searchGui():
                 endDir = do_search("genres","genre_albums")
             elif ret2 == 2:
                 endDir = do_search("genres","genre_songs")
-
-    return endDir
+    elif ret == 6:
+        endDir = do_search("videos")
+    elif ret == 7:
+        endDir = do_search("podcasts")
+       return endDir
 
 #return album and artist name, only album could be confusing
 def get_album_artist_name(node):
@@ -812,7 +813,15 @@ def Main():
         elif submode == 71:
             get_items(object_type="songs",object_id=object_id,object_subtype="playlist_songs")
 
-    #mode 5 podcast
+    #podcasts
+    elif mode==5:
+        if submode == 5:
+            get_all("podcasts", mode ,m_params['offset'])
+        elif submode == 10:
+            endDir = do_search("podcasts")
+        #get all episodes
+        elif submode == 71:
+            get_items(object_type="songs",object_id=object_id,object_subtype="podcast_episodes")
 
     #video
     elif mode==8:
@@ -867,6 +876,8 @@ def Main():
         addDir(ut.tString(30118) + " (" + ampache.getSetting("playlists")+ ")",4,5)
         if ampache.getSetting("videos"):
             addDir(ut.tString(30221) + " (" + ampache.getSetting("videos")+ ")",8,5)
+        if ampache.getSetting("podcasts"):
+            addDir(ut.tString(30221) + " (" + ampache.getSetting("podcasts")+ ")",8,5)
         apiVersion = int(ampache.getSetting("api-version"))
         if apiVersion >= 380001:
             #get all tags ( submode 5 )
@@ -905,11 +916,12 @@ def Main():
             addDir(ut.tString(30123),4,10)
             #search all
             addDir(ut.tString(30124),3,11)
-            #search video
-            addDir(ut.tString(30222),8,10)
             #search tag
             addDir(ut.tString(30125),54,10)
-
+            #search video
+            addDir(ut.tString(30222),8,10)
+            #search podcast
+            #addDir(ut.tString(30222),8,10)
 
     #search tags
     elif mode==54:
