@@ -59,7 +59,7 @@ def searchGui():
         endDir = do_search("videos")
     elif ret == 7:
         endDir = do_search("podcasts")
-       return endDir
+    return endDir
 
 #return album and artist name, only album could be confusing
 def get_album_artist_name(node):
