@@ -821,7 +821,8 @@ def Main():
             endDir = do_search("podcasts")
         #get all episodes
         elif submode == 71:
-            get_items(object_type="songs",object_id=object_id,object_subtype="podcast_episodes")
+            pass
+            #get_items(object_type="songs",object_id=object_id,object_subtype="podcast_episodes")
 
     #video
     elif mode==8:
