@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: XBMC Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-02-10 17:42+0100\n"
+"PO-Revision-Date: 2021-02-12 16:53+0100\n"
 "Last-Translator: \n"
 "Language-Team: English (http://www.transifex.com/projects/p/xbmc-addons/"
 "language/en/)\n"
@@ -138,7 +138,7 @@ msgstr ""
 
 msgctxt "#30119"
 msgid "Tags"
-msgstr "Genere"
+msgstr "Generi"
 
 # code
 msgctxt "#30120"
@@ -475,30 +475,15 @@ msgctxt "#30222"
 msgid "Search Videos..."
 msgstr "Ricerca video..."
 
+msgctxt "#30225"
+msgid "Podcast"
+msgstr ""
+
+msgctxt "#30226"
+msgid "Podcasts"
+msgstr ""
+
 # code
-#, fuzzy
-#~| msgctxt "#30122"
-#~| msgid "Search Songs..."
-#~ msgctxt "#30221"
-#~ msgid "Search Videos..."
-#~ msgstr "Ricerca canzoni..."
-
-#~ msgctxt "#30190"
-#~ msgid "Recent Artists..."
-#~ msgstr "Artisti recenti.."
-
-#~ msgctxt "#30191"
-#~ msgid "Recent Albums..."
-#~ msgstr "Album recenti.."
-
-#~ msgctxt "#30192"
-#~ msgid "Recent Songs..."
-#~ msgstr "Canzoni recenti..."
-
-#~ msgctxt "#30193"
-#~ msgid "Recent..."
-#~ msgstr "Recenti..."
-
-#~ msgctxt "#30170"
-#~ msgid "Enter the Name"
-#~ msgstr "Inserisci il nome del server"
+msgctxt "#30227"
+msgid "Search Podcasts..."
+msgstr "Ricerca podcast..."
