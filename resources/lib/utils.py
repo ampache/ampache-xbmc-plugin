@@ -44,13 +44,11 @@ def mode_to_tags(mode):
         if mode == 21:
             return "genres","genre_songs"
 
-def otype_to_type(object_type):
+def otype_to_type(object_type,object_subtype=None):
     if object_type == 'albums':
         return 'album'
     elif object_type == 'artists':
         return 'artist'
-    elif object_type == 'songs':
-        return 'song'
     elif object_type == 'playlists':
         return 'playlist'
     elif object_type == 'tags':
@@ -59,6 +57,11 @@ def otype_to_type(object_type):
         return 'genre'
     elif object_type == 'videos':
         return 'video'
+    elif object_type == 'songs':
+        if object_subtype is None:
+            return 'song'
+        elif object_subtype == 'podcasts':
+            return None
     return None
 
 def int_to_strBool(s):

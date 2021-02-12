@@ -236,85 +236,65 @@ def addLinks(elem,object_type,useCacheArt,mode):
 
     xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(elem))
 
-# Used to populate items for songs on XBMC. Calls plugin script with mode == 45 and object_id == (ampache song id)
-# TODO: Merge with addLinks(). Same basic idea going on, this one adds links  all at once, as the other one
-#       Also, some property things, some different context menu things.
-def addSongLinks(elem):
+# Used to populate items for songs on XBMC. Calls plugin script with mode ==
+# 45 and play_ur == (ampache item url)
+def addPlayLinks(elem, object_type , object_subtype=None):
    
-    xbmcplugin.setContent(int(sys.argv[1]), "songs")
+    xbmcplugin.setContent(int(sys.argv[1]), object_type)
     it=[]
-    for node in elem.iter("song"):
-        song_id = node.attrib["id"]
-        if song_id is None or song_id == "":
+
+    elem_type = ut.otype_to_type(object_type,object_subtype)
+
+    for node in elem.iter(elem_type):
+        object_id = node.attrib["id"]
+        if object_id is None or object_id == "":
             continue
 
-        song_url = str(node.findtext("url"))
-        song_title = str(node.findtext("title"))
+        play_url = str(node.findtext("url"))
+        object_title = str(node.findtext("title"))
 
         liz=xbmcgui.ListItem()
+        liz.setProperty("IsPlayable", "true")
+        liz.setPath(play_url)
+        liz.setLabel(object_title)
 
-        image_url = check_get_art_url(node)
-        try:
+        if elem_type == "song":
+            image_url = check_get_art_url(node)
+            try:
+                album_id = getNestedTypeId(node,"album")
+                albumArt = art.get_art(album_id,"album",image_url)
+            except:
+                albumArt = art.get_art(None,"album",image_url)
+
+            liz.setArt( art.get_artLabels(albumArt) )
+            liz.setInfo( type="music", infoLabels=get_infolabels("songs", node) )
+            liz.setMimeType(node.findtext("mime"))
+
+            cm = []
+
+            artist_id = getNestedTypeId(node,"artist")
+            if artist_id is not None and artist_id != "":
+                cm.append( ( ut.tString(30138),
+                "Container.Update(%s?object_id=%s&mode=1&submode=6)" % (
+                    sys.argv[0],artist_id ) ) )
+
             album_id = getNestedTypeId(node,"album")
-            albumArt = art.get_art(album_id,"album",image_url)
-        except:
-            albumArt = art.get_art(None,"album",image_url)
+            if album_id is not None and album_id != "":
+                cm.append( ( ut.tString(30139),
+                "Container.Update(%s?object_id=%s&mode=2&submode=6)" % (
+                    sys.argv[0],album_id ) ) )
 
-        liz.setLabel(song_title)
-        liz.setArt( art.get_artLabels(albumArt) )
-        liz.setInfo( type="music", infoLabels=get_infolabels("songs", node) )
-        liz.setMimeType(node.findtext("mime"))
-        liz.setProperty("IsPlayable", "true")
-        liz.setPath(song_url)
+            cm.append( ( ut.tString(30140),
+            "Container.Update(%s?title=%s&mode=3&submode=12)" % (
+                sys.argv[0],urllib.parse.quote_plus(object_title) ) ) )
 
-        cm = []
+            if cm != []:
+                liz.addContextMenuItems(cm)
+        elif elem_type == "video":
+            liz.setInfo( type="video", infoLabels=get_infolabels("videos", node) )
+            liz.setMimeType(node.findtext("mime"))
 
-        artist_id = getNestedTypeId(node,"artist")
-        if artist_id is not None and artist_id != "":
-            cm.append( ( ut.tString(30138),
-            "Container.Update(%s?object_id=%s&mode=1&submode=6)" % (
-                sys.argv[0],artist_id ) ) )
-        
-        album_id = getNestedTypeId(node,"album")
-        if album_id is not None and album_id != "":
-            cm.append( ( ut.tString(30139),
-            "Container.Update(%s?object_id=%s&mode=2&submode=6)" % (
-                sys.argv[0],album_id ) ) )
-        
-        cm.append( ( ut.tString(30140),
-        "Container.Update(%s?title=%s&mode=3&submode=12)" % (
-            sys.argv[0],urllib.parse.quote_plus(song_title) ) ) )
-
-        if cm != []:
-            liz.addContextMenuItems(cm)
-
-        track_parameters = { "mode": 200, "play_url" : song_url}
-        url = sys.argv[0] + '?' + urllib.parse.urlencode(track_parameters)
-        tu= (url,liz)
-        it.append(tu)
-    
-    xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(elem))
-
-def addVideoLinks(elem):
-    xbmcplugin.setContent(int(sys.argv[1]), "videos")
-    it=[]
-    for node in elem.iter("video"):
-        video_id = node.attrib["id"]
-        if video_id is None or video_id == "":
-            continue
-
-        video_url = str(node.findtext("url"))
-        video_title = str(node.findtext("title"))
-
-        liz=xbmcgui.ListItem()
-
-        liz.setLabel(video_title)
-        liz.setInfo( type="video", infoLabels=get_infolabels("videos", node) )
-        liz.setMimeType(node.findtext("mime"))
-        liz.setProperty("IsPlayable", "true")
-        liz.setPath(video_url)
-
-        track_parameters = { "mode": 200, "play_url" : video_url}
+        track_parameters = { "mode": 200, "play_url" : play_url}
         url = sys.argv[0] + '?' + urllib.parse.urlencode(track_parameters)
         tu= (url,liz)
         it.append(tu)
@@ -352,17 +332,15 @@ def addDir(name,mode,submode,offset=None,object_id=None):
     xbmcplugin.addDirectoryItem(handle=handle,url=u,listitem=liz,isFolder=True)
 
 #this function add items to the directory using the low level addLinks of ddSongLinks functions
-def addItems( object_type, mode , elem, useCacheArt=True):
+def addItems( object_type, mode , elem, useCacheArt=True, object_subtype=None):
     image = "DefaultFolder.png"
     xbmc.log("AmpachePlugin::addItems: object_type - " + str(object_type) , xbmc.LOGDEBUG )
 
     if useCacheArt:
         precacheArt(elem,object_type)
 
-    if object_type == 'songs':
-        addSongLinks(elem)
-    elif object_type == 'videos':
-        addVideoLinks(elem)
+    if object_type == 'songs' or object_type == 'videos':
+        addPlayLinks(elem,object_type,object_subtype)
     else:
         addLinks(elem,object_type,useCacheArt,mode)
     return
