@@ -40,6 +40,10 @@ def searchGui():
     elif ret == 4:
         endDir = do_search("songs","search_songs")
     elif ret == 5:
+        endDir = do_search("videos")
+    elif ret == 6:
+        endDir = do_search("podcasts")
+    elif ret == 7:
         ret2 = dialog.contextmenu([ut.tString(30112),ut.tString(30113),ut.tString(30114)])
         if(int(ampache.getSetting("api-version"))) < 500000:
             if ret2 == 0:
@@ -55,10 +59,6 @@ def searchGui():
                 endDir = do_search("genres","genre_albums")
             elif ret2 == 2:
                 endDir = do_search("genres","genre_songs")
-    elif ret == 6:
-        endDir = do_search("videos")
-    elif ret == 7:
-        endDir = do_search("podcasts")
     return endDir
 
 #return album and artist name, only album could be confusing
