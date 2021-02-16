@@ -336,6 +336,8 @@ def addDir(name,mode,submode,offset=None,object_id=None):
 def addItems( object_type, mode , elem, useCacheArt=True, object_subtype=None):
     image = "DefaultFolder.png"
     xbmc.log("AmpachePlugin::addItems: object_type - " + str(object_type) , xbmc.LOGDEBUG )
+    if object_subtype:
+        xbmc.log("AmpachePlugin::addItems: object_subtype - " + str(object_subtype) , xbmc.LOGDEBUG )
 
     if useCacheArt:
         precacheArt(elem,object_type)
@@ -400,34 +402,36 @@ def get_items(object_type, object_id=None, add=None,\
     #discriminate between subtypes
     if object_type == 'albums':
         if object_subtype == 'artist_albums':
-            action = 'artist_albums'
+            action = object_subtype
             addDir("All Songs",1,72, object_id=object_id)
         elif object_subtype == 'tag_albums':
-            action = 'tag_albums'
+            action = object_subtype
         elif object_subtype == 'genre_albums':
-            action = 'genre_albums'
+            action = object_subtype
         elif object_subtype == 'album':
-            action = 'album'
+            action = object_subtype
     elif object_type == 'artists':
         if object_subtype == 'tag_artists':
-            action = 'tag_artists'
+            action = object_subtype
         elif object_subtype == 'genre_artists':
-            action = 'genre_artists'
+            action = object_subtype
         elif object_subtype == 'artist':
-            action = 'artist'
+            action = object_subtype
     elif object_type == 'songs':
         if object_subtype == 'tag_songs':
-            action = 'tag_songs'
+            action = object_subtype
         elif object_subtype == 'genre_songs':
-            action = 'genre_songs'
+            action = object_subtype
         elif object_subtype == 'playlist_songs':
-            action = 'playlist_songs'
+            action = object_subtype
         elif object_subtype == 'album_songs':
-            action = 'album_songs'
+            action = object_subtype
         elif object_subtype == 'artist_songs':
-            action = 'artist_songs'
+            action = object_subtype
         elif object_subtype == 'search_songs':
-            action = 'search_songs'
+            action = object_subtype
+        elif object_subtype == 'podcast_episodes':
+            action = object_subtype
 
     if object_id:
         thisFilter = object_id
@@ -458,7 +462,7 @@ def get_items(object_type, object_id=None, add=None,\
         ampConn.offset = offset
 
         elem = ampConn.ampache_http_request(action)
-        addItems( object_type, mode , elem, useCacheArt)
+        addItems( object_type, mode , elem, useCacheArt,object_subtype)
     except:
         return
 
@@ -821,8 +825,8 @@ def Main():
             endDir = do_search("podcasts")
         #get all episodes
         elif submode == 71:
-            pass
-            #get_items(object_type="songs",object_id=object_id,object_subtype="podcast_episodes")
+            if(int(ampache.getSetting("api-version"))) > 440000:
+                get_items(object_type="songs",object_id=object_id,object_subtype="podcast_episodes")
 
     #video
     elif mode==8:

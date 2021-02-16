@@ -62,10 +62,9 @@ def otype_to_type(object_type,object_subtype=None):
     elif object_type == 'videos':
         return 'video'
     elif object_type == 'songs':
-        if object_subtype is None:
-            return 'song'
-        elif object_subtype == 'podcast_episodes':
+        if object_subtype == 'podcast_episodes':
             return 'podcast_episode'
+        return 'song'
     return None
 
 def int_to_strBool(s):
