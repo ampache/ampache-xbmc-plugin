@@ -398,39 +398,27 @@ def get_items(object_type, object_id=None, add=None,\
     #default: object_type is the action,otherwise see the if list below
     action = object_type
     
+    artist_action_subtypes = [
+    'artist_albums','tag_albums','genre_albums','album']
+
+    album_action_subtypes = [ 'tag_artists','genre_artists','artist']
+
+    song_action_subtypes = [ 'tag_songs','genre_songs', 'playlist_songs',
+            'album_songs', 'artist_songs','search_songs', 'podcast_episodes']
+
     #do not use action = object_subtype cause in tags it is used only to
     #discriminate between subtypes
     if object_type == 'albums':
         if object_subtype == 'artist_albums':
-            action = object_subtype
             addDir("All Songs",1,72, object_id=object_id)
-        elif object_subtype == 'tag_albums':
-            action = object_subtype
-        elif object_subtype == 'genre_albums':
-            action = object_subtype
-        elif object_subtype == 'album':
+        #do not use elif, artist_albums is checked two times
+        if object_subtype in artist_action_subtypes:
             action = object_subtype
     elif object_type == 'artists':
-        if object_subtype == 'tag_artists':
-            action = object_subtype
-        elif object_subtype == 'genre_artists':
-            action = object_subtype
-        elif object_subtype == 'artist':
+        if object_subtype in album_action_subtypes:
             action = object_subtype
     elif object_type == 'songs':
-        if object_subtype == 'tag_songs':
-            action = object_subtype
-        elif object_subtype == 'genre_songs':
-            action = object_subtype
-        elif object_subtype == 'playlist_songs':
-            action = object_subtype
-        elif object_subtype == 'album_songs':
-            action = object_subtype
-        elif object_subtype == 'artist_songs':
-            action = object_subtype
-        elif object_subtype == 'search_songs':
-            action = object_subtype
-        elif object_subtype == 'podcast_episodes':
+        if object_subtype in song_action_subtypes:
             action = object_subtype
 
     if object_id:
@@ -825,7 +813,7 @@ def Main():
             endDir = do_search("podcasts")
         #get all episodes
         elif submode == 71:
-            if(int(ampache.getSetting("api-version"))) > 440000:
+            if(int(ampache.getSetting("api-version"))) >= 440000:
                 get_items(object_type="songs",object_id=object_id,object_subtype="podcast_episodes")
 
     #video
