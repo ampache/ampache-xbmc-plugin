@@ -870,7 +870,7 @@ def Main():
         if ampache.getSetting("videos"):
             addDir(ut.tString(30221) + " (" + ampache.getSetting("videos")+ ")",8,5)
         if ampache.getSetting("podcasts"):
-            ddDir(ut.tString(30226) + " (" + ampache.getSetting("podcasts")+ ")",5,5)
+            addDir(ut.tString(30226) + " (" + ampache.getSetting("podcasts")+ ")",5,5)
         apiVersion = int(ampache.getSetting("api-version"))
         if apiVersion >= 380001:
             #get all tags ( submode 5 )
