@@ -291,9 +291,14 @@ def addPlayLinks(elem, object_type , object_subtype=None):
 
             if cm != []:
                 liz.addContextMenuItems(cm)
+            #we don't use sort method for track cause songs are already sorted
+            #by the server and it make a mess in random playlists
         elif elem_type == "video":
             liz.setInfo( type="video", infoLabels=get_infolabels("videos", node) )
             liz.setMimeType(node.findtext("mime"))
+            xbmcplugin.addSortMethod(int(sys.argv[1]),xbmcplugin.SORT_METHOD_TITLE)
+        elif elem_type == "podcast_episode":
+            xbmcplugin.addSortMethod(int(sys.argv[1]),xbmcplugin.SORT_METHOD_TITLE)
 
         track_parameters = { "mode": 200, "play_url" : play_url}
         url = sys.argv[0] + '?' + urllib.parse.urlencode(track_parameters)
