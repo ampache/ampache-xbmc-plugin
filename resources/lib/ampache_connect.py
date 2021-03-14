@@ -22,7 +22,7 @@ class AmpacheConnect(object):
         pass
     
     def __init__(self):
-        self._ampache = xbmcaddon.Addon()
+        self._ampache = xbmcaddon.Addon("plugin.audio.ampache")
         jsStorServer = json_storage.JsonStorage("servers.json")
         serverStorage = jsStorServer.getData()
         self._connectionData = serverStorage["servers"][serverStorage["current_server"]]
@@ -52,13 +52,18 @@ class AmpacheConnect(object):
         self._ampache.setSetting("albums", tree.findtext("albums"))
         self._ampache.setSetting("songs", tree.findtext("songs"))
         self._ampache.setSetting("playlists", tree.findtext("playlists"))
+        videos = tree.findtext("videos")
+        if videos:
+            self._ampache.setSetting("videos", videos)
+        podcasts = tree.findtext("podcasts")
+        if podcasts:
+            self._ampache.setSetting("podcasts", podcasts)
         self._ampache.setSetting("session_expire", tree.findtext("session_expire"))
         self._ampache.setSetting("add", tree.findtext("add"))
         self._ampache.setSetting("token", token)
         self._ampache.setSetting("token-exp", str(nTime+24000))
 
     def getCodeMessError(self,tree):
-        code = None
         errormess = None
         errornode = tree.find("error")
         if errornode is not None:
@@ -215,12 +220,6 @@ class AmpacheConnect(object):
         return tree
     
     def build_ampache_url(self,action):
-        if ut.check_tokenexp():
-            xbmc.log("refreshing token...", xbmc.LOGDEBUG )
-            try:
-                self.AMPACHECONNECT()
-            except:
-                return
         token = self._ampache.getSetting("token")
         thisURL = self._connectionData["url"] +  self.getBaseUrl() + '?action=' + action
         thisURL += '&auth=' + token
