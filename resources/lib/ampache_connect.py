@@ -22,7 +22,7 @@ class AmpacheConnect(object):
         pass
     
     def __init__(self):
-        self._ampache = xbmcaddon.Addon()
+        self._ampache = xbmcaddon.Addon("plugin.audio.ampache")
         jsStorServer = json_storage.JsonStorage("servers.json")
         serverStorage = jsStorServer.getData()
         self._connectionData = serverStorage["servers"][serverStorage["current_server"]]
@@ -52,38 +52,37 @@ class AmpacheConnect(object):
         self._ampache.setSetting("albums", tree.findtext("albums"))
         self._ampache.setSetting("songs", tree.findtext("songs"))
         self._ampache.setSetting("playlists", tree.findtext("playlists"))
+        videos = tree.findtext("videos")
+        if videos:
+            self._ampache.setSetting("videos", videos)
+        podcasts = tree.findtext("podcasts")
+        if podcasts:
+            self._ampache.setSetting("podcasts", podcasts)
         self._ampache.setSetting("session_expire", tree.findtext("session_expire"))
         self._ampache.setSetting("add", tree.findtext("add"))
         self._ampache.setSetting("token", token)
         self._ampache.setSetting("token-exp", str(nTime+24000))
 
     def getCodeMessError(self,tree):
-        code = None
         errormess = None
         errornode = tree.find("error")
         if errornode is not None:
             #ampache api 4 and below
             try:
                 errormess = tree.findtext('error')
-                code = errornode.attrib["code"]
-                xbmc.log("AmpachePlugin::getCodeMessError: Client error code " + \
-                       str(code) + " message " + str(errormess) , xbmc.LOGDEBUG)
-                return code, errormess
+                return errormess
             except:
                 #do nothing
                 pass
             #ampache api 5 and above
             try:
                 errormess = errornode.findtext("errorMessage")
-                code = errornode.attrib["errorCode"]
-                xbmc.log("AmpachePlugin::getCodeMessError: Client error code " + \
-                       str(code) + " message " + str(errormess) , xbmc.LOGDEBUG)
-                return code, errormess
+                return errormess
             except:
                 #do nothing
                 pass
 
-        return code, errormess
+        return errormess
 
     def getHashedPassword(self,timeStamp):
         enablePass = self._connectionData["enable_password"]
@@ -173,14 +172,10 @@ class AmpacheConnect(object):
             xbmc.log("AmpachePlugin::AMPACHECONNECT: unable to print contents " + \
                    repr(e) , xbmc.LOGDEBUG)
         tree=ET.XML(contents)
-        code, errormess = self.getCodeMessError(tree)
+        errormess = self.getCodeMessError(tree)
         if errormess:
-            if "time" in errormess and code == "401":
-                #permission error, check password or api_key
-                xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30204))
-            else:
-                #connection error
-                xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
+            #connection error
+            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
             raise self.ConnectionError
         xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
         if showok:
@@ -219,19 +214,12 @@ class AmpacheConnect(object):
             xbmc.log("AmpachePlugin::ampache_http_request: unable print contents " + \
                     repr(e) , xbmc.LOGDEBUG)
         tree=ET.XML(contents)
-        code, errormess = self.getCodeMessError(tree)
+        errormess = self.getCodeMessError(tree)
         if errormess:
-            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
             raise self.ConnectionError
         return tree
     
     def build_ampache_url(self,action):
-        if ut.check_tokenexp():
-            xbmc.log("refreshing token...", xbmc.LOGDEBUG )
-            try:
-                self.AMPACHECONNECT()
-            except:
-                return
         token = self._ampache.getSetting("token")
         thisURL = self._connectionData["url"] +  self.getBaseUrl() + '?action=' + action
         thisURL += '&auth=' + token
