@@ -363,7 +363,7 @@ def get_all(object_type, mode ,offset=None):
     except:
         return
     #to not overload servers
-    step = 100
+    step = 500
     newLimit = offset+step
     #load images in long list
     if (ut.strBool_to_bool(ampache.getSetting("images-long-list"))):
