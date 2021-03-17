@@ -178,7 +178,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
     for node in elem.iter(elem_type):
         cm = []
         object_id = node.attrib["id"]
-        if object_id is None or object_id == "":
+        if not object_id:
             continue
 
         name = str(node.findtext("name"))
@@ -255,7 +255,7 @@ def addPlayLinks(elem, object_type , object_subtype=None):
 
     for node in elem.iter(elem_type):
         object_id = node.attrib["id"]
-        if object_id is None or object_id == "":
+        if not object_id:
             continue
 
         play_url = str(node.findtext("url"))
@@ -478,7 +478,7 @@ def setRating():
         return
 
     object_id = ut.get_objectId_from_fileURL( file_url )
-    if object_id is None or object_id == "":
+    if not object_id:
         return
     rating = xbmc.getInfoLabel('MusicPlayer.UserRating')
     if rating == "":
