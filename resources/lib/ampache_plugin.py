@@ -315,10 +315,17 @@ def play_track(url):
         xbmc.log("AmpachePlugin::play_track url null", xbmc.LOGINFO )
         return
 
+    #read here the setting, cause delay problems
+    autofull = ut.strBool_to_bool(ampache.getSetting("auto-fullscreen"))
+
     liz = xbmcgui.ListItem()
     liz.setPath(url)
 
     xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
+
+    #enable auto fullscreen playing the track ( closes #17 )
+    if autofull is True:
+        xbmc.executebuiltin("ActivateWindow(visualisation)")
 
 #Main function to add xbmc plugin elements
 def addDir(name,mode,submode,offset=None,object_id=None):
