@@ -22,7 +22,7 @@ cacheDir = os.path.join( user_mediaDir , 'cache' )
 def cacheArt(imageID,elem_type,url=None):
     cacheDirType = os.path.join( cacheDir , elem_type )
     #security check
-    if imageID is None or imageID == "":
+    if not imageID:
         raise NameError
    
     possible_ext = ["jpg", "png" , "bmp", "gif", "tiff"]
@@ -39,11 +39,14 @@ def cacheArt(imageID,elem_type,url=None):
     ampacheConnect.id = imageID
     ampacheConnect.type = elem_type
     
-    if url:
-        #old api version
-        headers,contents = ampacheConnect.handle_request(url)
-    else:
-        headers,contents = ampacheConnect.ampache_binary_request(action)
+    try:
+        if url:
+            #old api version
+            headers,contents = ampacheConnect.handle_request(url)
+        else:
+            headers,contents = ampacheConnect.ampache_binary_request(action)
+    except AmpacheConnect.ConnectionError:
+        raise NameError
     #xbmc.log("AmpachePlugin::CacheArt: File needs fetching, id " + imageID,xbmc.LOGDEBUG)
     extension = headers['content-type']
     if extension:
@@ -88,13 +91,19 @@ def get_artLabels(albumArt):
 
 #get_art, url is used for legacy purposes
 def get_art(object_id,elem_type,url=None):
+
+    albumArt = "DefaultFolder.png"
     if object_id == None:
-        albumArt = "DefaultFolder.png"
+        return albumArt
+    #old ampache api-version and no url, no need to activate a connection
+    if(int(ampache.getSetting("api-version"))) < 400001 and not url:
+        return albumArt
     try:
         albumArt = cacheArt(object_id,elem_type,url)
     except NameError:
         albumArt = "DefaultFolder.png"
-    #xbmc.log("AmpachePlugin::get_art: albumArt - " + str(albumArt), xbmc.LOGDEBUG )
+
+    #xbmc.log("AmpachePlugin::get_art: id - " + object_id + " - albumArt - " + str(albumArt), xbmc.LOGDEBUG )
     return albumArt
 
 
