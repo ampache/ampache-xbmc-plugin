@@ -568,10 +568,9 @@ def get_random(object_type, random_items):
     seq = random.sample(list(range(items)),random_items)
     xbmc.log("AmpachePlugin::get_random: seq " + str(seq), xbmc.LOGDEBUG )
     elements = []
+    ampConn = ampache_connect.AmpacheConnect()
     for item_id in seq:
         try:
-            ampConn = ampache_connect.AmpacheConnect()
-
             ampConn.offset = item_id
             ampConn.limit = 1
             elem = ampConn.ampache_http_request(object_type)
