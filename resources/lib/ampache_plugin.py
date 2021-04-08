@@ -566,14 +566,14 @@ def get_random(object_type, random_items):
         return
 
     seq = random.sample(list(range(items)),random_items)
+    action = ut.otype_to_type(object_type)
     xbmc.log("AmpachePlugin::get_random: seq " + str(seq), xbmc.LOGDEBUG )
     elements = []
     ampConn = ampache_connect.AmpacheConnect()
     for item_id in seq:
         try:
-            ampConn.offset = item_id
-            ampConn.limit = 1
-            elem = ampConn.ampache_http_request(object_type)
+            ampConn.filter = item_id
+            elem = ampConn.ampache_http_request(action)
             addItems( object_type, mode , elem)
         except:
             pass
