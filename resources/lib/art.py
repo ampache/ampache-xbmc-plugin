@@ -21,7 +21,6 @@ cacheDir = os.path.join( user_mediaDir , 'cache' )
 
 def cacheArt(imageID,elem_type,url=None):
     cacheDirType = os.path.join( cacheDir , elem_type )
-    #security check
     if not imageID:
         raise NameError
    
@@ -40,7 +39,9 @@ def cacheArt(imageID,elem_type,url=None):
     ampacheConnect.type = elem_type
     
     try:
-        if url:
+        if(int(ampache.getSetting("api-version"))) < 400001:
+            if not url:
+                raise NameError
             #old api version
             headers,contents = ampacheConnect.handle_request(url)
         else:
@@ -95,8 +96,8 @@ def get_art(object_id,elem_type,url=None):
     albumArt = "DefaultFolder.png"
     if object_id == None:
         return albumArt
-    #old ampache api-version and no url, no need to activate a connection
-    if(int(ampache.getSetting("api-version"))) < 400001 and not url:
+    #no url, no art, so no need to activate a connection
+    if not url:
         return albumArt
     try:
         albumArt = cacheArt(object_id,elem_type,url)

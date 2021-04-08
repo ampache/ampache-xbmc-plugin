@@ -152,7 +152,7 @@ def precacheArt(elem,object_type):
                 object_id = None
         if object_id == None:
             continue
-        image_url = check_get_art_url(node)
+        image_url = node.findtext("art")
         x = threading.Thread(target=art.get_art,args=(object_id,art_type,image_url,))
         threadList.append(x)
     #start threads
@@ -161,12 +161,6 @@ def precacheArt(elem,object_type):
     #join threads
     for x in threadList:
         x.join()
-
-def check_get_art_url(node):
-    url = None
-    if(int(ampache.getSetting("api-version"))) < 400001:
-        url = node.findtext("art")
-    return url
 
 def addLinks(elem,object_type,useCacheArt,mode):
 
@@ -200,13 +194,12 @@ def addLinks(elem,object_type,useCacheArt,mode):
 
                 name = get_album_artist_name(node)
                 if useCacheArt:
-                    image_url = check_get_art_url(node)
+                    image_url = node.findtext("art")
                     image = art.get_art(object_id,elem_type,image_url)
             except:
                 xbmc.log("AmpachePlugin::addLinks: album_id error", xbmc.LOGDEBUG)
         elif elem_type == "artist":
-            useCacheArt = True
-            image_url = check_get_art_url(node)
+            image_url = node.findtext("art")
             image = art.get_art(object_id,elem_type,image_url)
         else:
             useCacheArt = False
@@ -267,7 +260,7 @@ def addPlayLinks(elem, object_type , object_subtype=None):
         liz.setLabel(object_title)
 
         if elem_type == "song":
-            image_url = check_get_art_url(node)
+            image_url = node.findtext("art")
             try:
                 album_id = getNestedTypeId(node,"album")
                 albumArt = art.get_art(album_id,"album",image_url)
