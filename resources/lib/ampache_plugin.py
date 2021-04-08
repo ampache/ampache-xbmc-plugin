@@ -150,9 +150,9 @@ def precacheArt(elem,object_type):
                 object_id = node.attrib["id"]
             except:
                 object_id = None
-        if object_id == None:
-            continue
         image_url = node.findtext("art")
+        if not object_id or not image_url:
+            continue
         x = threading.Thread(target=art.get_art,args=(object_id,art_type,image_url,))
         threadList.append(x)
     #start threads
