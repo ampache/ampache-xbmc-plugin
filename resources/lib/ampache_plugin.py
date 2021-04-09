@@ -251,6 +251,9 @@ def addPlayLinks(elem, object_type , object_subtype=None):
     elif elem_type == "podcast_episode":
         xbmcplugin.addSortMethod(int(sys.argv[1]),xbmcplugin.SORT_METHOD_LABEL)
 
+    allid=set()
+    albumTrack={}
+
     for node in elem.iter(elem_type):
         object_id = node.attrib["id"]
         if not object_id:
@@ -267,8 +270,15 @@ def addPlayLinks(elem, object_type , object_subtype=None):
         if elem_type == "song":
             image_url = node.findtext("art")
             try:
+                #speed up art management for album songs, avoid duplicate
+                #calls
                 album_id = getNestedTypeId(node,"album")
-                albumArt = art.get_art(album_id,"album",image_url)
+                if album_id not in allid:
+                    allid.add(album_id)
+                    albumArt = art.get_art(album_id,"album",image_url)
+                    albumTrack[album_id]=albumArt
+                else:
+                    albumArt=albumTrack[album_id]
             except:
                 albumArt = art.get_art(None,"album",image_url)
 

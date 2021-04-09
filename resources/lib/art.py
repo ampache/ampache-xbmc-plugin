@@ -20,9 +20,10 @@ user_mediaDir = os.path.join( user_dir , 'media' )
 cacheDir = os.path.join( user_mediaDir , 'cache' )
 
 def cacheArt(imageID,elem_type,url=None):
-    cacheDirType = os.path.join( cacheDir , elem_type )
-    if not imageID:
+    if not imageID or not url:
         raise NameError
+
+    cacheDirType = os.path.join( cacheDir , elem_type )
    
     possible_ext = ["jpg", "png" , "bmp", "gif", "tiff"]
     for ext in possible_ext:
@@ -40,8 +41,6 @@ def cacheArt(imageID,elem_type,url=None):
     
     try:
         if(int(ampache.getSetting("api-version"))) < 400001:
-            if not url:
-                raise NameError
             #old api version
             headers,contents = ampacheConnect.handle_request(url)
         else:
@@ -68,6 +67,7 @@ def cacheArt(imageID,elem_type,url=None):
                 fname = imageID + ".jpg"
             else:
                 fname = imageID + '.' + subtype
+
             pathImage = os.path.join( cacheDirType , fname )
             with open( pathImage, 'wb') as f:
                 f.write(contents)
@@ -94,10 +94,8 @@ def get_artLabels(albumArt):
 def get_art(object_id,elem_type,url=None):
 
     albumArt = "DefaultFolder.png"
-    if object_id == None:
-        return albumArt
     #no url, no art, so no need to activate a connection
-    if not url:
+    if not object_id or not url:
         return albumArt
     try:
         albumArt = cacheArt(object_id,elem_type,url)
