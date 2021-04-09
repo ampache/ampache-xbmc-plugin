@@ -146,10 +146,7 @@ def precacheArt(elem,object_type):
             except:
                 object_id = None
         else:
-            try:
-                object_id = node.attrib["id"]
-            except:
-                object_id = None
+            object_id = node.attrib["id"]
         image_url = node.findtext("art")
         if not object_id or not image_url:
             continue
@@ -188,7 +185,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
                 else:
                     continue
                 artist_id = getNestedTypeId(node,"artist")
-                if artist_id is not None and artist_id != "":
+                if artist_id:
                     cm.append( ( ut.tString(30141),"Container.Update(%s?object_id=%s&mode=1&submode=6)" % 
                         ( sys.argv[0],artist_id ) ) )
 
@@ -199,8 +196,9 @@ def addLinks(elem,object_type,useCacheArt,mode):
             except:
                 xbmc.log("AmpachePlugin::addLinks: album_id error", xbmc.LOGDEBUG)
         elif elem_type == "artist":
-            image_url = node.findtext("art")
-            image = art.get_art(object_id,elem_type,image_url)
+            if useCacheArt:
+                image_url = node.findtext("art")
+                image = art.get_art(object_id,elem_type,image_url)
         else:
             useCacheArt = False
 
@@ -274,13 +272,13 @@ def addPlayLinks(elem, object_type , object_subtype=None):
             cm = []
 
             artist_id = getNestedTypeId(node,"artist")
-            if artist_id is not None and artist_id != "":
+            if artist_id:
                 cm.append( ( ut.tString(30138),
                 "Container.Update(%s?object_id=%s&mode=1&submode=6)" % (
                     sys.argv[0],artist_id ) ) )
 
             album_id = getNestedTypeId(node,"album")
-            if album_id is not None and album_id != "":
+            if album_id:
                 cm.append( ( ut.tString(30139),
                 "Container.Update(%s?object_id=%s&mode=2&submode=6)" % (
                     sys.argv[0],album_id ) ) )
