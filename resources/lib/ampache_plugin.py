@@ -64,15 +64,15 @@ def searchGui():
 #return album and artist name, only album could be confusing
 def get_album_artist_name(node):
     disknumber = str(node.findtext("disk"))
+    album_name = str(node.findtext("name"))
+    artist_name = str(node.findtext("artist"))
+    fullname = album_name
     if PY2:
-        fullname = str(node.findtext("name"))
         fullname += u" - "
-        fullname += str(node.findtext("artist"))
     else:
         #no encode utf-8 in python3, not necessary
-        fullname = node.findtext("name")
         fullname += " - "
-        fullname += node.findtext("artist")
+    fullname += artist_name
     #disknumber = "None" when disk number is not sent
     if disknumber!="None" and disknumber != "1" and disknumber !="0":
         if PY2:
@@ -119,7 +119,6 @@ def get_infolabels(object_type , node):
     elif object_type == 'videos':
         infoLabels = {
             'Title' : str(node.findtext("name")) ,
-            'VideoResolution' : node.findtext("resolution") ,
             'Size' : node.findtext("size") ,
             'Mediatype' : 'video'
         }
@@ -128,8 +127,10 @@ def get_infolabels(object_type , node):
 
 def getNestedTypeId(node,elem_type):
     obj_elem = node.find(elem_type)
-    obj_id = obj_elem.attrib["id"]
-    return obj_id
+    if obj_elem is not None or obj_elem != '':
+        obj_id = obj_elem.attrib["id"]
+        return obj_id
+    return None
 
 #this function is used to speed up the loading of the images using differents
 #theads, one for request
@@ -239,7 +240,6 @@ def addLinks(elem,object_type,useCacheArt,mode):
 # 45 and play_ur == (ampache item url)
 def addPlayLinks(elem, object_type , object_subtype=None):
    
-    xbmcplugin.setContent(int(sys.argv[1]), object_type)
     it=[]
 
     elem_type = ut.otype_to_type(object_type,object_subtype)
@@ -262,24 +262,23 @@ def addPlayLinks(elem, object_type , object_subtype=None):
         play_url = str(node.findtext("url"))
         object_title = str(node.findtext("title"))
 
-        liz=xbmcgui.ListItem()
+        liz=xbmcgui.ListItem(object_title)
         liz.setProperty("IsPlayable", "true")
         liz.setPath(play_url)
-        liz.setLabel(object_title)
 
         if elem_type == "song":
             image_url = node.findtext("art")
-            try:
-                #speed up art management for album songs, avoid duplicate
-                #calls
-                album_id = getNestedTypeId(node,"album")
+            #speed up art management for album songs, avoid duplicate
+            #calls
+            album_id = getNestedTypeId(node,"album")
+            if album_id:
                 if album_id not in allid:
                     allid.add(album_id)
                     albumArt = art.get_art(album_id,"album",image_url)
                     albumTrack[album_id]=albumArt
                 else:
                     albumArt=albumTrack[album_id]
-            except:
+            else:
                 albumArt = art.get_art(None,"album",image_url)
 
             liz.setArt( art.get_artLabels(albumArt) )
@@ -294,7 +293,6 @@ def addPlayLinks(elem, object_type , object_subtype=None):
                 "Container.Update(%s?object_id=%s&mode=1&submode=6)" % (
                     sys.argv[0],artist_id ) ) )
 
-            album_id = getNestedTypeId(node,"album")
             if album_id:
                 cm.append( ( ut.tString(30139),
                 "Container.Update(%s?object_id=%s&mode=2&submode=6)" % (
@@ -356,7 +354,9 @@ def addDir(name,mode,submode,offset=None,object_id=None):
 
 #this function add items to the directory using the low level addLinks of ddSongLinks functions
 def addItems( object_type, mode , elem, useCacheArt=True, object_subtype=None):
-    image = "DefaultFolder.png"
+
+    ut.setContent(int(sys.argv[1]), object_type)
+
     xbmc.log("AmpachePlugin::addItems: object_type - " + str(object_type) , xbmc.LOGDEBUG )
     if object_subtype:
         xbmc.log("AmpachePlugin::addItems: object_subtype - " + str(object_subtype) , xbmc.LOGDEBUG )
@@ -530,8 +530,6 @@ def get_stats(object_type, object_subtype=None, limit=5000 ):
     xbmc.log("AmpachePlugin::get_stats ",  xbmc.LOGDEBUG)
 
     mode = ut.otype_to_mode(object_type)
-   
-    xbmcplugin.setContent(int(sys.argv[1]), object_type)
 
     action = 'stats'
     if(int(ampache.getSetting("api-version"))) < 400001:
@@ -572,7 +570,6 @@ def get_random(object_type, random_items):
     
     mode = ut.otype_to_mode(object_type)
 
-    xbmcplugin.setContent(int(sys.argv[1]), object_type)
 
     items = int(ampache.getSetting(object_type))
     if random_items > items:
@@ -715,8 +712,6 @@ def Main():
     submode = m_params['submode']
     object_id = m_params['object_id']
 
-    servers_manager.initializeServer()
-    
     #check if the connection is expired
     #connect to the server
     #do not connect on main screen and when we operate setting; 
@@ -724,6 +719,8 @@ def Main():
     if mode!=None and mode < endCheckConnection:
         if ut.check_tokenexp():
             try:
+                #check server file only when necessary
+                servers_manager.initializeServer()
                 ampacheConnect = ampache_connect.AmpacheConnect()
                 ampacheConnect.AMPACHECONNECT()
             except:
@@ -862,7 +859,7 @@ def Main():
             elif mode == 21:
                 get_items(object_type="songs", object_subtype=object_subtype,object_id=object_id)
 
-    #main meus 50-100
+    #main menus 50-100
     #explore
     elif mode==50:
         #recently added
@@ -1041,17 +1038,21 @@ def Main():
 
     #the four modes below are used to manage servers
     elif mode==301:
+        servers_manager.initializeServer()
         if servers_manager.addServer():
             servers_manager.switchServer()
     
     elif mode==302:
+        servers_manager.initializeServer()
         if servers_manager.deleteServer():
             servers_manager.switchServer()
     
     elif mode==303:
+        servers_manager.initializeServer()
         servers_manager.modifyServer()
     
     elif mode==304:
+        servers_manager.initializeServer()
         servers_manager.switchServer()
 
     #no end directory item ( problem with failed searches )
