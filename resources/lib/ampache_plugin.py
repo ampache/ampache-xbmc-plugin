@@ -226,8 +226,6 @@ def addLinks(elem,object_type,useCacheArt,mode):
         if cm:
             liz.addContextMenuItems(cm)
 
-        handle=int(sys.argv[1])
-
         u=sys.argv[0]+"?object_id="+object_id+"&mode="+str(mode)+"&submode=71"
         #xbmc.log("AmpachePlugin::addLinks: u - " + u, xbmc.LOGDEBUG )
         isFolder=True
