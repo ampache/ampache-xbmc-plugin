@@ -143,10 +143,7 @@ def precacheArt(elem,object_type):
     for node in elem.iter(elem_type):
         if elem_type == "song":
             art_type = "album"
-            try:
-                object_id = getNestedTypeId(node,"album")
-            except:
-                object_id = None
+            object_id = getNestedTypeId(node,"album")
         else:
             art_type = elem_type
             object_id = node.attrib["id"]
@@ -183,26 +180,20 @@ def addLinks(elem,object_type,useCacheArt,mode):
         name = str(node.findtext("name"))
 
         if elem_type == "album":
-            try:
-                #no unicode function, cause urllib quot_plus error ( bug )
-                #album_id is ok also as string, cause it is needed to create
-                #an url
-                #remove duplicates in album names ( workaround for a problem in server comunication )
-                if object_id not in allid:
-                    allid.add(object_id)
-                else:
-                    continue
-                artist_id = getNestedTypeId(node,"artist")
-                if artist_id:
-                    cm.append( ( ut.tString(30141),"Container.Update(%s?object_id=%s&mode=1&submode=6)" % 
-                        ( sys.argv[0],artist_id ) ) )
+            #remove duplicates in album names ( workaround for a problem in server comunication )
+            if object_id not in allid:
+                allid.add(object_id)
+            else:
+                continue
+            artist_id = getNestedTypeId(node,"artist")
+            if artist_id:
+                cm.append( ( ut.tString(30141),"Container.Update(%s?object_id=%s&mode=1&submode=6)" %
+                    ( sys.argv[0],artist_id ) ) )
 
-                name = get_album_artist_name(node)
-                if useCacheArt:
-                    image_url = node.findtext("art")
-                    image = art.get_art(object_id,elem_type,image_url)
-            except:
-                xbmc.log("AmpachePlugin::addLinks: album_id error", xbmc.LOGDEBUG)
+            name = get_album_artist_name(node)
+            if useCacheArt:
+                image_url = node.findtext("art")
+                image = art.get_art(object_id,elem_type,image_url)
         elif elem_type == "artist":
             if useCacheArt:
                 image_url = node.findtext("art")
@@ -351,7 +342,7 @@ def addDir(name,mode,submode,offset=None,object_id=None):
     xbmcplugin.addDirectoryItem(handle=handle,url=u,listitem=liz,isFolder=True)
 
 #this function add items to the directory using the low level addLinks of ddSongLinks functions
-def addItems( object_type, mode , elem, useCacheArt=True, object_subtype=None):
+def addItems( object_type, mode , elem, useCacheArt=True, object_subtype=None,precache=True):
 
     ut.setContent(int(sys.argv[1]), object_type)
 
@@ -359,7 +350,7 @@ def addItems( object_type, mode , elem, useCacheArt=True, object_subtype=None):
     if object_subtype:
         xbmc.log("AmpachePlugin::addItems: object_subtype - " + str(object_subtype) , xbmc.LOGDEBUG )
 
-    if useCacheArt:
+    if useCacheArt and precache:
         precacheArt(elem,object_type)
 
     if object_type == 'songs' or object_type == 'videos':
@@ -373,6 +364,8 @@ def get_all(object_type, mode ,offset=None):
         offset=0
     try:
         limit = int(ampache.getSetting(object_type))
+        if limit == 0:
+            return
     except:
         return
     #to not overload servers
@@ -562,29 +555,28 @@ def get_recent(object_type,submode,object_subtype=None):
     elif submode == 34:
         get_items(object_type=object_type,add=ut.get_time(-90),object_subtype=object_subtype)
 
-def get_random(object_type, random_items):
-    xbmc.log("AmpachePlugin::get_random: object_type " + object_type, xbmc.LOGDEBUG)
+def get_random(object_type, num_items):
+    xbmc.log("AmpachePlugin::get_random: object_type " + object_type + " num_items " + str(num_items), xbmc.LOGDEBUG)
     #object type can be : albums, artists, songs, playlists
     
     mode = ut.otype_to_mode(object_type)
 
 
-    items = int(ampache.getSetting(object_type))
-    if random_items > items:
-        #if items are less than random_itmes, return all items
-        get_items(object_type, limit=items)
+    tot_items = int(ampache.getSetting(object_type))
+    if num_items > tot_items:
+        #if tot_items are less than num_itmes, return all items
+        get_items(object_type, limit=tot_items)
         return
 
-    seq = random.sample(list(range(items)),random_items)
+    seq = random.sample(list(range(tot_items)),num_items)
     action = ut.otype_to_type(object_type)
     xbmc.log("AmpachePlugin::get_random: seq " + str(seq), xbmc.LOGDEBUG )
-    elements = []
     ampConn = ampache_connect.AmpacheConnect()
     for item_id in seq:
         try:
             ampConn.filter = item_id
             elem = ampConn.ampache_http_request(action)
-            addItems( object_type, mode , elem)
+            addItems( object_type, mode , elem,precache=False)
         except:
             pass
 
