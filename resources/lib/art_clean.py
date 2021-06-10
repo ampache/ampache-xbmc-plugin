@@ -24,6 +24,12 @@ def clean_settings():
     ampache.setSetting("add", "")
     ampache.setSetting("token", "")
     ampache.setSetting("token-exp", "")
+    ampache.setSetting("artists", "")
+    ampache.setSetting("albums", "")
+    ampache.setSetting("songs", "")
+    ampache.setSetting("playlists", "")
+    ampache.setSetting("videos", "")
+    ampache.setSetting("podcasts", "")
 
 def clean_cache_art():
     #hack to force the creation of profile directory if don't exists

@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 #main plugin library
 from resources.lib import json_storage
 from resources.lib import utils as ut
+from resources.lib.art_clean import clean_settings
 
 class AmpacheConnect(object):
     
@@ -41,6 +42,7 @@ class AmpacheConnect(object):
         return '/server/xml.server.php'
 
     def fillConnectionSettings(self,tree,nTime):
+        clean_settings()
         token = tree.findtext('auth')
         version = tree.findtext('api')
         if not version:
@@ -53,13 +55,11 @@ class AmpacheConnect(object):
         self._ampache.setSetting("songs", tree.findtext("songs"))
         self._ampache.setSetting("playlists", tree.findtext("playlists"))
         videos = tree.findtext("videos")
-        if not videos:
-            videos = "0"
-        self._ampache.setSetting("videos", videos)
+        if videos:
+            self._ampache.setSetting("videos", videos)
         podcasts = tree.findtext("podcasts")
-        if not podcasts:
-            podcasts = "0"
-        self._ampache.setSetting("podcasts", podcasts)
+        if podcasts:
+            self._ampache.setSetting("podcasts", podcasts)
         self._ampache.setSetting("session_expire", tree.findtext("session_expire"))
         self._ampache.setSetting("add", tree.findtext("add"))
         self._ampache.setSetting("token", token)
