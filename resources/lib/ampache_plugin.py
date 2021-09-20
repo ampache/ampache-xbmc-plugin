@@ -655,7 +655,7 @@ def main_params(plugin_url):
 
 #add new line in case of new stat function implemented, checking the version
 #in menus
-def manage_stats_menu(submode, object_type):
+def manage_stats_menu(object_type,submode):
 
     num_items = (int(ampache.getSetting("random_items"))*3)+3
 
@@ -754,7 +754,7 @@ def Main():
         #submode between 40-46( random.. recent )
         #40-70 stats
         elif submode >= 40 and submode <= 46:
-            manage_stats_menu(submode, "artists")
+            manage_stats_menu("artists",submode)
         #get all albums from an artist_id
         elif submode == 71:
             get_items(object_type="albums",object_id=object_id,object_subtype="artist_albums")
@@ -777,7 +777,7 @@ def Main():
         elif submode > 30 and submode < 35:
             get_recent( "albums", submode )
         elif submode >= 40 and submode <= 46:
-            manage_stats_menu(submode, "albums")
+            manage_stats_menu("albums",submode)
         #get all songs from an album_id
         elif submode == 71:
             get_items(object_type="songs",object_id=object_id,object_subtype="album_songs")
@@ -799,7 +799,7 @@ def Main():
             get_recent( "songs", submode )
         #40-70 stats
         elif submode >= 40 and submode <= 46:
-            manage_stats_menu(submode, "songs")
+            manage_stats_menu("songs",submode)
 
     #playlist mode
     elif mode==4:
@@ -810,7 +810,7 @@ def Main():
         elif submode > 30 and submode < 35:
             get_recent( "playlists", submode )
         elif submode == 40:
-            manage_stats_menu(submode, "playlists")
+            manage_stats_menu("playlists", submode)
         #get all songs from a playlist_id
         elif submode == 71:
             get_items(object_type="songs",object_id=object_id,object_subtype="playlist_songs")
