@@ -82,10 +82,10 @@ def get_album_artist_name(node):
             fullname = fullname + " - [ " + ut.tString(30195) + " " + disknumber + " ]"
     return fullname
 
-def get_infolabels(object_type , node):
+def get_infolabels(elem_type , node):
     infoLabels = None
     rating = ut.getRating(node.findtext("rating"))
-    if object_type == 'albums':
+    if elem_type == 'album':
         infoLabels = {
             'Title' : str(node.findtext("name")) ,
             'Album' : str(node.findtext("name")) ,
@@ -96,14 +96,14 @@ def get_infolabels(object_type , node):
             'Mediatype' : 'album'
         }
  
-    elif object_type == 'artists':
+    elif elem_type == 'artist':
         infoLabels = {
             'Title' : str(node.findtext("name")) ,
             'Artist' : str(node.findtext("name")),
             'Mediatype' : 'artist'
         }
 
-    elif object_type == 'songs':
+    elif elem_type == 'song':
         infoLabels = {
             'Title' : str(node.findtext("title")) ,
             'Artist' : str(node.findtext("artist")),
@@ -116,7 +116,7 @@ def get_infolabels(object_type , node):
             'Mediatype' : 'song'
         }
 
-    elif object_type == 'videos':
+    elif elem_type == 'video':
         infoLabels = {
             'Title' : str(node.findtext("name")) ,
             'Size' : node.findtext("size") ,
@@ -134,8 +134,7 @@ def getNestedTypeId(node,elem_type):
 
 #this function is used to speed up the loading of the images using differents
 #theads, one for request
-def precacheArt(elem,object_type):
-    elem_type = ut.otype_to_type(object_type)
+def precacheArt(elem,elem_type):
     allid=set()
     if elem_type != "album" and elem_type != "song" and elem_type != "artist":
         return
@@ -164,10 +163,9 @@ def precacheArt(elem,object_type):
     for x in threadList:
         x.join()
 
-def addLinks(elem,object_type,useCacheArt,mode):
+def addLinks(elem,elem_type,useCacheArt,mode):
 
     image = "DefaultFolder.png"
-    elem_type = ut.otype_to_type(object_type)
     it=[]
     allid = set()
 
@@ -201,7 +199,7 @@ def addLinks(elem,object_type,useCacheArt,mode):
         else:
             useCacheArt = False
 
-        infoLabels=get_infolabels(object_type,node)
+        infoLabels=get_infolabels(elem_type,node)
 
         if infoLabels == None:
             infoLabels={ "Title": name }
@@ -227,11 +225,9 @@ def addLinks(elem,object_type,useCacheArt,mode):
 
 # Used to populate items for songs on XBMC. Calls plugin script with mode ==
 # 45 and play_ur == (ampache item url)
-def addPlayLinks(elem, object_type , object_subtype=None):
+def addPlayLinks(elem, elem_type):
    
     it=[]
-
-    elem_type = ut.otype_to_type(object_type,object_subtype)
 
     #we don't use sort method for track cause songs are already sorted
     #by the server and it make a mess in random playlists
@@ -271,7 +267,7 @@ def addPlayLinks(elem, object_type , object_subtype=None):
                 albumArt = art.get_art(None,"album",image_url)
 
             liz.setArt( art.get_artLabels(albumArt) )
-            liz.setInfo( type="music", infoLabels=get_infolabels("songs", node) )
+            liz.setInfo( type="music", infoLabels=get_infolabels("song", node) )
             liz.setMimeType(node.findtext("mime"))
 
             cm = []
@@ -294,7 +290,7 @@ def addPlayLinks(elem, object_type , object_subtype=None):
             if cm != []:
                 liz.addContextMenuItems(cm)
         elif elem_type == "video":
-            liz.setInfo( type="video", infoLabels=get_infolabels("videos", node) )
+            liz.setInfo( type="video", infoLabels=get_infolabels("video", node) )
             liz.setMimeType(node.findtext("mime"))
 
         track_parameters = { "mode": 200, "play_url" : play_url}
@@ -350,13 +346,16 @@ def addItems( object_type, mode , elem, useCacheArt=True, object_subtype=None,pr
     if object_subtype:
         xbmc.log("AmpachePlugin::addItems: object_subtype - " + str(object_subtype) , xbmc.LOGDEBUG )
 
+    elem_type = ut.otype_to_type(object_type,object_subtype)
+    xbmc.log("AmpachePlugin::addItems: elem_type - " + str(elem_type) , xbmc.LOGDEBUG )
+
     if useCacheArt and precache:
-        precacheArt(elem,object_type)
+        precacheArt(elem,elem_type)
 
     if object_type == 'songs' or object_type == 'videos':
-        addPlayLinks(elem,object_type,object_subtype)
+        addPlayLinks(elem,elem_type)
     else:
-        addLinks(elem,object_type,useCacheArt,mode)
+        addLinks(elem,elem_type,useCacheArt,mode)
     return
 
 def get_all(object_type, mode ,offset=None):
