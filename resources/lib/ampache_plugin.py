@@ -556,25 +556,27 @@ def get_recent(object_type,submode,object_subtype=None):
         get_items(object_type=object_type,add=ut.get_time(-90),object_subtype=object_subtype)
 
 def get_random(object_type, num_items):
-    xbmc.log("AmpachePlugin::get_random: object_type " + object_type + " num_items " + str(num_items), xbmc.LOGDEBUG)
     #object type can be : albums, artists, songs, playlists
     
     mode = ut.otype_to_mode(object_type)
-
-
     tot_items = int(ampache.getSetting(object_type))
+
+    xbmc.log("AmpachePlugin::get_random: object_type " + object_type + " num_items " + str(num_items) + " tot_items " +\
+            str(tot_items), xbmc.LOGDEBUG)
+
     if num_items > tot_items:
         #if tot_items are less than num_itmes, return all items
         get_items(object_type, limit=tot_items)
         return
 
     seq = random.sample(list(range(tot_items)),num_items)
-    action = ut.otype_to_type(object_type)
+    action = object_type
     xbmc.log("AmpachePlugin::get_random: seq " + str(seq), xbmc.LOGDEBUG )
     ampConn = ampache_connect.AmpacheConnect()
     for item_id in seq:
         try:
-            ampConn.filter = item_id
+            ampConn.offset = item_id
+            ampConn.limit = 1
             elem = ampConn.ampache_http_request(action)
             addItems( object_type, mode , elem,precache=False)
         except:
