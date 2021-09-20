@@ -365,9 +365,12 @@ def addDir(name,mode,submode,offset=None,object_id=None):
     xbmcplugin.addDirectoryItem(handle=handle,url=u,listitem=liz,isFolder=True)
 
 #this function add items to the directory using the low level addLinks of ddSongLinks functions
-def addItems( object_type, mode , elem, useCacheArt=True, object_subtype=None,precache=True):
+def addItems( object_type, elem, useCacheArt=True, object_subtype=None,precache=True):
 
     ut.setContent(int(sys.argv[1]), object_type)
+
+    #set the mode
+    mode = ut.otype_to_mode(object_type, object_subtype)
 
     xbmc.log("AmpachePlugin::addItems: object_type - " + str(object_type) , xbmc.LOGDEBUG )
     if object_subtype:
@@ -466,10 +469,6 @@ def get_items(object_type, object_id=None, add=None,\
     if object_id:
         thisFilter = object_id
 
-  #set the mode 
-
-    mode = ut.otype_to_mode(object_type, object_subtype)
-
     #here the documentation for an ampache connection
     #first create the connection object
     #second choose the api function to call in action variable
@@ -492,7 +491,7 @@ def get_items(object_type, object_id=None, add=None,\
         ampConn.offset = offset
 
         elem = ampConn.ampache_http_request(action)
-        addItems( object_type, mode , elem, useCacheArt,object_subtype)
+        addItems( object_type, elem, useCacheArt,object_subtype)
     except:
         return
 
@@ -549,8 +548,6 @@ def get_stats(object_type, object_subtype=None, limit=5000 ):
 
     xbmc.log("AmpachePlugin::get_stats ",  xbmc.LOGDEBUG)
 
-    mode = ut.otype_to_mode(object_type)
-
     action = 'stats'
     if(int(ampache.getSetting("api-version"))) < 400001:
         amtype = object_subtype
@@ -567,7 +564,7 @@ def get_stats(object_type, object_subtype=None, limit=5000 ):
         ampConn.type = amtype
                 
         elem = ampConn.ampache_http_request(action)
-        addItems( object_type, mode , elem)
+        addItems( object_type, elem)
     except:
         return
 
@@ -587,7 +584,6 @@ def get_recent(object_type,submode,object_subtype=None):
 def get_random(object_type, num_items):
     #object type can be : albums, artists, songs, playlists
     
-    mode = ut.otype_to_mode(object_type)
     tot_items = int(ampache.getSetting(object_type))
 
     xbmc.log("AmpachePlugin::get_random: object_type " + object_type + " num_items " + str(num_items) + " tot_items " +\
@@ -607,7 +603,7 @@ def get_random(object_type, num_items):
             ampConn.offset = item_id
             ampConn.limit = 1
             elem = ampConn.ampache_http_request(action)
-            addItems( object_type, mode , elem,precache=False)
+            addItems( object_type, elem,precache=False)
         except:
             pass
 
