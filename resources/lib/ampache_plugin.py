@@ -116,6 +116,13 @@ def get_infolabels(elem_type , node):
             'Mediatype' : 'song'
         }
 
+    elif elem_type == 'podcast_episode':
+        infoLabels = {
+            'Title' : str(node.findtext("title")) ,
+            'UserRating' : rating,
+            'Mediatype' : 'song'
+        }
+
     elif elem_type == 'video':
         infoLabels = {
             'Title' : str(node.findtext("name")) ,
@@ -135,9 +142,18 @@ def getNestedTypeId(node,elem_type):
 #this function is used to speed up the loading of the images using differents
 #theads, one for request
 def precacheArt(elem,elem_type):
+
     allid=set()
-    if elem_type != "album" and elem_type != "song" and elem_type != "artist":
+    if elem_type != "album" and elem_type != "song" and elem_type != "artist" and elem_type != "podcast":
         return
+
+    if elem_type == "song":
+        limit = len(elem.findall(elem_type))
+        if limit > 100:
+            #to not overload servers
+            if (not ut.strBool_to_bool(ampache.getSetting("images-long-list"))):
+                useCacheArt = False
+
     threadList = []
     for node in elem.iter(elem_type):
         if elem_type == "song":
@@ -169,6 +185,12 @@ def addLinks(elem,elem_type,useCacheArt,mode):
     it=[]
     allid = set()
 
+    limit = len(elem.findall(elem_type))
+    if limit > 100:
+        #to not overload servers
+        if (not ut.strBool_to_bool(ampache.getSetting("images-long-list"))):
+            useCacheArt = False
+
     for node in elem.iter(elem_type):
         cm = []
         object_id = node.attrib["id"]
@@ -196,6 +218,9 @@ def addLinks(elem,elem_type,useCacheArt,mode):
             if useCacheArt:
                 image_url = node.findtext("art")
                 image = art.get_art(object_id,elem_type,image_url)
+        elif elem_type == "podcast":
+            if useCacheArt:
+                image = art.get_art(object_id,"podcast")
         else:
             useCacheArt = False
 
@@ -289,6 +314,8 @@ def addPlayLinks(elem, elem_type):
 
             if cm != []:
                 liz.addContextMenuItems(cm)
+        elif elem_type == "podcast_episode":
+            liz.setInfo( type="music", infoLabels=get_infolabels(elem_type, node) )
         elif elem_type == "video":
             liz.setInfo( type="video", infoLabels=get_infolabels("video", node) )
             liz.setMimeType(node.findtext("mime"))
@@ -367,14 +394,17 @@ def get_all(object_type, mode ,offset=None):
             return
     except:
         return
-    #to not overload servers
+
+    useCacheArt = True
+
+    if limit > 100:
+        #to not overload servers
+        if (not ut.strBool_to_bool(ampache.getSetting("images-long-list"))):
+            useCacheArt = False
+
     step = 500
     newLimit = offset+step
-    #load images in long list
-    if (ut.strBool_to_bool(ampache.getSetting("images-long-list"))):
-        get_items(object_type, limit=step, offset=offset)
-    else:
-        get_items(object_type, limit=step, offset=offset, useCacheArt=False)
+    get_items(object_type, limit=step, offset=offset, useCacheArt=useCacheArt)
     if newLimit < limit:
         pass
     else:
