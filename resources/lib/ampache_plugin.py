@@ -147,7 +147,7 @@ def precacheArt(elem,elem_type):
     if elem_type != "album" and elem_type != "song" and elem_type != "artist" and elem_type != "podcast":
         return
 
-    if elem_type == "song":
+    if elem_type != "song":
         limit = len(elem.findall(elem_type))
         if limit > 100:
             #to not overload servers
