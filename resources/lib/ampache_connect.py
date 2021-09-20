@@ -59,7 +59,8 @@ class AmpacheConnect(object):
         self._ampache.setSetting("session_expire", tree.findtext("session_expire"))
         self._ampache.setSetting("add", tree.findtext("add"))
         self._ampache.setSetting("token", token)
-        self._ampache.setSetting("token-exp", str(nTime+24000))
+        #not 24000 seconds ( 6 hours ) , but 2400 ( 40 minutes ) expiration time
+        self._ampache.setSetting("token-exp", str(nTime+2400))
 
     def getCodeMessError(self,tree):
         errormess = None
