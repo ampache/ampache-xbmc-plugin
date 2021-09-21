@@ -147,13 +147,6 @@ def precacheArt(elem,elem_type):
     if elem_type != "album" and elem_type != "song" and elem_type != "artist" and elem_type != "podcast":
         return
 
-    if elem_type != "song":
-        limit = len(elem.findall(elem_type))
-        if limit > 100:
-            #to not overload servers
-            if (not ut.strBool_to_bool(ampache.getSetting("images-long-list"))):
-                useCacheArt = False
-
     threadList = []
     for node in elem.iter(elem_type):
         if elem_type == "song":
@@ -184,12 +177,6 @@ def addLinks(elem,elem_type,useCacheArt,mode):
     image = "DefaultFolder.png"
     it=[]
     allid = set()
-
-    limit = len(elem.findall(elem_type))
-    if limit > 100:
-        #to not overload servers
-        if (not ut.strBool_to_bool(ampache.getSetting("images-long-list"))):
-            useCacheArt = False
 
     for node in elem.iter(elem_type):
         cm = []
@@ -365,12 +352,9 @@ def addDir(name,mode,submode,offset=None,object_id=None):
     xbmcplugin.addDirectoryItem(handle=handle,url=u,listitem=liz,isFolder=True)
 
 #this function add items to the directory using the low level addLinks of ddSongLinks functions
-def addItems( object_type, elem, useCacheArt=True, object_subtype=None,precache=True):
+def addItems( object_type, elem, object_subtype=None,precache=True):
 
     ut.setContent(int(sys.argv[1]), object_type)
-
-    #set the mode
-    mode = ut.otype_to_mode(object_type, object_subtype)
 
     xbmc.log("AmpachePlugin::addItems: object_type - " + str(object_type) , xbmc.LOGDEBUG )
     if object_subtype:
@@ -379,12 +363,23 @@ def addItems( object_type, elem, useCacheArt=True, object_subtype=None,precache=
     elem_type = ut.otype_to_type(object_type,object_subtype)
     xbmc.log("AmpachePlugin::addItems: elem_type - " + str(elem_type) , xbmc.LOGDEBUG )
 
+    useCacheArt = True
+
+    if elem_type != "song":
+        limit = len(elem.findall(elem_type))
+        if limit > 100:
+            #to not overload servers
+            if (not ut.strBool_to_bool(ampache.getSetting("images-long-list"))):
+                useCacheArt = False
+
     if useCacheArt and precache:
         precacheArt(elem,elem_type)
 
     if object_type == 'songs' or object_type == 'videos':
         addPlayLinks(elem,elem_type)
     else:
+        #set the mode
+        mode = ut.otype_to_mode(object_type, object_subtype)
         addLinks(elem,elem_type,useCacheArt,mode)
     return
 
@@ -398,16 +393,9 @@ def get_all(object_type, mode ,offset=None):
     except:
         return
 
-    useCacheArt = True
-
-    if limit > 100:
-        #to not overload servers
-        if (not ut.strBool_to_bool(ampache.getSetting("images-long-list"))):
-            useCacheArt = False
-
     step = 500
     newLimit = offset+step
-    get_items(object_type, limit=step, offset=offset, useCacheArt=useCacheArt)
+    get_items(object_type, limit=step, offset=offset)
     if newLimit < limit:
         pass
     else:
@@ -419,7 +407,7 @@ def get_all(object_type, mode ,offset=None):
 #this functions handles the majority of the requests to the server
 #so, we have a lot of optional params
 def get_items(object_type, object_id=None, add=None,\
-        thisFilter=None,limit=5000,useCacheArt=True, object_subtype=None,\
+        thisFilter=None,limit=5000, object_subtype=None,\
         exact=None, offset=None ):
     
     if object_type:
@@ -491,7 +479,7 @@ def get_items(object_type, object_id=None, add=None,\
         ampConn.offset = offset
 
         elem = ampConn.ampache_http_request(action)
-        addItems( object_type, elem, useCacheArt,object_subtype)
+        addItems( object_type, elem, object_subtype)
     except:
         return
 
