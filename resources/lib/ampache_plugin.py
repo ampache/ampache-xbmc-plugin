@@ -671,10 +671,11 @@ def main_params(plugin_url):
 def manage_stats_menu(object_type,submode):
 
     num_items = (int(ampache.getSetting("random_items"))*3)+3
+    apiVersion = int(ampache.getSetting("api-version"))
 
     if submode == 40:
         #playlists are not in the new stats api, so, use the old mode
-        if(int(ampache.getSetting("api-version"))) < 400001 or object_type == 'playlists':
+        if(apiVersion < 400001 or (object_type == 'playlists' and apiVersion < 510000 )):
             get_random(object_type, num_items)
         else:
             get_stats(object_type=object_type,object_subtype="random",limit=num_items)
@@ -730,6 +731,8 @@ def Main():
                 ampacheConnect.AMPACHECONNECT()
             except:
                 pass
+
+    apiVersion = int(ampache.getSetting("api-version"))
 
     #start menu
     if mode==None:
@@ -836,7 +839,7 @@ def Main():
             endDir = do_search("podcasts")
         #get all episodes
         elif submode == 71:
-            if(int(ampache.getSetting("api-version"))) >= 440000:
+            if apiVersion >= 440000:
                 get_items(object_type="songs",object_id=object_id,object_subtype="podcast_episodes")
 
     #video
@@ -871,7 +874,7 @@ def Main():
         addDir(ut.tString(30145),107,None)
         #random
         addDir(ut.tString(30146),100,None)
-        if(int(ampache.getSetting("api-version"))) >= 400001:
+        if apiVersion >= 400001:
             #highest
             addDir(ut.tString(30148),101,None)
             #frequent
@@ -894,7 +897,6 @@ def Main():
             addDir(ut.tString(30221) + " (" + ampache.getSetting("videos")+ ")",8,5)
         if ampache.getSetting("podcasts"):
             addDir(ut.tString(30226) + " (" + ampache.getSetting("podcasts")+ ")",5,5)
-        apiVersion = int(ampache.getSetting("api-version"))
         if apiVersion >= 380001:
             #get all tags ( submode 5 )
             addDir(ut.tString(30119),54,5)
@@ -903,7 +905,7 @@ def Main():
     elif mode==52:
         #random album
         addDir(ut.tString(30135),2,40)
-        if(int(ampache.getSetting("api-version"))) >= 400001:
+        if apiVersion >= 400001:
             #newest albums
             addDir(ut.tString(30162),2,45)
             #frequent albums
