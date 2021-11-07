@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 #main plugin library
 from resources.lib import json_storage
 from resources.lib import utils as ut
+from resources.lib.art_clean import clean_settings
 
 class AmpacheConnect(object):
     
@@ -41,6 +42,7 @@ class AmpacheConnect(object):
         return '/server/xml.server.php'
 
     def fillConnectionSettings(self,tree,nTime):
+        clean_settings()
         token = tree.findtext('auth')
         version = tree.findtext('api')
         if not version:
@@ -52,16 +54,13 @@ class AmpacheConnect(object):
         self._ampache.setSetting("albums", tree.findtext("albums"))
         self._ampache.setSetting("songs", tree.findtext("songs"))
         self._ampache.setSetting("playlists", tree.findtext("playlists"))
-        videos = tree.findtext("videos")
-        if videos:
-            self._ampache.setSetting("videos", videos)
-        podcasts = tree.findtext("podcasts")
-        if podcasts:
-            self._ampache.setSetting("podcasts", podcasts)
+        self._ampache.setSetting("videos", tree.findtext("videos") )
+        self._ampache.setSetting("podcasts", tree.findtext("podcasts") )
         self._ampache.setSetting("session_expire", tree.findtext("session_expire"))
         self._ampache.setSetting("add", tree.findtext("add"))
         self._ampache.setSetting("token", token)
-        self._ampache.setSetting("token-exp", str(nTime+24000))
+        #not 24000 seconds ( 6 hours ) , but 2400 ( 40 minutes ) expiration time
+        self._ampache.setSetting("token-exp", str(nTime+2400))
 
     def getCodeMessError(self,tree):
         errormess = None

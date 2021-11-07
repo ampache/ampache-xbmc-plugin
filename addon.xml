@@ -16,7 +16,7 @@
     <description lang="en_GB">A web based audio/video streaming application and file manager allowing you to access your music and videos from anywhere, using almost any internet enabled device.</description>
     <platform>all</platform>
     <forum>https://forum.kodi.tv/showthread.php?tid=230736</forum>
-    <website>http://ampache.org/</website>
+    <website>https://ampache.org/</website>
     <license>GPL-2.0-or-later</license>
     <assets>
         <icon>resources/icon.png</icon>
