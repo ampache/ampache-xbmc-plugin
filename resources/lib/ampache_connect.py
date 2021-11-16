@@ -53,7 +53,7 @@ class AmpacheConnect(object):
         self._ampache.setSetting("artists", tree.findtext("artists"))
         self._ampache.setSetting("albums", tree.findtext("albums"))
         self._ampache.setSetting("songs", tree.findtext("songs"))
-        apiVersion = int(version):
+        apiVersion = int(version)
         if apiVersion < 500001:
             self._ampache.setSetting("playlists", tree.findtext("playlists"))
         else:
