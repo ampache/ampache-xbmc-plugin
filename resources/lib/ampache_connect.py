@@ -37,6 +37,8 @@ class AmpacheConnect(object):
         self.mode=None
         self.id=None
         self.rating=None
+        #force the latest version on the server
+        self.version="590001"
 
     def getBaseUrl(self):
         return '/server/xml.server.php'
@@ -109,13 +111,13 @@ class AmpacheConnect(object):
         myPassphrase = self.getHashedPassword(myTimeStamp)
         myURL = self._connectionData["url"] + self.getBaseUrl() + '?action=handshake&auth='
         myURL += myPassphrase + "&timestamp=" + myTimeStamp
-        myURL += '&version=' + self._ampache.getSetting("api-version") + '&user=' + self._connectionData["username"]
+        myURL += '&version=' + self.version + '&user=' + self._connectionData["username"]
         return myURL
 
     def get_auth_key_login_url(self):
         myURL = self._connectionData["url"] +  self.getBaseUrl() + '?action=handshake&auth='
         myURL += self._connectionData["api_key"]
-        myURL += '&version=' + self._ampache.getSetting("api-version")
+        myURL += '&version=' + version
         return myURL
 
     def handle_request(self,url):
