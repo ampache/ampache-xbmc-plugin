@@ -117,8 +117,7 @@ class AmpacheConnect(object):
     def get_auth_key_login_url(self):
         myURL = self._connectionData["url"] +  self.getBaseUrl() + '?action=handshake&auth='
         myURL += self._connectionData["api_key"]
-        #revert api version for api-key
-        myURL += '&version=' + self._ampache.getSetting("api-version")
+        myURL += '&version=' + self.version
         return myURL
 
     def handle_request(self,url):
