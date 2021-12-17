@@ -12,6 +12,7 @@
     <summary lang="en_GB">Stream music from Ampache XML-API</summary>
     <summary lang="de_DE">Streame Musik von der Ampache XML-API</summary>
     <summary lang="it_IT">Streaming Musicale per l'XML-API di Ampache</summary>
+    <summary lang="es_ES">Retransmitir música a través de la XML-API de Ampache</summary>
     <description lang="en_GB">A web based audio/video streaming application and file manager allowing you to access your music and videos from anywhere, using almost any internet enabled device.</description>
     <platform>all</platform>
     <forum>https://forum.kodi.tv/showthread.php?tid=230736</forum>
