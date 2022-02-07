@@ -916,7 +916,7 @@ def Main():
         if ampache.getSetting("podcasts"):
             addDir(ut.tString(30226) + " (" + ampache.getSetting("podcasts")+ ")",5,5)
         if ampache.getSetting("live_streams"):
-            addDir(ut.tString(30228) + " (" +
+            addDir(ut.tString(30229) + " (" +
                     ampache.getSetting("live_streams")+ ")",6,71)
         if apiVersion >= 380001:
             #get all tags ( submode 5 )
