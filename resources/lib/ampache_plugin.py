@@ -63,12 +63,22 @@ def searchGui():
                 endDir = do_search("genres","genre_songs")
     return endDir
 
+#necessary due the api changes in 6.0
+def get_artist_name(node):
+    if(int(ampache.getSetting("api-version"))) < 600000:
+        artist_name = str(node.findtext("artist"))
+    else:
+        artist_name = str(getNestedTypeText(node, "name" ,"artist"))
+    return artist_name
+
 #return album and artist name, only album could be confusing
 def get_album_artist_name(node):
+
     disknumber = str(node.findtext("disk"))
     album_name = str(node.findtext("name"))
-    artist_name = str(node.findtext("artist"))
+    artist_name = get_artist_name(node)
     fullname = album_name
+    
     if PY2:
         fullname += u" - "
     else:
@@ -91,7 +101,7 @@ def get_infolabels(elem_type , node):
         infoLabels = {
             'Title' : str(node.findtext("name")) ,
             'Album' : str(node.findtext("name")) ,
-            'Artist' : str(node.findtext("artist")),
+            'Artist' : get_artist_name(node),
             'DiscNumber' : str(node.findtext("disk")),
             'Year' : node.findtext("year") ,
             'UserRating' : rating,
@@ -108,7 +118,7 @@ def get_infolabels(elem_type , node):
     elif elem_type == 'song':
         infoLabels = {
             'Title' : str(node.findtext("title")) ,
-            'Artist' : str(node.findtext("artist")),
+            'Artist' : get_artist_name(node),
             'Album' :  str(node.findtext("album")),
             'Size' : node.findtext("size") ,
             'Duration' : node.findtext("time"),
@@ -134,6 +144,13 @@ def get_infolabels(elem_type , node):
 
     return infoLabels
 
+def getNestedTypeText(node, elem_tag ,elem_type):
+    obj_elem = node.find(elem_type)
+    if obj_elem is not None or obj_elem != '':
+        obj_tag = obj_elem.findtext(elem_tag)
+        return obj_tag
+    return None
+
 def getNestedTypeId(node,elem_type):
     obj_elem = node.find(elem_type)
     if obj_elem is not None or obj_elem != '':
@@ -154,7 +171,7 @@ def precacheArt(elem,elem_type):
     for node in elem.iter(elem_type):
         if elem_type == "song":
             art_type = "album"
-            object_id = getNestedTypeId(node,"album")
+            object_id = getNestedTypeId(node, "album")
         else:
             art_type = elem_type
             object_id = node.attrib["id"]
@@ -195,7 +212,7 @@ def addLinks(elem,elem_type,useCacheArt,mode):
                 allid.add(object_id)
             else:
                 continue
-            artist_id = getNestedTypeId(node,"artist")
+            artist_id = getNestedTypeId(node, "artist")
             if artist_id:
                 cm.append( ( ut.tString(30141),"Container.Update(%s?object_id=%s&mode=1&submode=6)" %
                     ( sys.argv[0],artist_id ) ) )
@@ -252,7 +269,7 @@ def addPlayLinks(elem, elem_type):
     if elem_type == "video":
         xbmcplugin.addSortMethod(int(sys.argv[1]),xbmcplugin.SORT_METHOD_TITLE)
     elif elem_type == "podcast_episode":
-        xbmcplugin.addSortMethod(int(sys.argv[1]),xbmcplugin.SORT_METHOD_LABEL)
+        xbmcplugin.addSortMethod(int(sys.argv[1]),xbmcplugin.SORT_METHOD_DATE)
 
     allid=set()
     albumTrack={}
@@ -292,7 +309,7 @@ def addPlayLinks(elem, elem_type):
 
             cm = []
 
-            artist_id = getNestedTypeId(node,"artist")
+            artist_id = getNestedTypeId(node, "artist")
             if artist_id:
                 cm.append( ( ut.tString(30138),
                 "Container.Update(%s?object_id=%s&mode=1&submode=6)" % (
