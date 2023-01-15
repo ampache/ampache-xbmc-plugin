@@ -64,11 +64,11 @@ def searchGui():
     return endDir
 
 #necessary due the api changes in 6.0
-def get_artist_name(node):
+def get_name(node,amType):
     if(int(ampache.getSetting("api-version"))) < 600000:
-        artist_name = str(node.findtext("artist"))
+        artist_name = str(node.findtext(amType))
     else:
-        artist_name = str(getNestedTypeText(node, "name" ,"artist"))
+        artist_name = str(getNestedTypeText(node, "name" ,amType))
     return artist_name
 
 #return album and artist name, only album could be confusing
@@ -76,7 +76,7 @@ def get_album_artist_name(node):
 
     disknumber = str(node.findtext("disk"))
     album_name = str(node.findtext("name"))
-    artist_name = get_artist_name(node)
+    artist_name = get_name(node,"artist")
     fullname = album_name
     
     if PY2:
@@ -101,7 +101,7 @@ def get_infolabels(elem_type , node):
         infoLabels = {
             'Title' : str(node.findtext("name")) ,
             'Album' : str(node.findtext("name")) ,
-            'Artist' : get_artist_name(node),
+            'Artist' : get_name(node,"artist"),
             'DiscNumber' : str(node.findtext("disk")),
             'Year' : node.findtext("year") ,
             'UserRating' : rating,
@@ -118,8 +118,8 @@ def get_infolabels(elem_type , node):
     elif elem_type == 'song':
         infoLabels = {
             'Title' : str(node.findtext("title")) ,
-            'Artist' : get_artist_name(node),
-            'Album' :  str(node.findtext("album")),
+            'Artist' : get_name(node,"artist"),
+            'Album' :  get_name(node,"album"),
             'Size' : node.findtext("size") ,
             'Duration' : node.findtext("time"),
             'Year' : node.findtext("year") ,
