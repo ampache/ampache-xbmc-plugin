@@ -99,7 +99,7 @@ def get_infolabels(elem_type , node):
     rating = ut.getRating(node.findtext("rating"))
     if elem_type == 'album':
         infoLabels = {
-            'Title' : str(node.findtext("name")) ,
+            #'Title' : str(node.findtext("name")) ,
             'Album' : str(node.findtext("name")) ,
             'Artist' : get_name(node,"artist"),
             'DiscNumber' : str(node.findtext("disk")),
@@ -110,7 +110,7 @@ def get_infolabels(elem_type , node):
  
     elif elem_type == 'artist':
         infoLabels = {
-            'Title' : str(node.findtext("name")) ,
+            #'Title' : str(node.findtext("name")) ,
             'Artist' : str(node.findtext("name")),
             'Mediatype' : 'artist'
         }
