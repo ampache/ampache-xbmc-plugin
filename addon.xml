@@ -7,7 +7,7 @@
     <provides>audio</provides>
   </extension>
   <extension point="xbmc.python.module" library="resources/lib/"/>
-  <extension point="xbmc.service" library="resources/lib/service.py" />
+  <extension point="xbmc.service" library="service.py" />
   <extension point="xbmc.addon.metadata">
     <summary lang="en_GB">Stream music from Ampache XML-API</summary>
     <summary lang="de_DE">Streame Musik von der Ampache XML-API</summary>
