@@ -4,7 +4,7 @@ import xbmcaddon
 #service class
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
-from utils import get_objectId_from_fileURL
+from resources.lib.utils import get_objectId_from_fileURL
 
 class AmpacheMonitor( xbmc.Monitor ):
 
