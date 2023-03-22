@@ -41,7 +41,7 @@ class AmpacheMonitor( xbmc.Monitor ):
                 try:
                     file_url = xbmc.Player().getPlayingFile()
                     #it is not our file
-                    if not (self.get_objectId_from_fileURL( file_url )):
+                    if not (get_objectId_from_fileURL( file_url )):
                         return
                 except:
                     xbmc.log("AmpacheMonitor::no playing file " , xbmc.LOGDEBUG)
