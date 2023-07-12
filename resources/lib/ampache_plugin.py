@@ -237,6 +237,11 @@ def addLinks(elem,elem_type,useCacheArt,mode):
         elif elem_type == "playlist":
             if useCacheArt:
                 image = art.get_art(object_id,"playlist")
+            try:
+                numItems = str(node.findtext("items"))
+                name = name + " (" + numItems + ")"
+            except:
+                pass
         else:
             useCacheArt = False
 
