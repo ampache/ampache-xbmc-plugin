@@ -22,11 +22,11 @@ Nextcloud music doesn't use api-key, but username/password, if you have problems
         
 Web controls work better with the old search interface, it is possibile to enable it in the settings
         
-The crashes in kodi are due to bugs in kodi from 18.5 to 20 ( double busy dialog bug ) and in kore app.
+The crashes in kodi are due to bugs in kodi from 18.5 to 19 ( double busy dialog bug ) and in kore app.
 To avoid random crashes in kodi don't do any operation in the last five seconds of a song, 
 due to a kodi bug, playing next song generates a busy dialog ( impossible to avoid )
 and operating on kodi generates another busy dialog.
-The combination of two busy dialogs working crashes kodi (https://github.com/xbmc/xbmc/issues/16756)
+The bug is fixed in kodi 20
 
 When you update the 2.0 version from an old version, expecially on raspberry pi, the plugin could not work.
 This behaviour is due to the kodi addon cache. To correct this one time problem, it is necessary to reboot the
