@@ -24,6 +24,57 @@ from resources.lib import art
 #possible to start a song without initialising the plugin
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
+class AmpMode:
+    """Enumeration of all possible modes"""
+
+    ARTISTS = 1
+    ALBUMS = 2
+    SONGS = 3
+    PLAYLISTS = 4
+    PODCASTS =5
+    LIVE_STREAMS=6
+    VIDEOS = 8
+    TAG_ARTISTS = 19
+    TAG_ALBUMS =20
+    TAG_SONGS=21
+    EXPLORE=50
+    LIBRARY=51
+    QUICK_ACCESS=52
+    SEARCH_MODE=53
+    SEARCH_TAGS=54
+    RECENTLY_ADDED=55
+    RANDOM=100
+    HIGHEST=101
+    FREQUENT=102
+    FLAGGED=103
+    FORGOTTEN=104
+    NEWEST=105
+    RECENTLY_LISTENED=106
+    RECENTLY_ADDED_MENU=107
+    END_DIRECTORY=200
+    #server menu
+    SET_RATINGS=205
+    END_CHECK_CONNECTION = 299
+    SETTINGS=300
+    ADD_SERVER=301
+    DELETE_SERVER=302
+    MODIFY_SERVER=303
+    SWITCH_SERVER=304
+    MAX=1000
+
+class AmpSubmode:
+    """Enumeration of all possible submodes"""
+    GET_ALL=5
+    DO_SEARCH=10
+    DO_SEARCH_ALL=11
+    RANDOM=40
+    HIGHEST=41
+    FREQUENT=42
+    FLAGGED=43
+    FORGOTTEN=44
+    NEWEST=45
+    RECENT=46
+
 def searchGui():
     dialog = xbmcgui.Dialog()
     ret = dialog.contextmenu([ut.tString(30106),ut.tString(30107),ut.tString(30108),\
@@ -710,23 +761,23 @@ def manage_stats_menu(object_type,submode):
     num_items = (int(ampache.getSetting("random_items"))*3)+3
     apiVersion = int(ampache.getSetting("api-version"))
 
-    if submode == 40:
+    if submode == AmpSubmode.RANDOM:
         #playlists are not in the new stats api, so, use the old mode
         if(apiVersion < 400001 or (object_type == 'playlists' and apiVersion < 510000 )):
             get_random(object_type, num_items)
         else:
             get_stats(object_type=object_type,object_subtype="random",limit=num_items)
-    elif submode == 41:
+    elif submode == AmpSubmode.HIGHEST:
         get_stats(object_type=object_type,object_subtype="highest",limit=num_items)
-    elif submode == 42:
+    elif submode == AmpSubmode.FREQUENT:
         get_stats(object_type=object_type,object_subtype="frequent",limit=num_items)
-    elif submode == 43:
+    elif submode == AmpSubmode.FLAGGED:
         get_stats(object_type=object_type,object_subtype="flagged",limit=num_items)
-    elif submode == 44:
+    elif submode == AmpSubmode.FORGOTTEN:
         get_stats(object_type=object_type,object_subtype="forgotten",limit=num_items)
-    elif submode == 45:
+    elif submode == AmpSubmode.NEWEST:
         get_stats(object_type=object_type,object_subtype="newest",limit=num_items)
-    elif submode == 46:
+    elif submode == AmpSubmode.RECENT:
         get_stats(object_type=object_type,object_subtype="recent",limit=num_items)
 
 def Main():
@@ -735,12 +786,9 @@ def Main():
     object_id=None
     #sometimes we need to not endDirectory, but
     #we need to check if the connection is alive
-    #until endDirectoryMode -> endDirectoy and checkConnection
-    #from endDirectoryMode to endCheckConnection  -> no endDirectory but checkConnection
+    #until END_DIRECTORY -> endDirectoy and checkConnection
+    #from END_DIRECTORY to END_CHECK_CONNECTION  -> no endDirectory but checkConnection
     #else no end and no check
-    endDirectoryMode = 200
-    endCheckConnection = 300
-    modeMax = 1000
     endDir = True
 
     addon_url = sys.argv[0]
@@ -759,7 +807,7 @@ def Main():
     #connect to the server
     #do not connect on main screen and when we operate setting; 
     #do not block the main screen in case the connection to a server it is not available and we kwow it
-    if mode!=None and mode < endCheckConnection:
+    if mode!=None and mode < AmpMode.END_CHECK_CONNECTION:
         if ut.check_tokenexp():
             try:
                 #check server file only when necessary
@@ -774,23 +822,23 @@ def Main():
     #start menu
     if mode==None:
         #search
-        addDir(ut.tString(30101),53,None)
+        addDir(ut.tString(30101),AmpMode.SEARCH_MODE,None)
         #quick access
-        addDir(ut.tString(30102),52,None)
+        addDir(ut.tString(30102),AmpMode.QUICK_ACCESS,None)
         #explore
-        addDir(ut.tString(30103),50,None)
+        addDir(ut.tString(30103),AmpMode.EXPLORE,None)
         #library
-        addDir(ut.tString(30104),51,None)
+        addDir(ut.tString(30104),AmpMode.LIBRARY,None)
         #switch server
-        addDir(ut.tString(30023),304,None)
+        addDir(ut.tString(30023),AmpMode.SWITCH_SERVER,None)
         #settings
-        addDir(ut.tString(30105),300,None)
+        addDir(ut.tString(30105),AmpMode.SETTINGS,None)
         
     #artist mode
-    elif mode==1:
+    elif mode==AmpMode.ARTISTS:
         #artist, album, songs, playlist follow the same structure
         #get all artists
-        if submode == 5:
+        if submode == AmpSubmode.GET_ALL:
             get_all("artists", mode ,m_params['offset'])
         #get the artist from this album's artist_id
         elif submode == 6:
@@ -798,7 +846,7 @@ def Main():
             get_items(object_type="artists",object_id=object_id,object_subtype="artist")
         #search function
         #10-30 search
-        elif submode == 10:
+        elif submode == AmpSubmode.DO_SEARCH:
             endDir = do_search("artists")
         #recent function
         #30-40 recent
@@ -806,7 +854,7 @@ def Main():
             get_recent( "artists", submode )
         #submode between 40-46( random.. recent )
         #40-70 stats
-        elif submode >= 40 and submode <= 46:
+        elif submode >= AmpSubmode.RANDOM and submode <= AmpSubmode.RECENT:
             manage_stats_menu("artists",submode)
         #get all albums from an artist_id
         elif submode == 71:
@@ -817,31 +865,31 @@ def Main():
     
     
     #albums mode
-    elif mode==2:
+    elif mode==AmpMode.ALBUMS:
         #get all albums
-        if submode == 5:
+        if submode == AmpSubmode.GET_ALL:
             get_all("albums", mode ,m_params['offset'])
         #get the album from the song's album_id
         elif submode == 6:
             switchFromMusicPlaylist(addon_url, mode, submode, object_id=object_id )
             get_items(object_type="albums",object_id=object_id,object_subtype="album")
-        elif submode == 10:
+        elif submode == AmpSubmode.DO_SEARCH:
             endDir = do_search("albums")
         elif submode > 30 and submode < 35:
             get_recent( "albums", submode )
-        elif submode >= 40 and submode <= 46:
+        elif submode >= AmpSubmode.RANDOM and submode <= AmpSubmode.RECENT:
             manage_stats_menu("albums",submode)
         #get all songs from an album_id
         elif submode == 71:
             get_items(object_type="songs",object_id=object_id,object_subtype="album_songs")
 
     #song mode
-    elif mode == 3:
+    elif mode == AmpMode.SONGS:
         #10-30 search
-        if submode == 10:
+        if submode == AmpSubmode.DO_SEARCH:
             endDir = do_search("songs")
         # submode 11 : search all
-        elif submode == 11:
+        elif submode == AmpSubmode.DO_SEARCH_ALL:
             endDir = do_search("songs","search_songs")
         #get all song with this title
         elif submode == 12:
@@ -851,28 +899,28 @@ def Main():
         elif submode > 30 and submode < 35:
             get_recent( "songs", submode )
         #40-70 stats
-        elif submode >= 40 and submode <= 46:
+        elif submode >= AmpSubmode.RANDOM and submode <= AmpSubmode.RECENT:
             manage_stats_menu("songs",submode)
 
     #playlist mode
-    elif mode==4:
-        if submode == 5:
+    elif mode==AmpMode.PLAYLISTS:
+        if submode == AmpSubmode.GET_ALL:
             get_all("playlists", mode ,m_params['offset'])
-        elif submode == 10:
+        elif submode == AmpSubmode.DO_SEARCH:
             endDir = do_search("playlists")
         elif submode > 30 and submode < 35:
             get_recent( "playlists", submode )
-        elif submode == 40:
+        elif submode == AmpSubmode.RANDOM:
             manage_stats_menu("playlists", submode)
         #get all songs from a playlist_id
         elif submode == 71:
             get_items(object_type="songs",object_id=object_id,object_subtype="playlist_songs")
 
     #podcasts
-    elif mode==5:
-        if submode == 5:
+    elif mode==AmpMode.PODCASTS:
+        if submode == AmpSubmode.GET_ALL:
             get_all("podcasts", mode ,m_params['offset'])
-        elif submode == 10:
+        elif submode == AmpSubmode.DO_SEARCH:
             endDir = do_search("podcasts")
         #get all episodes
         elif submode == 71:
@@ -880,8 +928,8 @@ def Main():
                 get_items(object_type="songs",object_id=object_id,object_subtype="podcast_episodes")
 
     #live_streams
-    elif mode==6:
-        if submode == 10:
+    elif mode==AmpMode.LIVE_STREAMS:
+        if submode == AmpSubmode.DO_SEARCH:
             endDir = do_search("songs","live_streams")
         #get all streams
         elif submode == 71:
@@ -889,121 +937,121 @@ def Main():
                 get_items(object_type="songs",object_id=object_id,object_subtype="live_streams")
 
     #video
-    elif mode==8:
-        if submode == 5:
+    elif mode==AmpMode.VIDEOS:
+        if submode == AmpSubmode.GET_ALL:
             get_all("videos", mode ,m_params['offset'])
-        elif submode == 10:
+        elif submode == AmpSubmode.DO_SEARCH:
             endDir = do_search("videos")
 
     #19-21 tags/genres mode
-    elif mode>=19  and mode <=21:
+    elif mode>=AmpMode.TAG_ARTISTS  and mode <=AmpMode.TAG_SONGS:
         object_type, object_subtype = ut.mode_to_tags(mode)
         #get_all tags/genres
-        if submode == 5:
+        if submode == AmpSubmode.GET_ALL:
             get_items(object_type = object_type, object_subtype=object_subtype)
         #search tag/genre
-        elif submode == 10:
+        elif submode == AmpSubmode.DO_SEARCH:
             endDir = do_search(object_type,object_subtype)
         #get all songs from a tag_id/genre_id
         elif submode == 71:
-            if mode == 19:
+            if mode == AmpMode.TAG_ARTISTS:
                 get_items(object_type="artists", object_subtype=object_subtype,object_id=object_id)
-            elif mode == 20:
+            elif mode == AmpMode.TAG_ALBUMS:
                 get_items(object_type="albums", object_subtype=object_subtype,object_id=object_id)
-            elif mode == 21:
+            elif mode == AmpMode.TAG_SONGS:
                 get_items(object_type="songs", object_subtype=object_subtype,object_id=object_id)
 
     #main menus 50-100
     #explore
-    elif mode==50:
+    elif mode==AmpMode.EXPLORE:
         #recently added
-        addDir(ut.tString(30145),107,None)
+        addDir(ut.tString(30145),AmpMode.RECENTLY_ADDED_MENU,None)
         #random
-        addDir(ut.tString(30146),100,None)
+        addDir(ut.tString(30146),AmpMode.RANDOM,None)
         if apiVersion >= 400001:
             #highest
-            addDir(ut.tString(30148),101,None)
+            addDir(ut.tString(30148),AmpMode.HIGHEST,None)
             #frequent
-            addDir(ut.tString(30164),102,None)
+            addDir(ut.tString(30164),AmpMode.FREQUENT,None)
             #flagged
-            addDir(ut.tString(30165),103,None)
+            addDir(ut.tString(30165),AmpMode.FLAGGED,None)
             #forgotten
-            addDir(ut.tString(30166),104,None)
+            addDir(ut.tString(30166),AmpMode.FORGOTTEN,None)
             #newest
-            addDir(ut.tString(30167),105,None)
-            #recent
-            addDir(ut.tString(30193),106,None)
+            addDir(ut.tString(30167),AmpMode.NEWEST,None)
+            #recently listened
+            addDir(ut.tString(30193),AmpMode.RECENTLY_LISTENED,None)
 
     #Library
-    elif mode==51:
-        addDir(ut.tString(30115) +" (" + ampache.getSetting("artists")+ ")",1,5)
-        addDir(ut.tString(30116) + " (" + ampache.getSetting("albums") + ")",2,5)
-        addDir(ut.tString(30118) + " (" + ampache.getSetting("playlists")+ ")",4,5)
+    elif mode==AmpMode.LIBRARY:
+        addDir(ut.tString(30115) +" (" + ampache.getSetting("artists")+ ")",AmpMode.ARTISTS, AmpSubmode.GET_ALL)
+        addDir(ut.tString(30116) + " (" + ampache.getSetting("albums") + ")",AmpMode.ALBUMS, AmpSubmode.GET_ALL)
+        addDir(ut.tString(30118) + " (" + ampache.getSetting("playlists")+ ")",AmpMode.PLAYLISTS, AmpSubmode.GET_ALL)
         if ampache.getSetting("videos"):
-            addDir(ut.tString(30221) + " (" + ampache.getSetting("videos")+ ")",8,5)
+            addDir(ut.tString(30221) + " (" + ampache.getSetting("videos")+ ")",AmpMode.VIDEOS, AmpSubmode.GET_ALL)
         if ampache.getSetting("podcasts"):
-            addDir(ut.tString(30226) + " (" + ampache.getSetting("podcasts")+ ")",5,5)
+            addDir(ut.tString(30226) + " (" + ampache.getSetting("podcasts")+ ")",AmpMode.PODCASTS, AmpSubmode.GET_ALL)
         if ampache.getSetting("live_streams"):
             addDir(ut.tString(30229) + " (" +
-                    ampache.getSetting("live_streams")+ ")",6,71)
+                    ampache.getSetting("live_streams")+ ")",AmpMode.LIVE_STREAMS,71)
         if apiVersion >= 380001:
             #get all tags ( submode 5 )
-            addDir(ut.tString(30119),54,5)
+            addDir(ut.tString(30119),AmpMode.SEARCH_TAGS, AmpSubmode.GET_ALL)
 
     #quick access
-    elif mode==52:
+    elif mode==AmpMode.QUICK_ACCESS:
         #random album
-        addDir(ut.tString(30135),2,40)
+        addDir(ut.tString(30135),AmpMode.ALBUMS,AmpSubmode.RANDOM)
         if apiVersion >= 400001:
             #newest albums
-            addDir(ut.tString(30162),2,45)
+            addDir(ut.tString(30162),AmpMode.ALBUMS,AmpSubmode.NEWEST)
             #frequent albums
-            addDir(ut.tString(30153),2,42)
+            addDir(ut.tString(30153),AmpMode.ALBUMS, AmpSubmode.FREQUENT)
             #recently played albums
-            addDir(ut.tString(30191),2,46)
+            addDir(ut.tString(30191),AmpMode.ALBUMS,AmpSubmode.RECENT)
         else:
             #use recently added albums for old api versions
-            addDir(ut.tString(30127),55,32)
+            addDir(ut.tString(30127),AmpMode.RECENTLY_ADDED,32)
         #server playlist ( AKA random songs )
-        addDir(ut.tString(30147),3,40)
+        addDir(ut.tString(30147),AmpMode.SONGS,AmpSubmode.RANDOM)
 
     #search mode
-    elif mode==53:
+    elif mode==AmpMode.SEARCH_MODE:
         if not (ut.strBool_to_bool(ampache.getSetting("old-search-gui"))):
             endDir = searchGui()
         else:
             #old search gui
             #search artist
-            addDir(ut.tString(30120),1,10)
+            addDir(ut.tString(30120),AmpMode.ARTISTS,AmpSubmode.DO_SEARCH)
             #search album
-            addDir(ut.tString(30121),2,10)
+            addDir(ut.tString(30121),AmpMode.ALBUMS,AmpSubmode.DO_SEARCH)
             #search song
-            addDir(ut.tString(30122),3,10)
+            addDir(ut.tString(30122),AmpMode.SONGS,AmpSubmode.DO_SEARCH)
             #search playlist
-            addDir(ut.tString(30123),4,10)
+            addDir(ut.tString(30123),AmpMode.PLAYLISTS,AmpSubmode.DO_SEARCH)
             #search all
-            addDir(ut.tString(30124),3,11)
+            addDir(ut.tString(30124),AmpMode.SONGS,AmpSubmode.DO_SEARCH_ALL)
             #search tag
-            addDir(ut.tString(30125),54,10)
+            addDir(ut.tString(30125),AmpMode.SEARCH_TAGS,AmpSubmode.DO_SEARCH)
             #search video
-            addDir(ut.tString(30222),8,10)
+            addDir(ut.tString(30222),AmpMode.VIDEOS,AmpSubmode.DO_SEARCH)
             #search podcast
-            addDir(ut.tString(30227),5,10)
+            addDir(ut.tString(30227),AmpMode.PODCASTS,AmpSubmode.DO_SEARCH)
             #search live_streams
-            addDir(ut.tString(30230),6,10)
+            addDir(ut.tString(30230),AmpMode.LIVE_STREAMS,AmpSubmode.DO_SEARCH)
 
     #search tags
-    elif mode==54:
+    elif mode==AmpMode.SEARCH_TAGS:
         #search tag_artist
-        addDir(ut.tString(30142),19,submode)
+        addDir(ut.tString(30142),AmpMode.TAG_ARTISTS,submode)
         #search tag_album
-        addDir(ut.tString(30143),20,submode)
+        addDir(ut.tString(30143),AmpMode.TAG_ALBUMS,submode)
         #search tag_song
-        addDir(ut.tString(30144),21,submode)
+        addDir(ut.tString(30144),AmpMode.TAG_SONGS,submode)
 
     #screen with recent time possibilities ( subscreen of recent artists,
     #recent albums, recent songs )
-    elif mode==55:
+    elif mode==AmpMode.RECENTLY_ADDED:
         mode_new = submode - 30
 
         #last update
@@ -1016,109 +1064,109 @@ def Main():
 
     #stats 100-150
     #random
-    elif mode==100:
+    elif mode==AmpMode.RANDOM:
         #artists
-        addDir(ut.tString(30134),1,40)
+        addDir(ut.tString(30134),AmpMode.ARTISTS,AmpSubmode.RANDOM)
         #albums
-        addDir(ut.tString(30135),2,40)
+        addDir(ut.tString(30135),AmpMode.ALBUMS,AmpSubmode.RANDOM)
         #songs
-        addDir(ut.tString(30136),3,40)
+        addDir(ut.tString(30136),AmpMode.SONGS,AmpSubmode.RANDOM)
         #playlists
-        addDir(ut.tString(30137),4,40)
+        addDir(ut.tString(30137),AmpMode.PLAYLISTS,AmpSubmode.RANDOM)
 
     #highest
-    elif mode==101:
+    elif mode==AmpMode.HIGHEST:
         #artists
-        addDir(ut.tString(30149),1,41)
+        addDir(ut.tString(30149),AmpMode.ARTISTS,AmpSubmode.HIGHEST)
         #albums
-        addDir(ut.tString(30150),2,41)
+        addDir(ut.tString(30150),AmpMode.ALBUMS,AmpSubmode.HIGHEST)
         #songs
-        addDir(ut.tString(30151),3,41)
+        addDir(ut.tString(30151),AmpMode.SONGS,AmpSubmode.HIGHEST)
 
     #frequent
-    elif mode==102:
-        addDir(ut.tString(30152),1,42)
-        addDir(ut.tString(30153),2,42)
-        addDir(ut.tString(30154),3,42)
+    elif mode==AmpMode.FREQUENT:
+        addDir(ut.tString(30152),AmpMode.ARTISTS, AmpSubmode.FREQUENT)
+        addDir(ut.tString(30153),AmpMode.ALBUMS, AmpSubmode.FREQUENT)
+        addDir(ut.tString(30154),AmpMode.SONGS, AmpSubmode.FREQUENT)
     
     #flagged
-    elif mode==103:
-        addDir(ut.tString(30155),1,43)
-        addDir(ut.tString(30156),2,43)
-        addDir(ut.tString(30157),3,43)
+    elif mode==AmpMode.FLAGGED:
+        addDir(ut.tString(30155),AmpMode.ARTISTS,AmpSubmode.FLAGGED)
+        addDir(ut.tString(30156),AmpMode.ALBUMS,AmpSubmode.FLAGGED)
+        addDir(ut.tString(30157),AmpMode.SONGS,AmpSubmode.FLAGGED)
 
     #forgotten
-    elif mode==104:
-        addDir(ut.tString(30158),1,44)
-        addDir(ut.tString(30159),2,44)
-        addDir(ut.tString(30160),3,44)
+    elif mode==AmpMode.FORGOTTEN:
+        addDir(ut.tString(30158),AmpMode.ARTISTS,AmpSubmode.FORGOTTEN)
+        addDir(ut.tString(30159),AmpMode.ALBUMS,AmpSubmode.FORGOTTEN)
+        addDir(ut.tString(30160),AmpMode.SONGS,AmpSubmode.FORGOTTEN)
     
     #newest
-    elif mode==105:
-        addDir(ut.tString(30161),1,45)
-        addDir(ut.tString(30162),2,45)
-        addDir(ut.tString(30163),3,45)
+    elif mode==AmpMode.NEWEST:
+        addDir(ut.tString(30161),AmpMode.ARTISTS,AmpSubmode.NEWEST)
+        addDir(ut.tString(30162),AmpMode.ALBUMS,AmpSubmode.NEWEST)
+        addDir(ut.tString(30163),AmpMode.SONGS,AmpSubmode.NEWEST)
     
-    #recently added
-    elif mode==106:
-        addDir(ut.tString(30190),1,46)
-        addDir(ut.tString(30191),2,46)
-        addDir(ut.tString(30192),3,46)
+    #recently listened
+    elif mode==AmpMode.RECENTLY_LISTENED:
+        addDir(ut.tString(30190),AmpMode.ARTISTS,AmpSubmode.RECENT)
+        addDir(ut.tString(30191),AmpMode.ALBUMS,AmpSubmode.RECENT)
+        addDir(ut.tString(30192),AmpMode.SONGS,AmpSubmode.RECENT)
 
     # recent
-    elif mode==107:
+    elif mode==AmpMode.RECENTLY_ADDED_MENU:
         #recently added artist
-        addDir(ut.tString(30126),55,31)
+        addDir(ut.tString(30126),AmpMode.RECENTLY_ADDED,31)
         #recently added album
-        addDir(ut.tString(30127),55,32)
+        addDir(ut.tString(30127),AmpMode.RECENTLY_ADDED,32)
         #recently added song
-        addDir(ut.tString(30128),55,33)
+        addDir(ut.tString(30128),AmpMode.RECENTLY_ADDED,33)
         #recently added playlist
-        addDir(ut.tString(30129),55,34)
+        addDir(ut.tString(30129),AmpMode.RECENTLY_ADDED,34)
 
 
     #others mode 200-250
     #play track mode  ( mode set in add_links function )
     #mode 200 to avoid endDirectory
-    elif mode==200:
+    elif mode==AmpMode.END_DIRECTORY:
         #workaround busydialog bug
         xbmc.executebuiltin('Dialog.Close(busydialog)')
         play_track(m_params['play_url'])
 
     #change rating
-    elif mode==205:
+    elif mode==AmpMode.SET_RATINGS:
         setRating()
 
     #settings mode 300-350
     #settings
-    elif mode==300:
+    elif mode==AmpMode.SETTINGS:
         ampache.openSettings()
 
     #the four modes below are used to manage servers
-    elif mode==301:
+    elif mode==AmpMode.ADD_SERVER:
         servers_manager.initializeServer()
         if servers_manager.addServer():
             servers_manager.switchServer()
     
-    elif mode==302:
+    elif mode==AmpMode.DELETE_SERVER:
         servers_manager.initializeServer()
         if servers_manager.deleteServer():
             servers_manager.switchServer()
     
-    elif mode==303:
+    elif mode==AmpMode.MODIFY_SERVER:
         servers_manager.initializeServer()
         servers_manager.modifyServer()
     
-    elif mode==304:
+    elif mode==AmpMode.SWITCH_SERVER:
         servers_manager.initializeServer()
         servers_manager.switchServer()
 
     #no end directory item ( problem with failed searches )
     #endDir is the result of the search function
     if endDir == False:
-        mode = modeMax
+        mode = AmpMode.MAX
 
-    if mode == None or mode < endDirectoryMode:
+    if mode == None or mode < AmpMode.END_DIRECTORY:
         xbmc.log("AmpachePlugin::endOfDirectory " + str(handle),  xbmc.LOGDEBUG)
         xbmcplugin.endOfDirectory(handle)
 
