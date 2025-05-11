@@ -65,8 +65,10 @@ class AmpMode:
 class AmpSubmode:
     """Enumeration of all possible submodes"""
     GET_ALL=5
+    GET_PARENT_ITEM=6
     DO_SEARCH=10
     DO_SEARCH_ALL=11
+    DO_SEARCH_ITEM=12
     RANDOM=40
     HIGHEST=41
     FREQUENT=42
@@ -74,6 +76,8 @@ class AmpSubmode:
     FORGOTTEN=44
     NEWEST=45
     RECENT=46
+    GET_ALL_SUBITEMS=71
+    GET_ALL_ARTISTS_SONGS=72
 
 def searchGui():
     dialog = xbmcgui.Dialog()
@@ -271,9 +275,8 @@ def addLinks(elem,elem_type,useCacheArt,mode):
                 continue
             artist_id = getNestedTypeId(node, "artist")
             if artist_id:
-                cm.append( ( ut.tString(30141),"Container.Update(%s?object_id=%s&mode=1&submode=6)" %
-                    ( sys.argv[0],artist_id ) ) )
-
+                cm.append( ( ut.tString(30141),"Container.Update(%s?object_id=%s&mode=%s&submode=%s)" %
+                    ( sys.argv[0],artist_id, str(AmpMode.ARTISTS), str(AmpSubmode.GET_PARENT_ITEM ) ) ) )
             name = get_album_artist_name(node)
             if useCacheArt:
                 image_url = node.findtext("art")
@@ -312,7 +315,8 @@ def addLinks(elem,elem_type,useCacheArt,mode):
         if cm:
             liz.addContextMenuItems(cm)
 
-        u=sys.argv[0]+"?object_id="+object_id+"&mode="+str(mode)+"&submode=71"
+        #AmpSubmode.GET_ALL_SUBITEMS ( 71 )
+        u=sys.argv[0]+"?object_id="+object_id+"&mode="+str(mode)+"&submode="+str(AmpSubmode.GET_ALL_SUBITEMS)
         #xbmc.log("AmpachePlugin::addLinks: u - " + u, xbmc.LOGDEBUG )
         isFolder=True
         tu= (u,liz,isFolder)
@@ -374,17 +378,17 @@ def addPlayLinks(elem, elem_type):
             artist_id = getNestedTypeId(node, "artist")
             if artist_id:
                 cm.append( ( ut.tString(30138),
-                "Container.Update(%s?object_id=%s&mode=1&submode=6)" % (
-                    sys.argv[0],artist_id ) ) )
+                "Container.Update(%s?object_id=%s&mode=%s&submode=%s)" % (
+                    sys.argv[0],artist_id, str(AmpMode.ARTISTS), str(AmpSubmode.GET_PARENT_ITEM ) ) ) )
 
             if album_id:
                 cm.append( ( ut.tString(30139),
-                "Container.Update(%s?object_id=%s&mode=2&submode=6)" % (
-                    sys.argv[0],album_id ) ) )
+                "Container.Update(%s?object_id=%s&mode=%s&submode=%s)" % (
+                    sys.argv[0],album_id, str(AmpMode.ALBUMS), str(AmpSubmode.GET_PARENT_ITEM ) ) ) )
 
             cm.append( ( ut.tString(30140),
-            "Container.Update(%s?title=%s&mode=3&submode=12)" % (
-                sys.argv[0],urllib.parse.quote_plus(object_title) ) ) )
+            "Container.Update(%s?title=%s&mode=%s&submode=%s)" % (
+                sys.argv[0],urllib.parse.quote_plus(object_title), str(AmpMode.SONGS), str(AmpSubmode.DO_SEARCH_ITEM) ) ) )
 
             if cm != []:
                 liz.addContextMenuItems(cm)
@@ -394,7 +398,7 @@ def addPlayLinks(elem, elem_type):
             liz.setInfo( type="video", infoLabels=get_infolabels("video", node) )
             liz.setMimeType(node.findtext("mime"))
 
-        track_parameters = { "mode": 200, "play_url" : play_url}
+        track_parameters = { "mode": str(AmpMode.END_DIRECTORY), "play_url" : play_url}
         url = sys.argv[0] + '?' + urllib.parse.urlencode(track_parameters)
         tu= (url,liz)
         it.append(tu)
@@ -489,7 +493,7 @@ def get_all(object_type, mode ,offset=None):
         newLimit = None
 
     if newLimit:
-        addDir(ut.tString(30194),mode,5,offset=newLimit)
+        addDir(ut.tString(30194),mode, str(AmpSubmode.GET_ALL),offset=newLimit)
 
 #this functions handles the majority of the requests to the server
 #so, we have a lot of optional params
@@ -531,7 +535,7 @@ def get_items(object_type, object_id=None, add=None,\
     #discriminate between subtypes
     if object_type == 'albums':
         if object_subtype == 'artist_albums':
-            addDir("All Songs",1,72, object_id=object_id)
+            addDir("All Songs",AmpMode.ARTISTS,AmpSubmode.GET_ALL_ARTISTS_SONGS, object_id=object_id)
         #do not use elif, artist_albums is checked two times
         if object_subtype in artist_action_subtypes:
             action = object_subtype
@@ -841,7 +845,7 @@ def Main():
         if submode == AmpSubmode.GET_ALL:
             get_all("artists", mode ,m_params['offset'])
         #get the artist from this album's artist_id
-        elif submode == 6:
+        elif submode == AmpSubmode.GET_PARENT_ITEM:
             switchFromMusicPlaylist(addon_url, mode, submode, object_id=object_id )
             get_items(object_type="artists",object_id=object_id,object_subtype="artist")
         #search function
@@ -857,10 +861,10 @@ def Main():
         elif submode >= AmpSubmode.RANDOM and submode <= AmpSubmode.RECENT:
             manage_stats_menu("artists",submode)
         #get all albums from an artist_id
-        elif submode == 71:
+        elif submode == AmpSubmode.GET_ALL_SUBITEMS:
             get_items(object_type="albums",object_id=object_id,object_subtype="artist_albums")
         #get all songs from an artist_id
-        elif submode == 72:
+        elif submode == AmpSubmode.GET_ALL_ARTISTS_SONGS:
             get_items(object_type="songs",object_id=object_id,object_subtype="artist_songs" )
     
     
@@ -870,7 +874,7 @@ def Main():
         if submode == AmpSubmode.GET_ALL:
             get_all("albums", mode ,m_params['offset'])
         #get the album from the song's album_id
-        elif submode == 6:
+        elif submode == AmpSubmode.GET_PARENT_ITEM:
             switchFromMusicPlaylist(addon_url, mode, submode, object_id=object_id )
             get_items(object_type="albums",object_id=object_id,object_subtype="album")
         elif submode == AmpSubmode.DO_SEARCH:
@@ -880,7 +884,7 @@ def Main():
         elif submode >= AmpSubmode.RANDOM and submode <= AmpSubmode.RECENT:
             manage_stats_menu("albums",submode)
         #get all songs from an album_id
-        elif submode == 71:
+        elif submode == AmpSubmode.GET_ALL_SUBITEMS:
             get_items(object_type="songs",object_id=object_id,object_subtype="album_songs")
 
     #song mode
@@ -892,7 +896,7 @@ def Main():
         elif submode == AmpSubmode.DO_SEARCH_ALL:
             endDir = do_search("songs","search_songs")
         #get all song with this title
-        elif submode == 12:
+        elif submode == AmpSubmode.DO_SEARCH_ITEM:
             switchFromMusicPlaylist(addon_url, mode,submode,title=m_params['title'] )
             endDir = do_search("songs",thisFilter=m_params['title'])
         #30-40 recent
@@ -913,7 +917,7 @@ def Main():
         elif submode == AmpSubmode.RANDOM:
             manage_stats_menu("playlists", submode)
         #get all songs from a playlist_id
-        elif submode == 71:
+        elif submode == AmpSubmode.GET_ALL_SUBITEMS:
             get_items(object_type="songs",object_id=object_id,object_subtype="playlist_songs")
 
     #podcasts
@@ -923,7 +927,7 @@ def Main():
         elif submode == AmpSubmode.DO_SEARCH:
             endDir = do_search("podcasts")
         #get all episodes
-        elif submode == 71:
+        elif submode == AmpSubmode.GET_ALL_SUBITEMS:
             if apiVersion >= 440000:
                 get_items(object_type="songs",object_id=object_id,object_subtype="podcast_episodes")
 
@@ -932,7 +936,7 @@ def Main():
         if submode == AmpSubmode.DO_SEARCH:
             endDir = do_search("songs","live_streams")
         #get all streams
-        elif submode == 71:
+        elif submode == AmpSubmode.GET_ALL_SUBITEMS:
             if apiVersion >= 440000:
                 get_items(object_type="songs",object_id=object_id,object_subtype="live_streams")
 
@@ -953,7 +957,7 @@ def Main():
         elif submode == AmpSubmode.DO_SEARCH:
             endDir = do_search(object_type,object_subtype)
         #get all songs from a tag_id/genre_id
-        elif submode == 71:
+        elif submode == AmpSubmode.GET_ALL_SUBITEMS:
             if mode == AmpMode.TAG_ARTISTS:
                 get_items(object_type="artists", object_subtype=object_subtype,object_id=object_id)
             elif mode == AmpMode.TAG_ALBUMS:
@@ -993,7 +997,7 @@ def Main():
             addDir(ut.tString(30226) + " (" + ampache.getSetting("podcasts")+ ")",AmpMode.PODCASTS, AmpSubmode.GET_ALL)
         if ampache.getSetting("live_streams"):
             addDir(ut.tString(30229) + " (" +
-                    ampache.getSetting("live_streams")+ ")",AmpMode.LIVE_STREAMS,71)
+                    ampache.getSetting("live_streams")+ ")",AmpMode.LIVE_STREAMS,AmpSubmode.GET_ALL_SUBITEMS)
         if apiVersion >= 380001:
             #get all tags ( submode 5 )
             addDir(ut.tString(30119),AmpMode.SEARCH_TAGS, AmpSubmode.GET_ALL)
