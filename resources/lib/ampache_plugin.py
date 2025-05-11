@@ -64,11 +64,19 @@ class AmpMode:
 
 class AmpSubmode:
     """Enumeration of all possible submodes"""
+    ARTISTS = 1
+    ALBUMS = 2
+    SONGS = 3
+    PLAYLISTS = 4
     GET_ALL=5
     GET_PARENT_ITEM=6
     DO_SEARCH=10
     DO_SEARCH_ALL=11
     DO_SEARCH_ITEM=12
+    LAST_UPDATE = 31
+    WEEK_UPDATE = 32
+    MONTH_UPDATE = 33
+    THREE_MONTH_UPDATE = 34
     RANDOM=40
     HIGHEST=41
     FREQUENT=42
@@ -650,15 +658,15 @@ def get_stats(object_type, object_subtype=None, limit=5000 ):
 
 def get_recent(object_type,submode,object_subtype=None):
 
-    if submode == 31:
+    if submode == AmpSubmode.LAST_UPDATE:
         update = ampache.getSetting("add")
         xbmc.log(update[:10],xbmc.LOGINFO)
         get_items(object_type=object_type,add=update[:10],object_subtype=object_subtype)
-    elif submode == 32:
+    elif submode == AmpSubmode.WEEK_UPDATE:
         get_items(object_type=object_type,add=ut.get_time(-7),object_subtype=object_subtype)
-    elif submode == 33:
+    elif submode == AmpSubmode.MONTH_UPDATE:
         get_items(object_type=object_type,add=ut.get_time(-30),object_subtype=object_subtype)
-    elif submode == 34:
+    elif submode == AmpSubmode.THREE_MONTH_UPDATE:
         get_items(object_type=object_type,add=ut.get_time(-90),object_subtype=object_subtype)
 
 def get_random(object_type, num_items):
@@ -854,7 +862,7 @@ def Main():
             endDir = do_search("artists")
         #recent function
         #30-40 recent
-        elif submode > 30 and submode < 35:
+        elif submode >= AmpSubmode.LAST_UPDATE and submode <= AmpSubmode.THREE_MONTH_UPDATE:
             get_recent( "artists", submode )
         #submode between 40-46( random.. recent )
         #40-70 stats
@@ -879,7 +887,7 @@ def Main():
             get_items(object_type="albums",object_id=object_id,object_subtype="album")
         elif submode == AmpSubmode.DO_SEARCH:
             endDir = do_search("albums")
-        elif submode > 30 and submode < 35:
+        elif submode >= AmpSubmode.LAST_UPDATE and submode <= AmpSubmode.THREE_MONTH_UPDATE:
             get_recent( "albums", submode )
         elif submode >= AmpSubmode.RANDOM and submode <= AmpSubmode.RECENT:
             manage_stats_menu("albums",submode)
@@ -900,7 +908,7 @@ def Main():
             switchFromMusicPlaylist(addon_url, mode,submode,title=m_params['title'] )
             endDir = do_search("songs",thisFilter=m_params['title'])
         #30-40 recent
-        elif submode > 30 and submode < 35:
+        elif submode >= AmpSubmode.LAST_UPDATE and submode <= AmpSubmode.THREE_MONTH_UPDATE:
             get_recent( "songs", submode )
         #40-70 stats
         elif submode >= AmpSubmode.RANDOM and submode <= AmpSubmode.RECENT:
@@ -912,7 +920,7 @@ def Main():
             get_all("playlists", mode ,m_params['offset'])
         elif submode == AmpSubmode.DO_SEARCH:
             endDir = do_search("playlists")
-        elif submode > 30 and submode < 35:
+        elif submode >= AmpSubmode.LAST_UPDATE and submode <= AmpSubmode.THREE_MONTH_UPDATE:
             get_recent( "playlists", submode )
         elif submode == AmpSubmode.RANDOM:
             manage_stats_menu("playlists", submode)
@@ -1015,7 +1023,7 @@ def Main():
             addDir(ut.tString(30191),AmpMode.ALBUMS,AmpSubmode.RECENT)
         else:
             #use recently added albums for old api versions
-            addDir(ut.tString(30127),AmpMode.RECENTLY_ADDED,32)
+            addDir(ut.tString(30127),AmpMode.RECENTLY_ADDED,AmpSubmode.ALBUMS)
         #server playlist ( AKA random songs )
         addDir(ut.tString(30147),AmpMode.SONGS,AmpSubmode.RANDOM)
 
@@ -1057,13 +1065,21 @@ def Main():
     #recent albums, recent songs )
     elif mode==AmpMode.RECENTLY_ADDED:
         mode_new = submode - 30
+        if( submode == AmpSubmode.ARTISTS):
+            mode_new = AmpMode.ARTISTS
+        elif( submode == AmpSubmode.ALBUMS):
+            mode_new = AmpMode.ALBUMS
+        elif( submode == AmpSubmode.SONGS):
+            mode_new = AmpMode.SONGS
+        elif ( submode == AmpSubmode.PLAYLISTS ):
+            mode_new = AmpMode.PLAYLISTS
 
         #last update
-        addDir(ut.tString(30130),mode_new,31)
+        addDir(ut.tString(30130),mode_new,AmpSubmode.LAST_UPDATE)
         #1 week
-        addDir(ut.tString(30131),mode_new,32)
-        addDir(ut.tString(30132),mode_new,33)
-        addDir(ut.tString(30133),mode_new,34)
+        addDir(ut.tString(30131),mode_new,AmpSubmode.WEEK_UPDATE)
+        addDir(ut.tString(30132),mode_new,AmpSubmode.MONTH_UPDATE)
+        addDir(ut.tString(30133),mode_new,AmpSubmode.THREE_MONTH_UPDATE)
 
 
     #stats 100-150
@@ -1120,13 +1136,13 @@ def Main():
     # recent
     elif mode==AmpMode.RECENTLY_ADDED_MENU:
         #recently added artist
-        addDir(ut.tString(30126),AmpMode.RECENTLY_ADDED,31)
+        addDir(ut.tString(30126),AmpMode.RECENTLY_ADDED,AmpSubmode.ARTISTS)
         #recently added album
-        addDir(ut.tString(30127),AmpMode.RECENTLY_ADDED,32)
+        addDir(ut.tString(30127),AmpMode.RECENTLY_ADDED,AmpSubmode.ALBUMS)
         #recently added song
-        addDir(ut.tString(30128),AmpMode.RECENTLY_ADDED,33)
+        addDir(ut.tString(30128),AmpMode.RECENTLY_ADDED,AmpSubmode.SONGS)
         #recently added playlist
-        addDir(ut.tString(30129),AmpMode.RECENTLY_ADDED,34)
+        addDir(ut.tString(30129),AmpMode.RECENTLY_ADDED,AmpSubmode.PLAYLISTS)
 
 
     #others mode 200-250
