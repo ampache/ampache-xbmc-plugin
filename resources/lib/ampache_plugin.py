@@ -60,6 +60,7 @@ class AmpMode:
     DELETE_SERVER=302
     MODIFY_SERVER=303
     SWITCH_SERVER=304
+    CLEAN_CACHE_ART=400
     MAX=1000
 
 class AmpSubmode:
@@ -798,7 +799,7 @@ def Main():
     object_id=None
     #sometimes we need to not endDirectory, but
     #we need to check if the connection is alive
-    #until END_DIRECTORY -> endDirectoy and checkConnection
+    #until END_DIRECTORY -> endDirectory and checkConnection
     #from END_DIRECTORY to END_CHECK_CONNECTION  -> no endDirectory but checkConnection
     #else no end and no check
     endDir = True
@@ -1180,6 +1181,10 @@ def Main():
     elif mode==AmpMode.SWITCH_SERVER:
         servers_manager.initializeServer()
         servers_manager.switchServer()
+
+    elif mode==AmpMode.CLEAN_CACHE_ART:
+        art.clean_cache_art(True)
+
 
     #no end directory item ( problem with failed searches )
     #endDir is the result of the search function
