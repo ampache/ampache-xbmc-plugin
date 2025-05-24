@@ -1065,7 +1065,6 @@ def Main():
     #screen with recent time possibilities ( subscreen of recent artists,
     #recent albums, recent songs )
     elif mode==AmpMode.RECENTLY_ADDED:
-        mode_new = submode - 30
         if( submode == AmpSubmode.ARTISTS):
             mode_new = AmpMode.ARTISTS
         elif( submode == AmpSubmode.ALBUMS):
