@@ -158,6 +158,37 @@ def get_album_artist_name(node):
             fullname = fullname + " - [ " + ut.tString(30195) + " " + disknumber + " ]"
     return fullname
 
+def fill_tags(elem_type , node, info_tag):
+    rating = ut.getRating(node.findtext("rating"))
+
+    if elem_type == 'song':
+        info_tag.setMediaType('song')
+        info_tag.setTitle(str(node.findtext("title")))
+        info_tag.setArtist(get_name(node,"artist"))
+        info_tag.setAlbum(get_name(node,"album"))
+        duration_str = node.findtext("time")
+        info_tag.setDuration(int(duration_str) if duration_str else 0)
+        year_str = node.findtext("year")
+        info_tag.setYear(int(year_str) if year_str else None)
+        track_num = node.findtext("track")
+        info_tag.setTrack(int(track_num) if track_num else 0)
+        info_tag.setUserRating(rating)
+
+    elif elem_type == 'album':
+        info_tag.setMediaType('album')
+        info_tag.setAlbum(str(node.findtext("name")))
+        info_tag.setArtist(get_name(node, "artist"))
+        disc_num = node.findtext("disk")
+        #xbmc.log("AmpachePlugin::disc_num " + str(disc_num),  xbmc.LOGDEBUG)
+        info_tag.setDisc(int(disc_num) if disc_num else 0)
+        year_str = node.findtext("year")
+        info_tag.setYear(int(year_str) if year_str else None)
+        info_tag.setUserRating(rating)
+
+    elif elem_type == 'artist':
+        info_tag.setMediaType('artist')
+        info_tag.setArtist(str(node.findtext("name")))
+
 def get_infolabels(elem_type , node):
     infoLabels = None
     rating = ut.getRating(node.findtext("rating"))
@@ -308,13 +339,21 @@ def addLinks(elem,elem_type,useCacheArt,mode):
         else:
             useCacheArt = False
 
-        infoLabels=get_infolabels(elem_type,node)
-
-        if infoLabels == None:
-            infoLabels={ "Title": name }
-
         liz=xbmcgui.ListItem(name)
-        liz.setInfo( type="Music", infoLabels=infoLabels )
+
+        if elem_type == "podcast" or elem_type=="playlist":
+            infoLabels=get_infolabels(elem_type,node)
+
+            if infoLabels == None:
+                infoLabels={ "Title": name }
+
+            liz.setInfo( type="Music", infoLabels=infoLabels )
+
+
+        if elem_type == "album" or elem_type=="artist":
+            info_tag = liz.getMusicInfoTag()
+            fill_tags(elem_type, node, info_tag)
+
 
         if useCacheArt:
             #faster loading for libraries
@@ -377,9 +416,9 @@ def addPlayLinks(elem, elem_type):
                     albumArt=albumTrack[album_id]
             else:
                 albumArt = art.get_art(None,"album",image_url)
-
             liz.setArt( art.get_artLabels(albumArt) )
-            liz.setInfo( type="music", infoLabels=get_infolabels("song", node) )
+            info_tag = liz.getMusicInfoTag()
+            fill_tags("song", node, info_tag)
             liz.setMimeType(node.findtext("mime"))
 
             cm = []
