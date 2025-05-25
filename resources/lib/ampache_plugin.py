@@ -189,55 +189,15 @@ def fill_tags(elem_type , node, info_tag):
         info_tag.setMediaType('artist')
         info_tag.setArtist(str(node.findtext("name")))
 
-def get_infolabels(elem_type , node):
-    infoLabels = None
-    rating = ut.getRating(node.findtext("rating"))
-    if elem_type == 'album':
-        infoLabels = {
-            #'Title' : str(node.findtext("name")) ,
-            'Album' : str(node.findtext("name")) ,
-            'Artist' : get_name(node,"artist"),
-            'DiscNumber' : str(node.findtext("disk")),
-            'Year' : node.findtext("year") ,
-            'UserRating' : rating,
-            'Mediatype' : 'album'
-        }
- 
-    elif elem_type == 'artist':
-        infoLabels = {
-            #'Title' : str(node.findtext("name")) ,
-            'Artist' : str(node.findtext("name")),
-            'Mediatype' : 'artist'
-        }
-
-    elif elem_type == 'song':
-        infoLabels = {
-            'Title' : str(node.findtext("title")) ,
-            'Artist' : get_name(node,"artist"),
-            'Album' :  get_name(node,"album"),
-            'Size' : node.findtext("size") ,
-            'Duration' : node.findtext("time"),
-            'Year' : node.findtext("year") ,
-            'TrackNumber' : node.findtext("track"),
-            'UserRating' : rating,
-            'Mediatype' : 'song'
-        }
-
     elif elem_type == 'podcast_episode':
-        infoLabels = {
-            'Title' : str(node.findtext("title")) ,
-            'UserRating' : rating,
-            'Mediatype' : 'song'
-        }
+        info_tag.setMediaType('song')
+        info_tag.setTitle(str(node.findtext("title")))
+        info_tag.setUserRating(rating)
 
     elif elem_type == 'video':
-        infoLabels = {
-            'Title' : str(node.findtext("name")) ,
-            'Size' : node.findtext("size") ,
-            'Mediatype' : 'video'
-        }
+        info_tag.setMediaType('video')
+        info_tag.setTitle(str(node.findtext("name")))
 
-    return infoLabels
 
 def getNestedTypeText(node, elem_tag ,elem_type):
     try:
@@ -341,15 +301,6 @@ def addLinks(elem,elem_type,useCacheArt,mode):
 
         liz=xbmcgui.ListItem(name)
 
-        if elem_type == "podcast" or elem_type=="playlist":
-            infoLabels=get_infolabels(elem_type,node)
-
-            if infoLabels == None:
-                infoLabels={ "Title": name }
-
-            liz.setInfo( type="Music", infoLabels=infoLabels )
-
-
         if elem_type == "album" or elem_type=="artist":
             info_tag = liz.getMusicInfoTag()
             fill_tags(elem_type, node, info_tag)
@@ -441,9 +392,11 @@ def addPlayLinks(elem, elem_type):
             if cm != []:
                 liz.addContextMenuItems(cm)
         elif elem_type == "podcast_episode":
-            liz.setInfo( type="music", infoLabels=get_infolabels(elem_type, node) )
+            info_tag = liz.getMusicInfoTag()
+            fill_tags("podcast_episode", node, info_tag)
         elif elem_type == "video":
-            liz.setInfo( type="video", infoLabels=get_infolabels("video", node) )
+            info_tag = liz.getVideoInfoTag()
+            fill_tags("video", node, info_tag)
             liz.setMimeType(node.findtext("mime"))
 
         track_parameters = { "mode": str(AmpMode.END_DIRECTORY), "play_url" : play_url}
@@ -473,10 +426,8 @@ def play_track(url):
 
 #Main function to add xbmc plugin elements
 def addDir(name,mode,submode,offset=None,object_id=None):
-    infoLabels={ "Title": name }
     
     liz=xbmcgui.ListItem(name)
-    liz.setInfo( type="Music", infoLabels=infoLabels )
     liz.setProperty('IsPlayable', 'false')
 
     handle=int(sys.argv[1])
