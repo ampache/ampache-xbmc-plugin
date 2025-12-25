@@ -22,11 +22,53 @@ class AmpacheConnect(object):
     class ConnectionError(Exception):
         pass
     
+    class ConnectionPool:
+        _instance = None
+
+        def __new__(cls):
+            if cls._instance is None:
+                cls._instance = super(AmpacheConnect.ConnectionPool, cls).__new__(cls)
+                cls._instance._pool = {}
+                cls._instance._max_connections = 5
+                cls._instance._timeout = 300
+            return cls._instance
+
+        def get_connection(self, server_id):
+            if not server_id in self._pool:
+                self._pool[server_id] = {'connection': None, 'timestamp': 0, 'in_use': False}
+
+            entry = self._pool[server_id]
+            current_time = time.time()
+
+            if entry['connection'] is None or entry['in_use']:
+                return None
+
+            if current_time - entry['timestamp'] > self._timeout:
+                self._pool[server_id] = {'connection': None, 'timestamp': 0, 'in_use': False}
+                return None
+
+            entry['in_use'] = True
+            entry['timestamp'] = current_time
+            return entry['connection']
+
+        def release_connection(self, server_id, connection):
+            if server_id in self._pool:
+                self._pool[server_id]['connection'] = connection
+                self._pool[server_id]['in_use'] = False
+                self._pool[server_id]['timestamp'] = time.time()
+ 
+        def clear_stale_connections(self):
+            current_time = time.time()
+            for server_id in list(self._pool.keys()):
+                if current_time - self._pool[server_id]['timestamp'] > self._timeout and not self._pool[server_id]['in_use']:
+                    del self._pool[server_id]
+    
     def __init__(self):
         self._ampache = xbmcaddon.Addon("plugin.audio.ampache")
         jsStorServer = json_storage.JsonStorage("servers.json")
         serverStorage = jsStorServer.getData()
         self._connectionData = serverStorage["servers"][serverStorage["current_server"]]
+        self._connection_pool = AmpacheConnect.ConnectionPool()
         #self._connectionData = None
         self.filter=None
         self.add=None
@@ -161,46 +203,65 @@ class AmpacheConnect(object):
 
     def AMPACHECONNECT(self,showok=False):
         socket.setdefaulttimeout(3600)
+        self._connection_pool.clear_stale_connections()
         nTime = int(time.time())
         use_api_key = self._connectionData["use_api_key"]
-        if ut.strBool_to_bool(use_api_key):
-            xbmc.log("AmpachePlugin::AMPACHECONNECT api_key",xbmc.LOGDEBUG)
-            myURL = self.get_auth_key_login_url()
-        else: 
-            xbmc.log("AmpachePlugin::AMPACHECONNECT login password",xbmc.LOGDEBUG)
-            myURL = self.get_user_pwd_login_url(nTime)
-        try:
-            headers,contents = self.handle_request(myURL)
-        except self.ConnectionError:
-            xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
-            #connection error
-            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
-            raise self.ConnectionError
-        except Exception as e:
-            xbmc.log("AmpachePlugin::AMPACHECONNECT: Generic Error "  +\
-                    repr(e),xbmc.LOGDEBUG)
-        try:
-            xbmc.log("AmpachePlugin::AMPACHECONNECT: contents " +\
-                    contents.decode(),xbmc.LOGDEBUG)
-        except Exception as e:
-            xbmc.log("AmpachePlugin::AMPACHECONNECT: unable to print contents " + \
-                   repr(e) , xbmc.LOGDEBUG)
-        tree=ET.XML(contents)
-        errormess = self.getCodeMessError(tree)
-        if errormess:
-            #connection error
-            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
-            raise self.ConnectionError
-        xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
-        if showok:
-                #use it only if notification of connection is necessary, like
-                #switch server, display connection ok and the name of the
-                #current server
-                amp_notif = ut.tString(30203) + "\n" + ut.tString(30181) +\
+        server_id = self._connectionData["url"]
+ 
+        existing_connection = self._connection_pool.get_connection(server_id)
+        if existing_connection:
+            xbmc.log("AmpachePlugin::AMPACHECONNECT: Reusing existing connection",xbmc.LOGDEBUG)
+        else:
+            if ut.strBool_to_bool(use_api_key):
+                xbmc.log("AmpachePlugin::AMPACHECONNECT api_key",xbmc.LOGDEBUG)
+                myURL = self.get_auth_key_login_url()
+            else:
+                xbmc.log("AmpachePlugin::AMPACHECONNECT login password",xbmc.LOGDEBUG)
+                myURL = self.get_user_pwd_login_url(nTime)
+            try:
+                headers,contents = self.handle_request(myURL)
+            except self.ConnectionError:
+                xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
+                #connection error
+                xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
+                raise self.ConnectionError
+            except Exception as e:
+                xbmc.log("AmpachePlugin::AMPACHECONNECT: Generic Error " +\
+                        repr(e),xbmc.LOGDEBUG)
+                raise self.ConnectionError  # Re-raise to propagate the error
+            try:
+                xbmc.log("AmpachePlugin::AMPACHECONNECT: contents " +\
+                        contents.decode(),xbmc.LOGDEBUG)
+            except Exception as e:
+                xbmc.log("AmpachePlugin::AMPACHECONNECT: unable to print contents " + 
+                       repr(e) , xbmc.LOGDEBUG)
+            try:
+                tree=ET.XML(contents)
+            except Exception as e:
+                xbmc.log("AmpachePlugin::AMPACHECONNECT: XML Parse Error " + repr(e), xbmc.LOGDEBUG)
+                raise self.ConnectionError
+            except ET.ParseError as e:
+                xbmc.log("AmpachePlugin::AMPACHECONNECT: XML Parse Error " + repr(e), xbmc.LOGDEBUG)
+                raise self.ConnectionError
+            except ET.ParseError as e:
+                xbmc.log("AmpachePlugin::AMPACHECONNECT: XML Parse Error " + repr(e), xbmc.LOGDEBUG)
+                raise self.ConnectionError
+            errormess = self.getCodeMessError(tree)
+            if errormess:
+                #connection error
+                xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
+                raise self.ConnectionError
+            xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
+            if showok:
+                    #use it only if notification of connection is necessary, like
+                    #switch server, display connection ok and the name of the
+                    #current server
+                    amp_notif = ut.tString(30203) + "\n" + ut.tString(30181) +\
                         " : " + self._connectionData["name"]
-                #connection ok
-                xbmcgui.Dialog().notification(ut.tString(30197),amp_notif)
-        self.fillConnectionSettings(tree,nTime)
+                    #connection ok
+                    xbmcgui.Dialog().notification(ut.tString(30197),amp_notif)
+            self.fillConnectionSettings(tree,nTime)
+            self._connection_pool.release_connection(server_id, time.time())
         return
 
     #handle request to the xml api that return binary files
