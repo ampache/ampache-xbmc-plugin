@@ -17,6 +17,13 @@ from resources.lib import json_storage
 from resources.lib import utils as ut
 from resources.lib.art_clean import clean_settings
 
+# Connection timeout constants
+CONNECTION_TIMEOUT = 300
+REQUEST_TIMEOUT = 400
+STALE_CLEANUP_INTERVAL = 300
+MAX_CONNECTIONS = 5
+TOKEN_EXPIRE_DELTA = 2400
+
 class AmpacheConnect(object):
     
     class ConnectionError(Exception):
@@ -29,8 +36,8 @@ class AmpacheConnect(object):
             if cls._instance is None:
                 cls._instance = super(AmpacheConnect.ConnectionPool, cls).__new__(cls)
                 cls._instance._pool = {}
-                cls._instance._max_connections = 5
-                cls._instance._timeout = 300
+                cls._instance._max_connections = MAX_CONNECTIONS
+                cls._instance._timeout = CONNECTION_TIMEOUT
                 cls._instance._last_cleanup = 0
             return cls._instance
 
@@ -96,7 +103,7 @@ class AmpacheConnect(object):
             removed_count = 0
             
             # Only cleanup once every 5 minutes to avoid overhead
-            if current_time - self._last_cleanup < 300:
+            if current_time - self._last_cleanup < STALE_CLEANUP_INTERVAL:
                 return
             
             for server_id in list(self._pool.keys()):
@@ -155,7 +162,7 @@ class AmpacheConnect(object):
         self._ampache.setSetting("add", tree.findtext("add"))
         self._ampache.setSetting("token", token)
         #not 24000 seconds ( 6 hours ) , but 2400 ( 40 minutes ) expiration time
-        self._ampache.setSetting("token-exp", str(nTime+2400))
+        self._ampache.setSetting("token-exp", str(nTime+TOKEN_EXPIRE_DELTA))
 
     def getCodeMessError(self,tree):
         errormess = None
@@ -216,7 +223,7 @@ class AmpacheConnect(object):
             req = urllib.request.Request(url)
             if ut.strBool_to_bool(ssl_certs_str):
                 if PY2:
-                    response = urllib.request.urlopen(req, timeout=400)
+                    response = urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT)
                 else:
                     gcontext = ssl.create_default_context()
                     gcontext.check_hostname = False
@@ -228,7 +235,7 @@ class AmpacheConnect(object):
                     gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
                     response = urllib.request.urlopen(req, context=gcontext, timeout=400)
                 else:
-                    response = urllib.request.urlopen(req, timeout=400)
+                    response = urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT)
                 xbmc.log("AmpachePlugin::handle_request: ssl certificates",xbmc.LOGDEBUG)
         except urllib.error.HTTPError as e:
             xbmc.log("AmpachePlugin::handle_request: HTTPError " +\
