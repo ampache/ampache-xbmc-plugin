@@ -205,7 +205,8 @@ def getNestedTypeText(node, elem_tag ,elem_type):
         if obj_elem is not None or obj_elem != '':
             obj_tag = obj_elem.findtext(elem_tag)
             return obj_tag
-    except:
+    except Exception as e:
+        xbmc.log("Error in getNestedTypeText: %s" % str(e), xbmc.LOGERROR)
         return None
     return None
 
@@ -215,7 +216,8 @@ def getNestedTypeId(node,elem_type):
         if obj_elem is not None or obj_elem != '':
             obj_id = obj_elem.attrib["id"]
             return obj_id
-    except:
+    except Exception as e:
+        xbmc.log("Error in getNestedTypeId: %s" % str(e), xbmc.LOGERROR)
         return None
     return None
 
