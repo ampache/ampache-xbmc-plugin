@@ -31,12 +31,45 @@ class AmpacheConnect(object):
                 cls._instance._pool = {}
                 cls._instance._max_connections = 5
                 cls._instance._timeout = 300
+                cls._instance._last_cleanup = 0
             return cls._instance
 
-        def get_connection(self, server_id):
-            if not server_id in self._pool:
-                self._pool[server_id] = {'connection': None, 'timestamp': 0, 'in_use': False}
+        def is_connection_valid(self, server_id):
+            """Check if a connection is fresh enough to reuse.
+            
+            Args:
+                server_id: The server identifier
+                
+            Returns:
+                bool: True if connection is fresh, False if stale
+            """
+            entry = self._pool.get(server_id)
+            if not entry:
+                return False
+            
+            current_time = time.time()
+            # Connection is fresh if timestamp is recent (80% of timeout threshold)
+            age = current_time - entry['timestamp']
+            if age < (self._timeout * 0.8):
+                xbmc.log("Connection pool: Connection to %s is fresh (age: %.1fs)" % (server_id, age), xbmc.LOGDEBUG)
+                return True
+            
+            xbmc.log("Connection pool: Connection to %s is stale (age: %.1fs)" % (server_id, age), xbmc.LOGDEBUG)
+            return False
 
+        def get_connection(self, server_id):
+            # Fast path: check if we have a valid connection already
+            entry = self._pool.get(server_id)
+            if entry and not entry['in_use'] and self.is_connection_valid(server_id):
+                xbmc.log("Connection pool: Reusing valid connection for %s" % server_id, xbmc.LOGDEBUG)
+                entry['in_use'] = True
+                entry['timestamp'] = time.time()
+                return entry['connection']
+            
+            # Slow path: create new connection entry if needed
+            if server_id not in self._pool:
+                self._pool[server_id] = {'connection': None, 'timestamp': 0, 'in_use': False}
+            
             entry = self._pool[server_id]
             current_time = time.time()
 
@@ -56,12 +89,25 @@ class AmpacheConnect(object):
                 self._pool[server_id]['connection'] = connection
                 self._pool[server_id]['in_use'] = False
                 self._pool[server_id]['timestamp'] = time.time()
- 
+                xbmc.log("Connection pool: Released connection for %s" % server_id, xbmc.LOGDEBUG)
+
         def clear_stale_connections(self):
             current_time = time.time()
+            removed_count = 0
+            
+            # Only cleanup once every 5 minutes to avoid overhead
+            if current_time - self._last_cleanup < 300:
+                return
+            
             for server_id in list(self._pool.keys()):
-                if current_time - self._pool[server_id]['timestamp'] > self._timeout and not self._pool[server_id]['in_use']:
+                entry = self._pool[server_id]
+                if entry and current_time - entry['timestamp'] > self._timeout and not entry['in_use']:
                     del self._pool[server_id]
+                    removed_count += 1
+            
+            self._last_cleanup = current_time
+            if removed_count > 0:
+                xbmc.log("Connection pool: Cleaned up %d stale connections" % removed_count, xbmc.LOGINFO)
     
     def __init__(self):
         self._ampache = xbmcaddon.Addon("plugin.audio.ampache")
