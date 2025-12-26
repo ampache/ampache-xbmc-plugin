@@ -240,12 +240,6 @@ class AmpacheConnect(object):
             except Exception as e:
                 xbmc.log("AmpachePlugin::AMPACHECONNECT: XML Parse Error " + repr(e), xbmc.LOGDEBUG)
                 raise self.ConnectionError
-            except ET.ParseError as e:
-                xbmc.log("AmpachePlugin::AMPACHECONNECT: XML Parse Error " + repr(e), xbmc.LOGDEBUG)
-                raise self.ConnectionError
-            except ET.ParseError as e:
-                xbmc.log("AmpachePlugin::AMPACHECONNECT: XML Parse Error " + repr(e), xbmc.LOGDEBUG)
-                raise self.ConnectionError
             errormess = self.getCodeMessError(tree)
             if errormess:
                 #connection error
