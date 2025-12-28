@@ -18,110 +18,19 @@ from resources.lib import utils as ut
 from resources.lib.art_clean import clean_settings
 
 # Connection timeout constants
-CONNECTION_TIMEOUT = 300
 REQUEST_TIMEOUT = 400
-STALE_CLEANUP_INTERVAL = 300
-MAX_CONNECTIONS = 5
 TOKEN_EXPIRE_DELTA = 2400
 
 class AmpacheConnect(object):
     
     class ConnectionError(Exception):
         pass
-    
-    class ConnectionPool:
-        _instance = None
 
-        def __new__(cls):
-            if cls._instance is None:
-                cls._instance = super(AmpacheConnect.ConnectionPool, cls).__new__(cls)
-                cls._instance._pool = {}
-                cls._instance._max_connections = MAX_CONNECTIONS
-                cls._instance._timeout = CONNECTION_TIMEOUT
-                cls._instance._last_cleanup = 0
-            return cls._instance
-
-        def is_connection_valid(self, server_id):
-            """Check if a connection is fresh enough to reuse.
-            
-            Args:
-                server_id: The server identifier
-                
-            Returns:
-                bool: True if connection is fresh, False if stale
-            """
-            entry = self._pool.get(server_id)
-            if not entry:
-                return False
-            
-            current_time = time.time()
-            # Connection is fresh if timestamp is recent (80% of timeout threshold)
-            age = current_time - entry['timestamp']
-            if age < (self._timeout * 0.8):
-                xbmc.log("Connection pool: Connection to %s is fresh (age: %.1fs)" % (server_id, age), xbmc.LOGDEBUG)
-                return True
-            
-            xbmc.log("Connection pool: Connection to %s is stale (age: %.1fs)" % (server_id, age), xbmc.LOGDEBUG)
-            return False
-
-        def get_connection(self, server_id):
-            # Fast path: check if we have a valid connection already
-            entry = self._pool.get(server_id)
-            if entry and not entry['in_use'] and self.is_connection_valid(server_id):
-                xbmc.log("Connection pool: Reusing valid connection for %s" % server_id, xbmc.LOGDEBUG)
-                entry['in_use'] = True
-                entry['timestamp'] = time.time()
-                return entry['connection']
-            
-            # Slow path: create new connection entry if needed
-            if server_id not in self._pool:
-                self._pool[server_id] = {'connection': None, 'timestamp': 0, 'in_use': False}
-            
-            entry = self._pool[server_id]
-            current_time = time.time()
-
-            if entry['connection'] is None or entry['in_use']:
-                return None
-
-            if current_time - entry['timestamp'] > self._timeout:
-                self._pool[server_id] = {'connection': None, 'timestamp': 0, 'in_use': False}
-                return None
-
-            entry['in_use'] = True
-            entry['timestamp'] = current_time
-            return entry['connection']
-
-        def release_connection(self, server_id, connection):
-            if server_id in self._pool:
-                self._pool[server_id]['connection'] = connection
-                self._pool[server_id]['in_use'] = False
-                self._pool[server_id]['timestamp'] = time.time()
-                xbmc.log("Connection pool: Released connection for %s" % server_id, xbmc.LOGDEBUG)
-
-        def clear_stale_connections(self):
-            current_time = time.time()
-            removed_count = 0
-            
-            # Only cleanup once every 5 minutes to avoid overhead
-            if current_time - self._last_cleanup < STALE_CLEANUP_INTERVAL:
-                return
-            
-            for server_id in list(self._pool.keys()):
-                entry = self._pool[server_id]
-                if entry and current_time - entry['timestamp'] > self._timeout and not entry['in_use']:
-                    del self._pool[server_id]
-                    removed_count += 1
-            
-            self._last_cleanup = current_time
-            if removed_count > 0:
-                xbmc.log("Connection pool: Cleaned up %d stale connections" % removed_count, xbmc.LOGINFO)
-    
     def __init__(self):
         self._ampache = xbmcaddon.Addon("plugin.audio.ampache")
         jsStorServer = json_storage.JsonStorage("servers.json")
         serverStorage = jsStorServer.getData()
         self._connectionData = serverStorage["servers"][serverStorage["current_server"]]
-        self._connection_pool = AmpacheConnect.ConnectionPool()
         #self._connectionData = None
         self.filter=None
         self.add=None
@@ -256,60 +165,48 @@ class AmpacheConnect(object):
 
     def AMPACHECONNECT(self,showok=False):
         socket.setdefaulttimeout(3600)
-        self._connection_pool.clear_stale_connections()
         nTime = int(time.time())
         use_api_key = self._connectionData["use_api_key"]
-        server_id = self._connectionData["url"]
- 
-        existing_connection = self._connection_pool.get_connection(server_id)
-        if existing_connection:
-            xbmc.log("AmpachePlugin::AMPACHECONNECT: Reusing existing connection",xbmc.LOGDEBUG)
-        else:
-            if ut.strBool_to_bool(use_api_key):
-                xbmc.log("AmpachePlugin::AMPACHECONNECT api_key",xbmc.LOGDEBUG)
-                myURL = self.get_auth_key_login_url()
-            else:
-                xbmc.log("AmpachePlugin::AMPACHECONNECT login password",xbmc.LOGDEBUG)
-                myURL = self.get_user_pwd_login_url(nTime)
-            try:
-                headers,contents = self.handle_request(myURL)
-            except self.ConnectionError:
-                xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
-                #connection error
-                xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
-                raise self.ConnectionError
-            except Exception as e:
-                xbmc.log("AmpachePlugin::AMPACHECONNECT: Generic Error " +\
-                        repr(e),xbmc.LOGDEBUG)
-                raise self.ConnectionError  # Re-raise to propagate the error
-            try:
-                xbmc.log("AmpachePlugin::AMPACHECONNECT: contents " +\
-                        contents.decode(),xbmc.LOGDEBUG)
-            except Exception as e:
-                xbmc.log("AmpachePlugin::AMPACHECONNECT: unable to print contents " + 
-                       repr(e) , xbmc.LOGDEBUG)
-            try:
-                tree=ET.XML(contents)
-            except Exception as e:
-                xbmc.log("AmpachePlugin::AMPACHECONNECT: XML Parse Error " + repr(e), xbmc.LOGDEBUG)
-                raise self.ConnectionError
-            errormess = self.getCodeMessError(tree)
-            if errormess:
-                #connection error
-                xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
-                raise self.ConnectionError
-            xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
-            if showok:
-                    #use it only if notification of connection is necessary, like
-                    #switch server, display connection ok and the name of the
-                    #current server
-                    amp_notif = ut.tString(30203) + "\n" + ut.tString(30181) +\
+        if ut.strBool_to_bool(use_api_key):
+            xbmc.log("AmpachePlugin::AMPACHECONNECT api_key",xbmc.LOGDEBUG)
+            myURL = self.get_auth_key_login_url()
+        else: 
+            xbmc.log("AmpachePlugin::AMPACHECONNECT login password",xbmc.LOGDEBUG)
+            myURL = self.get_user_pwd_login_url(nTime)
+        try:
+            headers,contents = self.handle_request(myURL)
+        except self.ConnectionError:
+            xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
+            #connection error
+            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
+            raise self.ConnectionError
+        except Exception as e:
+            xbmc.log("AmpachePlugin::AMPACHECONNECT: Generic Error "  +\
+                    repr(e),xbmc.LOGDEBUG)
+        try:
+            xbmc.log("AmpachePlugin::AMPACHECONNECT: contents " +\
+                    contents.decode(),xbmc.LOGDEBUG)
+        except Exception as e:
+            xbmc.log("AmpachePlugin::AMPACHECONNECT: unable to print contents " + \
+                   repr(e) , xbmc.LOGDEBUG)
+        tree=ET.XML(contents)
+        errormess = self.getCodeMessError(tree)
+        if errormess:
+            #connection error
+            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
+            raise self.ConnectionError
+        xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
+        if showok:
+                #use it only if notification of connection is necessary, like
+                #switch server, display connection ok and the name of the
+                #current server
+                amp_notif = ut.tString(30203) + "\n" + ut.tString(30181) +\
                         " : " + self._connectionData["name"]
-                    #connection ok
-                    xbmcgui.Dialog().notification(ut.tString(30197),amp_notif)
-            self.fillConnectionSettings(tree,nTime)
-            self._connection_pool.release_connection(server_id, time.time())
+                #connection ok
+                xbmcgui.Dialog().notification(ut.tString(30197),amp_notif)
+        self.fillConnectionSettings(tree,nTime)
         return
+
 
     #handle request to the xml api that return binary files
     def ampache_binary_request(self,action):
