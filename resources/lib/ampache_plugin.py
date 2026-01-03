@@ -202,7 +202,7 @@ def fill_tags(elem_type , node, info_tag):
 def getNestedTypeText(node, elem_tag ,elem_type):
     try:
         obj_elem = node.find(elem_type)
-        if obj_elem is not None or obj_elem != '':
+        if obj_elem is not None and obj_elem != '':
             obj_tag = obj_elem.findtext(elem_tag)
             return obj_tag
     except Exception as e:
@@ -213,7 +213,7 @@ def getNestedTypeText(node, elem_tag ,elem_type):
 def getNestedTypeId(node,elem_type):
     try:
         obj_elem = node.find(elem_type)
-        if obj_elem is not None or obj_elem != '':
+        if obj_elem is not None and obj_elem != '':
             obj_id = obj_elem.attrib["id"]
             return obj_id
     except Exception as e:
