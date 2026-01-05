@@ -573,7 +573,9 @@ def get_items(object_type, object_id=None, add=None,\
 
         elem = ampConn.ampache_http_request(action)
         addItems( object_type, elem, object_subtype)
-    except:
+    except Exception as e:
+        xbmc.log("AmpachePlugin::get_items: Generic Error "  +\
+                repr(e),xbmc.LOGDEBUG)
         return
 
 
