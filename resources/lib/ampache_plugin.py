@@ -169,7 +169,8 @@ def fill_tags(elem_type , node, info_tag):
         duration_str = node.findtext("time")
         info_tag.setDuration(int(duration_str) if duration_str else 0)
         year_str = node.findtext("year")
-        info_tag.setYear(int(year_str) if year_str else None)
+        if year_str:
+            info_tag.setYear(int(year_str))
         track_num = node.findtext("track")
         info_tag.setTrack(int(track_num) if track_num else 0)
         info_tag.setUserRating(rating)
@@ -182,7 +183,8 @@ def fill_tags(elem_type , node, info_tag):
         #xbmc.log("AmpachePlugin::disc_num " + str(disc_num),  xbmc.LOGDEBUG)
         info_tag.setDisc(int(disc_num) if disc_num else 0)
         year_str = node.findtext("year")
-        info_tag.setYear(int(year_str) if year_str else None)
+        if year_str:
+            info_tag.setYear(int(year_str))
         info_tag.setUserRating(rating)
 
     elif elem_type == 'artist':
