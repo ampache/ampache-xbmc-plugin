@@ -30,7 +30,10 @@ class AmpacheConnect(object):
         self._ampache = xbmcaddon.Addon("plugin.audio.ampache")
         jsStorServer = json_storage.JsonStorage("servers.json")
         serverStorage = jsStorServer.getData()
-        self._connectionData = serverStorage["servers"][serverStorage["current_server"]]
+        try:
+            self._connectionData = serverStorage["servers"][serverStorage["current_server"]]
+        except:
+            self._connectionData = None
         #self._connectionData = None
         self.filter=None
         self.add=None
@@ -52,8 +55,10 @@ class AmpacheConnect(object):
         token = tree.findtext('auth')
         version = tree.findtext('api')
         if not version:
-        #old api
+            #old api
             version = tree.findtext('version')
+        if not version:
+            raise self.ConnectionError
         #setSettings only string or unicode
         self._ampache.setSetting("api-version",version)
         self._ampache.setSetting("artists", tree.findtext("artists"))
