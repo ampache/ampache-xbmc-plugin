@@ -657,7 +657,10 @@ def get_recent(object_type,submode,object_subtype=None):
 
     if submode == AmpSubmode.LAST_UPDATE:
         update = ampache.getSetting("add")
-        xbmc.log(update[:10],xbmc.LOGINFO)
+        if update:
+            xbmc.log(update[:10],xbmc.LOGINFO)
+        else:
+            xbmc.log("AmpachePlugin::get_recent - no update setting", xbmc.LOGDEBUG)
         get_items(object_type=object_type,add=update[:10],object_subtype=object_subtype)
     elif submode == AmpSubmode.WEEK_UPDATE:
         get_items(object_type=object_type,add=ut.get_time(-7),object_subtype=object_subtype)
