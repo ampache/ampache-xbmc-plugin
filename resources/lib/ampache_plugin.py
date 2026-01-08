@@ -692,8 +692,8 @@ def get_random(object_type, num_items):
             ampConn.limit = 1
             elem = ampConn.ampache_http_request(action)
             addItems( object_type, elem,precache=False)
-        except:
-            pass
+        except Exception as e:
+            xbmc.log("AmpachePlugin::get_random - error getting item %s: %s" % (item_id, str(e)), xbmc.LOGDEBUG)
 
 def switchFromMusicPlaylist(addon_url, mode, submode, object_id=None, title=None):
     """
@@ -826,8 +826,8 @@ def Main():
                 servers_manager.initializeServer()
                 ampacheConnect = ampache_connect.AmpacheConnect()
                 ampacheConnect.AMPACHECONNECT()
-            except:
-                pass
+            except Exception as e:
+                xbmc.log("AmpachePlugin::Main - error connecting to server: %s" % str(e), xbmc.LOGDEBUG)
 
     apiVersion = int(ampache.getSetting("api-version"))
 
