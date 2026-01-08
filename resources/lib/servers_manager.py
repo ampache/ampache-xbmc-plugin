@@ -13,10 +13,9 @@ from resources.lib import ampache_connect
 def initializeServer():
     jsStorServer = json_storage.JsonStorage("servers.json")
     serverData = jsStorServer.getData()
-    if serverData:
-        pass
-    else:
+    if not serverData:
         xbmc.log( "AmpachePlugin::initializeServer: no servers file",xbmc.LOGDEBUG)
+        serverData = {}
         serverData["servers"] = {}
         tempd = {}
         tempd["0"] = {}
