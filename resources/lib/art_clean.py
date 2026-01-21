@@ -62,13 +62,15 @@ def delete_expired_files():
 
     for c_type in ART_CACHE_TYPES:
         cacheDirType = os.path.join( cacheDir , c_type )
+        if not os.path.isdir(cacheDirType):
+            continue
         for currentFile in os.listdir(cacheDirType):
             #xbmc.log("Clear Cache Art " + str(currentFile),xbmc.LOGDEBUG)
             pathDel = os.path.join( cacheDirType, currentFile)
             if is_expired(pathDel):
                 try:
                     os.remove(pathDel)
-                except PermissionError as e:
+                except PermissionError if not PY2 else OSError:
                     pass
 
 def remove_expired():

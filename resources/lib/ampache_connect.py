@@ -146,7 +146,7 @@ class AmpacheConnect(object):
                 xbmc.log("AmpachePlugin::handle_request: disable ssl certificates",xbmc.LOGDEBUG)
             else:
                 if PY2:
-                    gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+                    gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
                     response = urllib.request.urlopen(req, context=gcontext, timeout=REQUEST_TIMEOUT)
                 else:
                     response = urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT)

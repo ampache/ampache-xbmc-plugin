@@ -233,6 +233,7 @@ def precacheArt(elem,elem_type):
         return
 
     threadList = []
+    max_threads = 10
     for node in elem.iter(elem_type):
         if elem_type == "song":
             art_type = "album"
@@ -250,10 +251,15 @@ def precacheArt(elem,elem_type):
             continue
         x = threading.Thread(target=art.get_art,args=(object_id,art_type,image_url,))
         threadList.append(x)
-    #start threads
-    for x in threadList:
+    #start threads with limit
+    for i, x in enumerate(threadList):
         x.start()
-    #join threads
+        #join every max_threads threads to avoid blocking UI
+        if i > 0 and i % max_threads == 0:
+            for j in range(i - max_threads, i):
+                if j < len(threadList):
+                    threadList[j].join()
+    #join remaining threads
     for x in threadList:
         x.join()
 
@@ -393,7 +399,7 @@ def addPlayLinks(elem, elem_type):
             "Container.Update(%s?title=%s&mode=%s&submode=%s)" % (
                 sys.argv[0],urllib.parse.quote_plus(object_title), str(AmpMode.SONGS), str(AmpSubmode.DO_SEARCH_ITEM) ) ) )
 
-            if cm != []:
+            if cm:
                 liz.addContextMenuItems(cm)
         elif elem_type == "podcast_episode":
             info_tag = liz.getMusicInfoTag()
@@ -412,7 +418,7 @@ def addPlayLinks(elem, elem_type):
 
 #The function that actually plays an Ampache URL by using setResolvedUrl
 def play_track(url):
-    if url == None:
+    if url is None:
         xbmc.log("AmpachePlugin::play_track url null", xbmc.LOGINFO )
         return
 
@@ -478,7 +484,7 @@ def addItems( object_type, elem, object_subtype=None,precache=True):
     return
 
 def get_all(object_type, mode ,offset=None):
-    if offset == None:
+    if offset is None:
         offset=0
     try:
         limit = int(ampache.getSetting(object_type))
@@ -519,7 +525,7 @@ def get_items(object_type, object_id=None, add=None,\
     if object_id:
         xbmc.log("AmpachePlugin::get_items: object_id " + object_id, xbmc.LOGDEBUG)
 
-    if limit == None:
+    if limit is None:
         limit = int(ampache.getSetting(object_type))
 
     #default: object_type is the action,otherwise see the if list below
@@ -657,11 +663,11 @@ def get_recent(object_type,submode,object_subtype=None):
 
     if submode == AmpSubmode.LAST_UPDATE:
         update = ampache.getSetting("add")
-        if update:
+        if update and len(update) >= 10:
             xbmc.log(update[:10],xbmc.LOGINFO)
+            get_items(object_type=object_type,add=update[:10],object_subtype=object_subtype)
         else:
             xbmc.log("AmpachePlugin::get_recent - no update setting", xbmc.LOGDEBUG)
-        get_items(object_type=object_type,add=update[:10],object_subtype=object_subtype)
     elif submode == AmpSubmode.WEEK_UPDATE:
         get_items(object_type=object_type,add=ut.get_time(-7),object_subtype=object_subtype)
     elif submode == AmpSubmode.MONTH_UPDATE:
