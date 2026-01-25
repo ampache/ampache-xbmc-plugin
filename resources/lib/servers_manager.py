@@ -195,7 +195,7 @@ def modifyServer():
             value = gui.getFilterFromUser(ut.tString(30187))
         else:
             pass
-        if value != False:
+        if value is not False:
             serverData["servers"][i][key] = value
     xbmc.executebuiltin("PlayerControl(Stop)")
     jsStorServer.save(serverData)

@@ -590,34 +590,42 @@ def get_items(object_type, object_id=None, add=None,\
 def setRating():
     try:
         file_url = xbmc.Player().getPlayingFile()
+        if not file_url:
+            raise ValueError("No playing file")
         xbmc.log("AmpachePlugin::setRating url " + file_url , xbmc.LOGDEBUG)
-    except:
-        xbmc.log("AmpachePlugin::no playing file " , xbmc.LOGDEBUG)
-        return
-
-    object_id = ut.get_objectId_from_fileURL( file_url )
-    if not object_id:
-        return
-    rating = xbmc.getInfoLabel('MusicPlayer.UserRating')
-    if rating == "":
-        rating = "0"
-
-    xbmc.log("AmpachePlugin::setRating, user Rating " + rating , xbmc.LOGDEBUG)
-    #converts from five stats ampache rating to ten stars kodi rating
-    amp_rating = math.ceil(int(rating)/2.0)
-
+        
+    except Exception:
+        raise ValueError("Error getting playing file")
+    
     try:
+        object_id = ut.get_objectId_from_fileURL(file_url)
+        if not object_id:
+            raise ValueError("No object ID found in URL")
+            
+        rating = xbmc.getInfoLabel('MusicPlayer.UserRating')
+        #used to remove a rating from a song, it is not an error
+        if not rating:
+            rating="0"
+            
+        xbmc.log("AmpachePlugin::setRating, user Rating " + rating , xbmc.LOGDEBUG)
+        #converts from five stats ampache rating to ten stars kodi rating
+        amp_rating = math.ceil(int(rating)/2.0)
+        
         ampConn = ampache_connect.AmpacheConnect()
-
         action = "rate"
         ampConn.id = object_id
         ampConn.type = "song"
         ampConn.rating = str(amp_rating)
-
         ampConn.ampache_http_request(action)
-    except:
-        #do nothing
-        return
+        
+    except (ampache_connect.AmpacheConnect.ConnectionError) as e:
+        xbmc.log("AmpachePlugin::setRating - Connection error: " + repr(e), xbmc.LOGWARNING)
+    except ValueError as e:
+        xbmc.log("AmpachePlugin::setRating - Validation error: " + str(e), xbmc.LOGDEBUG)
+    except Exception as e:
+        xbmc.log("AmpachePlugin::setRating - Generic error: " + repr(e), xbmc.LOGERROR)
+    
+    return
 
 def do_search(object_type,object_subtype=None,thisFilter=None):
     """
