@@ -591,10 +591,12 @@ def setRating():
     try:
         file_url = xbmc.Player().getPlayingFile()
     except Exception:
-        raise ValueError("Error getting playing file")
+        xbmc.log("AmpachePlugin::setRating: Error getting playing file", xbmc.LOGERROR)
+        return
     
     if not file_url:
-        raise ValueError("No playing file")
+        xbmc.log("AmpachePlugin::setRating: No playing file", xbmc.LOGDEBUG)
+        return
     
     xbmc.log("AmpachePlugin::setRating url " + file_url , xbmc.LOGDEBUG)
     

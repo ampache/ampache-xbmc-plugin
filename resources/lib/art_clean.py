@@ -70,14 +70,16 @@ def delete_expired_files():
             if is_expired(pathDel):
                 try:
                     os.remove(pathDel)
-                except OSError:
-                    if not PY2:
-                        raise
+                except OSError as e:
+                    raise
 
 def remove_expired():
-    print("Starting cache cleanup...")
-    delete_expired_files()
-    print("Cache cleanup completed.")
+    try:
+        print("Starting cache cleanup...")
+        delete_expired_files()
+        print("Cache cleanup completed.")
+    except Exception as e:
+        xbmc.log("AmpachePlugin::Service failed to cleanup cache: %s" % repr(e), xbmc.LOGERROR)
 
 def init_cache():
     #if cacheDir doesn't exist, create it
