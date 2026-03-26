@@ -17,8 +17,6 @@ from resources.lib import json_storage
 from resources.lib import utils as ut
 from resources.lib.art_clean import clean_settings
 
-# Connection timeout constants
-REQUEST_TIMEOUT = 400
 TOKEN_EXPIRE_DELTA = 2400
 
 class AmpacheConnect(object):
@@ -139,23 +137,25 @@ class AmpacheConnect(object):
     def handle_request(self,url):
         xbmc.log("AmpachePlugin::handle_request: url " + url, xbmc.LOGDEBUG)
         ssl_certs_str = self._ampache.getSetting("disable_ssl_certs")
+        timeout = self._ampache.getSetting("connection_timeout")
         try:
             req = urllib.request.Request(url)
             if ut.strBool_to_bool(ssl_certs_str):
                 if PY2:
-                    response = urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT)
+                    response = urllib.request.urlopen(req, timeout=timeout)
                 else:
-                    gcontext = ssl.create_default_context()
-                    gcontext.check_hostname = False
-                    gcontext.verify_mode = ssl.CERT_NONE
-                    response = urllib.request.urlopen(req, context=gcontext, timeout=REQUEST_TIMEOUT)
-                xbmc.log("AmpachePlugin::handle_request: disable ssl certificates",xbmc.LOGDEBUG)
+                    gcontext = ssl._create_unverified_context()
+                    gcontext.timeout = timeout
+                    response = urllib.request.urlopen(req, context=gcontext)
+                xbmc.log("AmpachePlugin::handle_request: SSL verification DISABLED for local/self-signed certs", xbmc.LOGWARNING)
             else:
                 if PY2:
                     gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-                    response = urllib.request.urlopen(req, context=gcontext, timeout=REQUEST_TIMEOUT)
+                    response = urllib.request.urlopen(req, context=gcontext, timeout=timeout)
                 else:
-                    response = urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT)
+                    gcontext = ssl.create_default_context()
+                    gcontext.timeout = timeout
+                    response = urllib.request.urlopen(req, context=gcontext)
                 xbmc.log("AmpachePlugin::handle_request: ssl certificates",xbmc.LOGDEBUG)
         except urllib.error.HTTPError as e:
             xbmc.log("AmpachePlugin::handle_request: HTTPError " +\

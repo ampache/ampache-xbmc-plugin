@@ -34,6 +34,10 @@ msgctxt "#30011"
 msgid "Disable Ssl certs"
 msgstr ""
 
+msgctxt "#30017"
+msgid "Connection timeout (ms)"
+msgstr ""
+
 # empty string with id 32003
 msgctxt "#30012"
 msgid "Api Version"
