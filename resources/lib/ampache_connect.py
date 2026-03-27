@@ -138,6 +138,7 @@ class AmpacheConnect(object):
         xbmc.log("AmpachePlugin::handle_request: url " + url, xbmc.LOGDEBUG)
         ssl_certs_str = self._ampache.getSetting("disable_ssl_certs")
         timeout = self._ampache.getSetting("connection_timeout")
+        timeout = int(timeout)
         try:
             req = urllib.request.Request(url)
             if ut.strBool_to_bool(ssl_certs_str):
@@ -146,8 +147,7 @@ class AmpacheConnect(object):
                 else:
                     #SSL verification DISABLED is a feature requested by users for local/self-signed certs
                     gcontext = ssl._create_unverified_context()
-                    gcontext.timeout = timeout
-                    response = urllib.request.urlopen(req, context=gcontext)
+                    response = urllib.request.urlopen(req, context=gcontext, timeout=timeout)
                 xbmc.log("AmpachePlugin::handle_request: SSL verification DISABLED for local/self-signed certs", xbmc.LOGWARNING)
             else:
                 if PY2:
@@ -155,8 +155,7 @@ class AmpacheConnect(object):
                     response = urllib.request.urlopen(req, context=gcontext, timeout=timeout)
                 else:
                     gcontext = ssl.create_default_context()
-                    gcontext.timeout = timeout
-                    response = urllib.request.urlopen(req, context=gcontext)
+                    response = urllib.request.urlopen(req, context=gcontext, timeout=timeout)
                 xbmc.log("AmpachePlugin::handle_request: ssl certificates",xbmc.LOGDEBUG)
         except urllib.error.HTTPError as e:
             xbmc.log("AmpachePlugin::handle_request: HTTPError " +\
