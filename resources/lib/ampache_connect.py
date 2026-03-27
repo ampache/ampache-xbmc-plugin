@@ -144,6 +144,7 @@ class AmpacheConnect(object):
                 if PY2:
                     response = urllib.request.urlopen(req, timeout=timeout)
                 else:
+                    #SSL verification DISABLED is a feature requested by users for local/self-signed certs
                     gcontext = ssl._create_unverified_context()
                     gcontext.timeout = timeout
                     response = urllib.request.urlopen(req, context=gcontext)
