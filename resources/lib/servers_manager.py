@@ -88,6 +88,7 @@ def switchServer():
     jsStorServer.save(serverData)
     #clean cache_art, the server is different, so the cache is invalid
     art.clean_cache_art()
+    art.clear_art_cache()
     #if we switch, reconnect
     try:
         ampacheConnect = ampache_connect.AmpacheConnect()

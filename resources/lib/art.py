@@ -1,6 +1,7 @@
 from future.utils import PY2
 import os
 import cgi
+import threading
 import xbmc,xbmcaddon, xbmcgui
 import xbmcvfs
 
@@ -19,6 +20,10 @@ else:
     user_dir = xbmcvfs.translatePath( ampache.getAddonInfo('profile'))
 user_mediaDir = os.path.join( user_dir , 'media' )
 cacheDir = os.path.join( user_mediaDir , 'cache' )
+
+# In-memory cache: object_id -> cached file path
+_art_cache = {}
+_art_cache_lock = threading.Lock()
 
 def cacheArt(imageID,elem_type,url=None):
     if not imageID and not url:
@@ -82,15 +87,6 @@ def cacheArt(imageID,elem_type,url=None):
         xbmc.log("AmpachePlugin::CacheArt: No file found, id " + imageID , xbmc.LOGDEBUG )
         raise NameError
 
-def get_artLabels(albumArt):
-    art_labels = {
-            'banner' : albumArt, 
-            'thumb': albumArt, 
-            'icon': albumArt,
-            'fanart': albumArt
-            }
-    return art_labels
-
 #get_art, url is used for legacy purposes
 def get_art(object_id,elem_type,url=None):
 
@@ -98,14 +94,35 @@ def get_art(object_id,elem_type,url=None):
     #no url, no art, so no need to activate a connection
     if not object_id and not url:
         return albumArt
+
+    # Check in-memory cache before any file I/O
+    if object_id and object_id in _art_cache:
+        return _art_cache[object_id]
+
     try:
         albumArt = cacheArt(object_id,elem_type,url)
+        if object_id and albumArt != "DefaultFolder.png":
+            _art_cache[object_id] = albumArt
     except NameError:
         albumArt = "DefaultFolder.png"
 
     #xbmc.log("AmpachePlugin::get_art: id - " + object_id + " - albumArt - " + str(albumArt), xbmc.LOGDEBUG )
     return albumArt
 
+def clear_art_cache():
+    with _art_cache_lock:
+        _art_cache.clear()
+
+def get_artLabels(albumArt):
+    art_labels = {
+            'banner' : albumArt,
+            'thumb': albumArt,
+            'icon': albumArt,
+            'fanart': albumArt
+            }
+    return art_labels
+
+#clean_cache_art, url is used for legacy purposes
 def clean_cache_art(isDialog=False):
     if isDialog == True:
         dialog = xbmcgui.Dialog()
@@ -124,5 +141,4 @@ def clean_cache_art(isDialog=False):
             #xbmc.log("Clear Cache Art " + str(currentFile),xbmc.LOGDEBUG)
             pathDel = os.path.join( cacheDirType, currentFile)
             os.remove(pathDel)
-
 
