@@ -54,7 +54,7 @@ def cacheArt(imageID,elem_type,url=None):
     except AmpacheConnect.ConnectionError:
         raise NameError
     #xbmc.log("AmpachePlugin::CacheArt: File needs fetching, id " + imageID,xbmc.LOGDEBUG)
-    extension = headers['content-type']
+    extension = headers.get('Content-Type')
     if extension:
         mimetype, options = cgi.parse_header(extension)
         #little hack when content-type is not standard
