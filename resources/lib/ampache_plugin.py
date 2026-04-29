@@ -331,7 +331,7 @@ def addLinks(elem,elem_type,useCacheArt,mode):
         tu= (u,liz,isFolder)
         it.append(tu)
 
-    xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(elem))
+    xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(it))
 
 # Used to populate items for songs on XBMC. Calls plugin script with mode ==
 # 45 and play_url == (ampache item url)
@@ -414,7 +414,7 @@ def addPlayLinks(elem, elem_type):
         tu= (url,liz)
         it.append(tu)
 
-    xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(elem))
+    xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(it))
 
 #The function that actually plays an Ampache URL by using setResolvedUrl
 def play_track(url):
