@@ -5,7 +5,6 @@ from builtins import str
 from builtins import object
 import hashlib
 import ssl
-import socket
 import time
 import urllib.request, urllib.parse, urllib.error
 import xbmc, xbmcaddon, xbmcgui
@@ -177,7 +176,6 @@ class AmpacheConnect(object):
     def AMPACHECONNECT(self,showok=False):
         if self._connectionData is None:
             raise self.ConnectionError
-        socket.setdefaulttimeout(3600)
         nTime = int(time.time())
         use_api_key = self._connectionData["use_api_key"]
         if ut.strBool_to_bool(use_api_key):
