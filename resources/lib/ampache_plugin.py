@@ -233,7 +233,7 @@ def precacheArt(elem,elem_type):
         return
 
     threadList = []
-    max_threads = 10
+    max_threads = 5
     for node in elem.iter(elem_type):
         if elem_type == "song":
             art_type = "album"

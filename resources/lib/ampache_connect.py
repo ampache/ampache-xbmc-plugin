@@ -5,6 +5,7 @@ from builtins import str
 from builtins import object
 import hashlib
 import ssl
+import threading
 import time
 import urllib.request, urllib.parse, urllib.error
 import xbmc, xbmcaddon, xbmcgui
@@ -19,7 +20,10 @@ from resources.lib.art_clean import clean_settings
 TOKEN_EXPIRE_DELTA = 2400
 
 class AmpacheConnect(object):
-    
+
+    _opener = None
+    _opener_lock = threading.Lock()
+
     class ConnectionError(Exception):
         pass
 
@@ -135,27 +139,10 @@ class AmpacheConnect(object):
 
     def handle_request(self,url):
         xbmc.log("AmpachePlugin::handle_request: url " + url, xbmc.LOGDEBUG)
-        ssl_certs_str = self._ampache.getSetting("disable_ssl_certs")
-        timeout = self._ampache.getSetting("connection_timeout")
-        timeout = int(timeout)
+        opener = AmpacheConnect._get_opener()
+        timeout = int(self._ampache.getSetting("connection_timeout"))
         try:
-            req = urllib.request.Request(url)
-            if ut.strBool_to_bool(ssl_certs_str):
-                if PY2:
-                    response = urllib.request.urlopen(req, timeout=timeout)
-                else:
-                    #SSL verification DISABLED is a feature requested by users for local/self-signed certs
-                    gcontext = ssl._create_unverified_context()
-                    response = urllib.request.urlopen(req, context=gcontext, timeout=timeout)
-                xbmc.log("AmpachePlugin::handle_request: SSL verification DISABLED for local/self-signed certs", xbmc.LOGWARNING)
-            else:
-                if PY2:
-                    gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-                    response = urllib.request.urlopen(req, context=gcontext, timeout=timeout)
-                else:
-                    gcontext = ssl.create_default_context()
-                    response = urllib.request.urlopen(req, context=gcontext, timeout=timeout)
-                xbmc.log("AmpachePlugin::handle_request: ssl certificates",xbmc.LOGDEBUG)
+            response = opener.open(url, timeout=timeout)
         except urllib.error.HTTPError as e:
             xbmc.log("AmpachePlugin::handle_request: HTTPError " +\
                     repr(e),xbmc.LOGDEBUG)
@@ -274,4 +261,32 @@ class AmpacheConnect(object):
         if self.rating:
             thisURL += '&rating=' + self.rating
         return thisURL
+
+    @staticmethod
+    def _get_opener():
+        """Create an HTTP opener with connection pooling (once only)."""
+        if AmpacheConnect._opener is None:
+            with AmpacheConnect._opener_lock:
+                if AmpacheConnect._opener is None:
+                    ampache = xbmcaddon.Addon("plugin.audio.ampache")
+                    verify_ssl = not ut.strBool_to_bool(ampache.getSetting("disable_ssl_certs"))
+                    if PY2:
+                        if verify_ssl:
+                            context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+                        else:
+                            context = ssl._create_unverified_context()
+                        AmpacheConnect._opener = urllib.request.build_opener(
+                            urllib.request.HTTPSHandler(context=context))
+                    else:
+                        if verify_ssl:
+                            context = ssl.create_default_context()
+                        else:
+                            context = ssl._create_unverified_context()
+                        AmpacheConnect._opener = urllib.request.build_opener(
+                            urllib.request.HTTPSHandler(context=context))
+                    if verify_ssl:
+                        xbmc.log("AmpachePlugin: SSL certificates enabled", xbmc.LOGDEBUG)
+                    else:
+                        xbmc.log("AmpachePlugin: SSL verification disabled for self-signed certs", xbmc.LOGWARNING)
+        return AmpacheConnect._opener
 
