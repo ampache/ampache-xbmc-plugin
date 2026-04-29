@@ -141,24 +141,29 @@ class AmpacheConnect(object):
         xbmc.log("AmpachePlugin::handle_request: url " + url, xbmc.LOGDEBUG)
         opener = AmpacheConnect._get_opener()
         timeout = int(self._ampache.getSetting("connection_timeout"))
-        try:
-            response = opener.open(url, timeout=timeout)
-        except urllib.error.HTTPError as e:
-            xbmc.log("AmpachePlugin::handle_request: HTTPError " +\
-                    repr(e),xbmc.LOGDEBUG)
-            raise self.ConnectionError
-        except urllib.error.URLError as e:
-            xbmc.log("AmpachePlugin::handle_request: URLError " +\
-                    repr(e),xbmc.LOGDEBUG)
-            raise self.ConnectionError
-        except Exception as e:
-            xbmc.log("AmpachePlugin::handle_request: Generic Error "  +\
-                    repr(e),xbmc.LOGDEBUG)
-            raise self.ConnectionError
-        headers = response.headers
-        contents = response.read()
-        response.close()
-        return headers,contents
+        max_retries = 3
+
+        for attempt in range(max_retries):
+            try:
+                response = opener.open(url, timeout=timeout)
+                headers = response.headers
+                contents = response.read()
+                response.close()
+                return headers, contents
+            except urllib.error.HTTPError as e:
+                if e.code in (400, 401, 403, 404):
+                    xbmc.log("AmpachePlugin::handle_request: HTTPError %d, no retry" % e.code, xbmc.LOGWARNING)
+                    raise self.ConnectionError
+                xbmc.log("AmpachePlugin::handle_request: HTTPError %d, retry %d/3" % (e.code, attempt + 1), xbmc.LOGDEBUG)
+            except Exception as e:
+                if attempt + 1 < max_retries:
+                    xbmc.log("AmpachePlugin::handle_request: Error, retry %d/3: %s" % (attempt + 1, repr(e)), xbmc.LOGDEBUG)
+                    time.sleep(1 * (attempt + 1))
+                else:
+                    xbmc.log("AmpachePlugin::handle_request: Generic Error after %d retries: %s" % (max_retries, repr(e)), xbmc.LOGWARNING)
+                    raise self.ConnectionError
+
+        raise self.ConnectionError
 
     def AMPACHECONNECT(self,showok=False):
         if self._connectionData is None:
