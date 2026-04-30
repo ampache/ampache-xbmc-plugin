@@ -79,26 +79,18 @@ class AmpacheConnect(object):
         #not 24000 seconds ( 6 hours ) , but 2400 ( 40 minutes ) expiration time
         self._ampache.setSetting("token-exp", str(nTime+TOKEN_EXPIRE_DELTA))
 
-    def getCodeMessError(self,tree):
-        errormess = None
+    def getCodeMessError(self, tree):
         errornode = tree.find("error")
         if errornode is not None:
-            #ampache api 4 and below
-            try:
-                errormess = tree.findtext('error')
-                return errormess
-            except:
-                #do nothing
-                pass
             #ampache api 5 and above
-            try:
-                errormess = errornode.findtext("errorMessage")
+            errormess = errornode.findtext("errorMessage")
+            if errormess:
                 return errormess
-            except:
-                #do nothing
-                pass
-
-        return errormess
+            #ampache api 4 and below
+            errormess = tree.findtext("error")
+            if errormess:
+                return errormess
+        return None
 
     def getHashedPassword(self,timeStamp):
         if self._connectionData is None:
