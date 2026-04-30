@@ -667,7 +667,8 @@ def get_stats(object_type, object_subtype=None, limit=5000 ):
                 
         elem = ampConn.ampache_http_request(action)
         addItems( object_type, elem)
-    except:
+    except Exception as e:
+        xbmc.log("AmpachePlugin::get_stats error: %s" % repr(e), xbmc.LOGDEBUG)
         return
 
 def get_recent(object_type,submode,object_subtype=None):
