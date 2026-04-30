@@ -481,26 +481,23 @@ def addItems( object_type, elem, object_subtype=None,precache=True):
         addLinks(elem,elem_type,useCacheArt,mode)
     return
 
-def get_all(object_type, mode ,offset=None):
+def get_all(object_type, mode, offset=None):
     if offset is None:
-        offset=0
+        offset = 0
+
     try:
-        limit = int(ampache.getSetting(object_type))
-        if limit == 0:
+        total_limit = int(ampache.getSetting(object_type))
+        if total_limit == 0:
             return
-    except:
+    except Exception:
         return
 
     step = 500
-    newLimit = offset+step
     get_items(object_type, limit=step, offset=offset)
-    if newLimit < limit:
-        pass
-    else:
-        newLimit = None
 
-    if newLimit:
-        addDir(ut.tString(30194),mode, str(AmpSubmode.GET_ALL),offset=newLimit)
+    next_offset = offset + step
+    if next_offset < total_limit:
+        addDir(ut.tString(30194), mode, str(AmpSubmode.GET_ALL), offset=next_offset)
 
 #this functions handles the majority of the requests to the server
 #so, we have a lot of optional params
