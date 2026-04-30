@@ -86,9 +86,9 @@ def delete_expired_files():
 
 def remove_expired():
     try:
-        print("Starting cache cleanup...")
+        xbmc.log("AmpachePlugin::remove_expired: starting cache cleanup", xbmc.LOGDEBUG)
         delete_expired_files()
-        print("Cache cleanup completed.")
+        xbmc.log("AmpachePlugin::remove_expired: cache cleanup completed", xbmc.LOGDEBUG)
     except Exception as e:
         xbmc.log(
             "AmpachePlugin::Service failed to cleanup cache: %s" % repr(e),
