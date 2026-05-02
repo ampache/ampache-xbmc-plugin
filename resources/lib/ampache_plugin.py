@@ -234,7 +234,16 @@ def precacheArt(elem,elem_type):
         return
 
     threadList = []
-    max_threads = 5
+    max_threads = 10
+    semaphore = threading.Semaphore(max_threads)
+
+    def wrapped_get_art(object_id, art_type, image_url):
+        try:
+            semaphore.acquire()
+            art.get_art(object_id, art_type, image_url)
+        finally:
+            semaphore.release()
+
     for node in elem.iter(elem_type):
         if elem_type == "song":
             art_type = "album"
@@ -250,17 +259,10 @@ def precacheArt(elem,elem_type):
         image_url = node.findtext("art")
         if not object_id or not image_url:
             continue
-        x = threading.Thread(target=art.get_art,args=(object_id,art_type,image_url,))
+        x = threading.Thread(target=wrapped_get_art, args=(object_id,art_type,image_url,))
         threadList.append(x)
-    #start threads with limit
-    for i, x in enumerate(threadList):
+    for x in threadList:
         x.start()
-        #join every max_threads threads to avoid blocking UI
-        if i > 0 and i % max_threads == 0:
-            for j in range(i - max_threads, i):
-                if j < len(threadList):
-                    threadList[j].join()
-    #join remaining threads
     for x in threadList:
         x.join()
 
