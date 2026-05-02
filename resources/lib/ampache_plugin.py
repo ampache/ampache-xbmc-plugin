@@ -228,6 +228,7 @@ def getNestedTypeId(node,elem_type):
 def precacheArt(elem,elem_type):
 
     allid=set()
+    allid_lock = threading.Lock()
     if elem_type != "album" and elem_type != "song" and\
             elem_type != "artist" and elem_type != "podcast" and elem_type!= "playlist":
         return
@@ -242,10 +243,10 @@ def precacheArt(elem,elem_type):
             art_type = elem_type
             object_id = node.attrib["id"]
         #avoid to have duplicate threads with the same object_id
-        if object_id not in allid:
+        with allid_lock:
+            if object_id in allid:
+                continue
             allid.add(object_id)
-        else:
-            continue
         image_url = node.findtext("art")
         if not object_id or not image_url:
             continue

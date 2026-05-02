@@ -100,13 +100,15 @@ def get_art(object_id,elem_type,url=None):
         return albumArt
 
     # Check in-memory cache before any file I/O
-    if object_id and object_id in _art_cache:
-        return _art_cache[object_id]
+    with _art_cache_lock:
+        if object_id and object_id in _art_cache:
+            return _art_cache[object_id]
 
     try:
         albumArt = cacheArt(object_id,elem_type,url)
         if object_id and albumArt != "DefaultFolder.png":
-            _art_cache[object_id] = albumArt
+            with _art_cache_lock:
+                _art_cache[object_id] = albumArt
     except ArtNotFoundError:
         xbmc.log("AmpachePlugin::get_art: Art not found for %s" % object_id, xbmc.LOGDEBUG)
         albumArt = "DefaultFolder.png"
