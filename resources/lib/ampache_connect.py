@@ -170,28 +170,16 @@ class AmpacheConnect(object):
             myURL = self.get_user_pwd_login_url(nTime)
         try:
             headers,contents = self.handle_request(myURL)
-        except self.ConnectionError:
-            xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
-            #connection error
-            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
-            raise self.ConnectionError
-        except Exception as e:
-            xbmc.log("AmpachePlugin::AMPACHECONNECT: Generic Error "  +\
-                    repr(e),xbmc.LOGDEBUG)
-        try:
             xbmc.log("AmpachePlugin::AMPACHECONNECT: contents " +\
                     contents.decode(),xbmc.LOGDEBUG)
-        except Exception as e:
-            xbmc.log("AmpachePlugin::AMPACHECONNECT: unable to print contents " + \
-                   repr(e) , xbmc.LOGDEBUG)
-        tree=ET.XML(contents)
-        errormess = self.getCodeMessError(tree)
-        if errormess:
-            #connection error
-            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
-            raise self.ConnectionError
-        xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
-        if showok:
+            tree=ET.XML(contents)
+            errormess = self.getCodeMessError(tree)
+            if errormess:
+                #connection error
+                xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
+                raise self.ConnectionError
+            xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionOk",xbmc.LOGDEBUG)
+            if showok:
                 #use it only if notification of connection is necessary, like
                 #switch server, display connection ok and the name of the
                 #current server
@@ -199,8 +187,16 @@ class AmpacheConnect(object):
                         " : " + self._connectionData["name"]
                 #connection ok
                 xbmcgui.Dialog().notification(ut.tString(30197),amp_notif)
-        self.fillConnectionSettings(tree,nTime)
-        return
+            self.fillConnectionSettings(tree,nTime)
+            return
+        except self.ConnectionError:
+            xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
+            xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
+            raise
+        except Exception as e:
+            xbmc.log("AmpachePlugin::AMPACHECONNECT: Generic Error: %s" % repr(e),
+                    xbmc.LOGERROR)
+            raise
 
 
     #handle request to the xml api that return binary files
