@@ -12,6 +12,11 @@ from resources.lib import utils as ut
 
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
+
+class ArtNotFoundError(RuntimeError):
+    """Raised when art cannot be fetched or cached."""
+    pass
+
 #different functions in kodi 19 (python3) and kodi 18 (python2)
 if PY2:
     user_dir = xbmc.translatePath( ampache.getAddonInfo('profile'))
@@ -27,7 +32,7 @@ _art_cache_lock = threading.Lock()
 
 def cacheArt(imageID,elem_type,url=None):
     if not imageID and not url:
-        raise NameError
+        raise ArtNotFoundError("No image ID or URL provided")
 
     cacheDirType = os.path.join( cacheDir , elem_type )
    
@@ -52,7 +57,7 @@ def cacheArt(imageID,elem_type,url=None):
         else:
             headers,contents = ampacheConnect.ampache_binary_request(action)
     except ampache_connect.AmpacheConnect.ConnectionError:
-        raise NameError
+        raise ArtNotFoundError("Failed to fetch art for %s" % imageID)
     #xbmc.log("AmpachePlugin::CacheArt: File needs fetching, id " + imageID,xbmc.LOGDEBUG)
     extension = headers.get('Content-Type')
     if extension:
@@ -67,7 +72,7 @@ def cacheArt(imageID,elem_type,url=None):
             except ValueError:
                 xbmc.log("AmpachePlugin::CacheArt: content-type not standard " +\
                         mimetype,xbmc.LOGDEBUG)
-                raise NameError
+                raise ArtNotFoundError("Content-type not standard: %s" % mimetype)
         if maintype == 'image':
             if subtype == "jpeg":
                 fname = imageID + ".jpg"
@@ -82,10 +87,10 @@ def cacheArt(imageID,elem_type,url=None):
             return pathImage
         else:
             xbmc.log("AmpachePlugin::CacheArt: It didnt work, id " + imageID , xbmc.LOGDEBUG )
-            raise NameError
+            raise ArtNotFoundError("Invalid content type for %s" % imageID)
     else:
         xbmc.log("AmpachePlugin::CacheArt: No file found, id " + imageID , xbmc.LOGDEBUG )
-        raise NameError
+        raise ArtNotFoundError("No file found for %s" % imageID)
 
 #get_art, url is used for legacy purposes
 def get_art(object_id,elem_type,url=None):
@@ -103,7 +108,8 @@ def get_art(object_id,elem_type,url=None):
         albumArt = cacheArt(object_id,elem_type,url)
         if object_id and albumArt != "DefaultFolder.png":
             _art_cache[object_id] = albumArt
-    except NameError:
+    except ArtNotFoundError:
+        xbmc.log("AmpachePlugin::get_art: Art not found for %s" % object_id, xbmc.LOGDEBUG)
         albumArt = "DefaultFolder.png"
 
     #xbmc.log("AmpachePlugin::get_art: id - " + object_id + " - albumArt - " + str(albumArt), xbmc.LOGDEBUG )
