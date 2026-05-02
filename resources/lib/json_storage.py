@@ -23,9 +23,13 @@ class JsonStorage(object):
         self.load()
 
     def load(self):
-        if xbmcvfs.exists(self._filename):
+        if not xbmcvfs.exists(self._filename):
+            return
+        try:
             with open(self._filename, 'r') as fd:
                 self._data = json.load(fd)
+        except (ValueError, IOError, OSError):
+            self._data = {}
 
     def save(self,data):
         if data != self._data:
