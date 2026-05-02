@@ -725,7 +725,7 @@ def switchFromMusicPlaylist(addon_url, mode, submode, object_id=None, title=None
                     ( addon_url,object_id, mode, submode ) )
         elif title:
             xbmc.executebuiltin("Container.Update(%s?title=%s&mode=%s&submode=%s)" %\
-                    ( addon_url,title, mode, submode ) )
+                    ( addon_url,urllib.parse.quote_plus(title), mode, submode ) )
 
 
 def main_params(plugin_url):
