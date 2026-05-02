@@ -64,7 +64,7 @@ def showServerData(data,title=ut.tString(30168)):
     dialog = xbmcgui.Dialog()
     for i in ordlist:
         templist.append(i)
-        pad_i =  dispList[n] + " "*(padding_size - len(i))
+        pad_i =  dispList[n] + " "*(padding_size - len(dispList[n]))
         tempStr = pad_i + data[i]
         showlist.append(tempStr)
         n = n + 1
