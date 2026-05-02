@@ -30,8 +30,10 @@ class JsonStorage(object):
     def save(self,data):
         if data != self._data:
             self._data = deepcopy(data)
-            with open(self._filename, 'w') as fd:
+            tmp_filename = self._filename + '.tmp'
+            with open(tmp_filename, 'w') as fd:
                 json.dump(self._data, fd, indent=4, sort_keys=True)
+            os.replace(tmp_filename, self._filename)
 
     def getData(self):
         return deepcopy(self._data)
