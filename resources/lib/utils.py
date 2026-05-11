@@ -109,7 +109,7 @@ def check_tokenexp():
             if datetime.datetime.now(datetime.timezone.utc) > s_time:
                 return True
             return False
-        except:
+        except Exception:
             return False
     else:
         try:
@@ -117,7 +117,7 @@ def check_tokenexp():
             if int(time.time()) > tokenexp:
                 return True
             return False
-        except:
+        except Exception:
             return True
 
 def get_time(time_offset):

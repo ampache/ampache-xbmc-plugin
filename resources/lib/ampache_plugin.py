@@ -752,32 +752,32 @@ def main_params(plugin_url):
     try:
             m_params['mode']=int(params["mode"])
             xbmc.log("AmpachePlugin::mode " + str(m_params['mode']), xbmc.LOGDEBUG)
-    except:
+    except Exception:
             pass
     try:
             m_params['submode']=int(params["submode"])
             xbmc.log("AmpachePlugin::submode " + str(m_params['submode']), xbmc.LOGDEBUG)
-    except:
+    except Exception:
             pass
     try:
             m_params['object_id']=params["object_id"]
             xbmc.log("AmpachePlugin::object_id " + m_params['object_id'], xbmc.LOGDEBUG)
-    except:
+    except Exception:
             pass
     try:
             m_params['title']=urllib.parse.unquote_plus(params["title"])
             xbmc.log("AmpachePlugin::title " + m_params['title'], xbmc.LOGDEBUG)
-    except:
+    except Exception:
             pass
     try:
             m_params['play_url']=urllib.parse.unquote_plus(params["play_url"])
             xbmc.log("AmpachePlugin::play_url " + m_params['play_url'], xbmc.LOGDEBUG)
-    except:
+    except Exception:
             pass
     try:
             m_params['offset']=int(params["offset"])
             xbmc.log("AmpachePlugin::offset " + str(m_params['offset']), xbmc.LOGDEBUG)
-    except:
+    except Exception:
             pass
 
     return m_params
