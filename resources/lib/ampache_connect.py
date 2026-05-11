@@ -9,7 +9,6 @@ import threading
 import time
 import urllib.request, urllib.parse, urllib.error
 import xbmc, xbmcaddon, xbmcgui
-import sys
 import xml.etree.ElementTree as ET
 
 #main plugin library
