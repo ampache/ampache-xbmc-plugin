@@ -116,6 +116,61 @@ def get_art(object_id,elem_type,url=None):
     #xbmc.log("AmpachePlugin::get_art: id - " + object_id + " - albumArt - " + str(albumArt), xbmc.LOGDEBUG )
     return albumArt
 
+def batch_fetch_art(art_requests):
+    """
+    art_requests: [(object_id, elem_type, url), ...]
+    Returns: {object_id: cached_path_or_default}
+    """
+    result = {}
+    pending = []
+
+    for object_id, elem_type, url in art_requests:
+        with _art_cache_lock:
+            if object_id in _art_cache:
+                result[object_id] = _art_cache[object_id]
+            else:
+                pending.append((object_id, elem_type, url))
+
+    if not pending:
+        return result
+
+    by_type = {}
+    for object_id, elem_type, url in pending:
+        by_type.setdefault(elem_type, []).append((object_id, elem_type, url))
+
+    for elem_type, requests in by_type.items():
+        thread_results = {}
+        thread_list = []
+        semaphore = threading.Semaphore(3)
+
+        def fetch_one(object_id, et, url):
+            try:
+                semaphore.acquire()
+                try:
+                    path = cacheArt(object_id, et, url)
+                    with _art_cache_lock:
+                        _art_cache[object_id] = path
+                    thread_results[object_id] = path
+                except ArtNotFoundError:
+                    thread_results[object_id] = "DefaultFolder.png"
+                finally:
+                    semaphore.release()
+            except Exception:
+                thread_results[object_id] = "DefaultFolder.png"
+
+        for object_id, et, url in requests:
+            t = threading.Thread(target=fetch_one, args=(object_id, et, url))
+            thread_list.append(t)
+
+        for t in thread_list:
+            t.start()
+        for t in thread_list:
+            t.join()
+
+        result.update(thread_results)
+
+    return result
+
 def clear_art_cache():
     with _art_cache_lock:
         _art_cache.clear()
