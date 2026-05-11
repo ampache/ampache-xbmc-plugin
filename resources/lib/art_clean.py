@@ -97,12 +97,7 @@ def remove_expired():
 
 
 def init_cache():
-    # if cacheDir doesn't exist, create it
-    if not os.path.isdir(user_mediaDir):
-        os.mkdir(user_mediaDir)
-    if not os.path.isdir(cacheDir):
-        os.mkdir(cacheDir)
+    os.makedirs(user_mediaDir, exist_ok=True)
+    os.makedirs(cacheDir, exist_ok=True)
     for c_type in ART_CACHE_TYPES:
-        cacheDirType = os.path.join(cacheDir, c_type)
-        if not os.path.isdir(cacheDirType):
-            os.mkdir(cacheDirType)
+        os.makedirs(os.path.join(cacheDir, c_type), exist_ok=True)
