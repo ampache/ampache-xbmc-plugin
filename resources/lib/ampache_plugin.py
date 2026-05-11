@@ -8,6 +8,7 @@ import urllib.request,urllib.parse,urllib.error
 import sys, os
 import math,random
 import xml.etree.ElementTree as ET
+import threading
 
 #main plugin
 from resources.lib import ampache_connect
@@ -225,23 +226,45 @@ def getNestedTypeId(node,elem_type):
 #this function is used to speed up the loading of the images using differents
 #theads, one for request
 def precacheArt(elem,elem_type):
-    if elem_type not in ("album", "song", "artist", "podcast", "playlist"):
+
+    allid=set()
+    allid_lock = threading.Lock()
+    if elem_type != "album" and elem_type != "song" and\
+            elem_type != "artist" and elem_type != "podcast" and elem_type!= "playlist":
         return
 
-    allid = set()
-    art_requests = []
+    threadList = []
+    max_threads = 10
+    semaphore = threading.Semaphore(max_threads)
+
+    def wrapped_get_art(object_id, art_type, image_url):
+        try:
+            semaphore.acquire()
+            art.get_art(object_id, art_type, image_url)
+        finally:
+            semaphore.release()
+
     for node in elem.iter(elem_type):
         if elem_type == "song":
+            art_type = "album"
             object_id = getNestedTypeId(node, "album")
         else:
-            object_id = node.attrib.get("id")
-        if not object_id or object_id in allid:
+            art_type = elem_type
+            object_id = node.attrib["id"]
+        #avoid to have duplicate threads with the same object_id
+        with allid_lock:
+            if object_id in allid:
+                continue
+            allid.add(object_id)
+        image_url = node.findtext("art")
+        if not object_id or not image_url:
             continue
-        allid.add(object_id)
-        art_requests.append((object_id, elem_type, node.findtext("art")))
-
-    if art_requests:
-        art.batch_fetch_art(art_requests)
+        x = threading.Thread(target=wrapped_get_art, args=(object_id,art_type,image_url,))
+        threadList.append(x)
+    for x in threadList:
+        x.start()
+    for x in threadList:
+        x.join()
 
 def addLinks(elem,elem_type,useCacheArt,mode):
 
