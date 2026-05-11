@@ -192,6 +192,9 @@ class AmpacheConnect(object):
             xbmc.log("AmpachePlugin::AMPACHECONNECT ConnectionError",xbmc.LOGDEBUG)
             xbmcgui.Dialog().notification(ut.tString(30198),ut.tString(30202))
             raise
+        except ET.ParseError:
+            xbmc.log("AmpachePlugin::AMPACHECONNECT: Invalid XML response", xbmc.LOGWARNING)
+            raise self.ConnectionError
         except Exception as e:
             xbmc.log("AmpachePlugin::AMPACHECONNECT: Generic Error: %s" % repr(e),
                     xbmc.LOGERROR)
@@ -222,7 +225,11 @@ class AmpacheConnect(object):
         except Exception as e:
             xbmc.log("AmpachePlugin::ampache_http_request: unable print contents " + \
                     repr(e) , xbmc.LOGDEBUG)
-        tree=ET.XML(contents)
+        try:
+            tree=ET.XML(contents)
+        except ET.ParseError:
+            xbmc.log("AmpachePlugin::ampache_http_request: Invalid XML response", xbmc.LOGWARNING)
+            raise self.ConnectionError
         errormess = self.getCodeMessError(tree)
         if errormess:
             raise self.ConnectionError
