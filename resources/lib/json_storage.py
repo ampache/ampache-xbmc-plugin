@@ -37,7 +37,10 @@ class JsonStorage(object):
             tmp_filename = self._filename + '.tmp'
             with open(tmp_filename, 'w') as fd:
                 json.dump(self._data, fd, indent=4, sort_keys=True)
-            os.replace(tmp_filename, self._filename)
+            if PY2:
+                os.rename(tmp_filename, self._filename)
+            else:
+                os.replace(tmp_filename, self._filename)
 
     def getData(self):
         return deepcopy(self._data)
