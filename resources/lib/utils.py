@@ -166,3 +166,9 @@ def getRating(rating):
         #zero equals no rating
         rating = 0
     return rating
+
+def get_int_setting(setting_name, default=0):
+    try:
+        return int(ampache.getSetting(setting_name))
+    except (ValueError, TypeError):
+        return default

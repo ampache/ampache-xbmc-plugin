@@ -787,7 +787,7 @@ def main_params(plugin_url):
 def manage_stats_menu(object_type,submode):
 
     num_items = (int(ampache.getSetting("random_items"))*3)+3
-    apiVersion = int(ampache.getSetting("api-version"))
+    apiVersion = ut.get_int_setting("api-version", 0)
 
     if submode == AmpSubmode.RANDOM:
         #playlists are not in the new stats api, so, use the old mode
@@ -845,7 +845,7 @@ def Main():
             except Exception as e:
                 xbmc.log("AmpachePlugin::Main - error connecting to server: %s" % str(e), xbmc.LOGDEBUG)
 
-    apiVersion = int(ampache.getSetting("api-version"))
+    apiVersion = ut.get_int_setting("api-version", 0)
 
     #start menu
     if mode==None:
