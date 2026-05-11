@@ -86,12 +86,14 @@ def switchServer():
     xbmc.executebuiltin("PlayerControl(Stop)")
     serverData["current_server"] = i_curr
     jsStorServer.save(serverData)
+    json_storage.JsonStorage.invalidate_cache()
+    ampache_connect.AmpacheConnect.invalidate_connection()
     #clean cache_art, the server is different, so the cache is invalid
     art.clean_cache_art()
     art.clear_art_cache()
     #if we switch, reconnect
     try:
-        ampacheConnect = ampache_connect.AmpacheConnect()
+        ampacheConnect = ampache_connect.AmpacheConnect.get_cached_connection()
         ampacheConnect.AMPACHECONNECT(showok=True)
     except Exception as e:
         xbmc.log("AmpachePlugin::switchServer error: %s" % repr(e), xbmc.LOGERROR)
@@ -143,6 +145,8 @@ def addServer():
     serverData["servers"][stnum]["password"] = password
     serverData["servers"][stnum]["api_key"] = apikey
     jsStorServer.save(serverData)
+    json_storage.JsonStorage.invalidate_cache()
+    ampache_connect.AmpacheConnect.invalidate_connection()
     showServerData(serverData["servers"][stnum])
     return True
     
@@ -160,6 +164,8 @@ def deleteServer():
         serverData["servers"][i_rem] = serverData["servers"][repl_num].copy()
         del serverData["servers"][repl_num]
         jsStorServer.save(serverData)
+        json_storage.JsonStorage.invalidate_cache()
+        ampache_connect.AmpacheConnect.invalidate_connection()
         return True
     else:
         return False
@@ -200,9 +206,11 @@ def modifyServer():
             serverData["servers"][i][key] = value
     xbmc.executebuiltin("PlayerControl(Stop)")
     jsStorServer.save(serverData)
+    json_storage.JsonStorage.invalidate_cache()
+    ampache_connect.AmpacheConnect.invalidate_connection()
     #just to be sure, having potentially changed default server
     try:
-        ampacheConnect = ampache_connect.AmpacheConnect()
+        ampacheConnect = ampache_connect.AmpacheConnect.get_cached_connection()
         ampacheConnect.AMPACHECONNECT()
     except Exception as e:
         xbmc.log("AmpachePlugin::modifyServer error: %s" % repr(e), xbmc.LOGERROR)

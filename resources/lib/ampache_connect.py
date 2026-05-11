@@ -22,6 +22,8 @@ class AmpacheConnect(object):
 
     _opener = None
     _opener_lock = threading.Lock()
+    _cached_conn = None
+    _conn_lock = threading.Lock()
 
     class ConnectionError(Exception):
         pass
@@ -46,6 +48,19 @@ class AmpacheConnect(object):
         self.rating=None
         #force the latest version on the server
         self.version="680001"
+
+    @classmethod
+    def get_cached_connection(cls):
+        if cls._cached_conn is None:
+            with cls._conn_lock:
+                if cls._cached_conn is None:
+                    cls._cached_conn = cls()
+        return cls._cached_conn
+
+    @classmethod
+    def invalidate_connection(cls):
+        with cls._conn_lock:
+            cls._cached_conn = None
 
     def getBaseUrl(self):
         return '/server/xml.server.php'

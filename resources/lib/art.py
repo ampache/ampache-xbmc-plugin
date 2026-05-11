@@ -45,7 +45,7 @@ def cacheArt(imageID,elem_type,url=None):
             return pathImage
     
     #no return, not found
-    ampacheConnect = ampache_connect.AmpacheConnect()
+    ampacheConnect = ampache_connect.AmpacheConnect.get_cached_connection()
     action = 'get_art'
     ampacheConnect.id = imageID
     ampacheConnect.type = elem_type

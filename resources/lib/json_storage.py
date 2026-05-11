@@ -2,6 +2,7 @@ from builtins import object
 from future.utils import PY2
 import json
 import os
+import threading
 import xbmc
 import xbmcaddon
 import xbmcvfs
@@ -10,6 +11,9 @@ from copy import deepcopy
 #main plugin library
 
 class JsonStorage(object):
+
+    _cache = {}
+    _lock = threading.Lock()
 
     def __init__(self,filename):
         ampache = xbmcaddon.Addon("plugin.audio.ampache")
@@ -23,13 +27,26 @@ class JsonStorage(object):
         self.load()
 
     def load(self):
+        with JsonStorage._lock:
+            if self._filename in JsonStorage._cache:
+                self._data = deepcopy(JsonStorage._cache[self._filename])
+                return
         if not xbmcvfs.exists(self._filename):
+            with JsonStorage._lock:
+                JsonStorage._cache[self._filename] = {}
             return
         try:
             with open(self._filename, 'r') as fd:
                 self._data = json.load(fd)
         except (ValueError, IOError, OSError):
             self._data = {}
+        with JsonStorage._lock:
+            JsonStorage._cache[self._filename] = deepcopy(self._data)
+
+    @classmethod
+    def invalidate_cache(cls):
+        with cls._lock:
+            cls._cache.clear()
 
     def save(self,data):
         if data != self._data:
@@ -41,6 +58,8 @@ class JsonStorage(object):
                 os.rename(tmp_filename, self._filename)
             else:
                 os.replace(tmp_filename, self._filename)
+            with JsonStorage._lock:
+                JsonStorage._cache[self._filename] = deepcopy(self._data)
 
     def getData(self):
         return deepcopy(self._data)
