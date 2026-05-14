@@ -110,7 +110,7 @@ def check_tokenexp():
                 return True
             return False
         except Exception:
-            return False
+            return True
     else:
         try:
             tokenexp = int(ampache.getSetting("token-exp"))
