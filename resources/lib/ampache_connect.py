@@ -216,22 +216,22 @@ class AmpacheConnect(object):
             raise
 
 
+    def _do_request(self, action):
+        """Execute HTTP request and return (headers, contents) or raise ConnectionError."""
+        url = self.build_ampache_url(action)
+        try:
+            headers, contents = self.handle_request(url)
+        except self.ConnectionError:
+            raise
+        return headers, contents
+
     #handle request to the xml api that return binary files
-    def ampache_binary_request(self,action):
-        thisURL = self.build_ampache_url(action)
-        try:
-            headers,contents  = self.handle_request(thisURL)
-        except self.ConnectionError:
-            raise self.ConnectionError
-        return headers,contents
-   
+    def ampache_binary_request(self, action):
+        return self._do_request(action)
+
     #handle request to the xml api that return xml content
-    def ampache_http_request(self,action):
-        thisURL = self.build_ampache_url(action)
-        try:
-            headers,contents  = self.handle_request(thisURL)
-        except self.ConnectionError:
-            raise self.ConnectionError
+    def ampache_http_request(self, action):
+        headers, contents = self._do_request(action)
         if PY2:
             contents = contents.replace("\0", "")
         try:
