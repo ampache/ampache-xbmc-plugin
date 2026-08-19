@@ -1,6 +1,5 @@
 from future.utils import PY2
 import os
-import cgi
 import threading
 import xbmc,xbmcaddon, xbmcgui
 import xbmcvfs
@@ -61,9 +60,10 @@ def cacheArt(imageID,elem_type,url=None):
     #xbmc.log("AmpachePlugin::CacheArt: File needs fetching, id " + imageID,xbmc.LOGDEBUG)
     extension = headers.get('Content-Type')
     if extension:
-        mimetype, options = cgi.parse_header(extension)
+        #parse manually: cgi.parse_header removed in python 3.13
+        mimetype = extension.split(';', 1)[0].strip().lower()
         #little hack when content-type is not standard
-        if mimetype == "JPG" or mimetype == "jpeg":
+        if mimetype == "jpg" or mimetype == "jpeg":
             maintype = "image"
             subtype = "jpg"
         else:
