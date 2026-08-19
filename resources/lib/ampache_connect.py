@@ -161,10 +161,13 @@ class AmpacheConnect(object):
                     xbmc.log("AmpachePlugin::handle_request: HTTPError %d, no retry" % e.code, xbmc.LOGWARNING)
                     raise self.ConnectionError
                 xbmc.log("AmpachePlugin::handle_request: HTTPError %d, retry %d/3" % (e.code, attempt + 1), xbmc.LOGDEBUG)
+                #backoff also for server-side errors (5xx), the server may be overloaded
+                time.sleep(min(2 ** attempt, 8))
             except Exception as e:
                 if attempt + 1 < max_retries:
                     xbmc.log("AmpachePlugin::handle_request: Error, retry %d/3: %s" % (attempt + 1, repr(e)), xbmc.LOGDEBUG)
-                    time.sleep(1 * (attempt + 1))
+                    #exponential backoff: 1s, 2s, 4s (capped at 8s)
+                    time.sleep(min(2 ** attempt, 8))
                 else:
                     xbmc.log("AmpachePlugin::handle_request: Generic Error after %d retries: %s" % (max_retries, repr(e)), xbmc.LOGWARNING)
                     raise self.ConnectionError
