@@ -10,24 +10,30 @@ from resources.lib import utils as ut
 from resources.lib import json_storage
 from resources.lib import ampache_connect
 
+#create the data structure with the demo server, as when servers.json is created
+def get_demo_server_data():
+    serverData = {}
+    serverData["servers"] = {}
+    tempd = {}
+    tempd["0"] = {}
+    serverData["servers"].update(tempd)
+    serverData["servers"]["0"]["name"] = "Develop Demo"
+    serverData["servers"]["0"]["url"] = "http://develop.ampache.dev/"
+    serverData["servers"]["0"]["use_api_key"] = "false"
+    serverData["servers"]["0"]["enable_password"] = "true"
+    serverData["servers"]["0"]["username"] = "kodi_demo"
+    serverData["servers"]["0"]["password"] = "aNNKvApsECw7Tpc"
+    serverData["servers"]["0"]["api_key"] = ""
+    serverData["current_server"] = "0"
+    return serverData
+
+
 def initializeServer():
     jsStorServer = json_storage.JsonStorage("servers.json")
     serverData = jsStorServer.getData()
     if not serverData:
         xbmc.log( "AmpachePlugin::initializeServer: no servers file",xbmc.LOGDEBUG)
-        serverData = {}
-        serverData["servers"] = {}
-        tempd = {}
-        tempd["0"] = {}
-        serverData["servers"].update(tempd)
-        serverData["servers"]["0"]["name"] = "Develop Demo"
-        serverData["servers"]["0"]["url"] = "http://develop.ampache.dev/"
-        serverData["servers"]["0"]["use_api_key"] = "false"
-        serverData["servers"]["0"]["enable_password"] = "true"
-        serverData["servers"]["0"]["username"] = "kodi_demo"
-        serverData["servers"]["0"]["password"] = "aNNKvApsECw7Tpc"
-        serverData["servers"]["0"]["api_key"] = ""
-        serverData["current_server"] = "0"
+        serverData = get_demo_server_data()
         jsStorServer.save(serverData)
  
 
@@ -159,10 +165,17 @@ def deleteServer():
     dialog = xbmcgui.Dialog()
     confirm = dialog.yesno(ut.tString(30189),ut.tString(30188))
     if confirm:
-        #replace old server position with the latest server in the list
-        repl_num = str(max([int(i) for i in list(serverData["servers"])]))
-        serverData["servers"][i_rem] = serverData["servers"][repl_num].copy()
-        del serverData["servers"][repl_num]
+        if len(list(serverData["servers"])) <= 1:
+            #last server remaining: reset to the demo server (as at file creation)
+            serverData = get_demo_server_data()
+        else:
+            #if deleting the current server, set as current the last one in the list
+            if i_rem == serverData["current_server"]:
+                serverData["current_server"] = str(max([int(i) for i in list(serverData["servers"])]))
+            #replace old server position with the latest server in the list
+            repl_num = str(max([int(i) for i in list(serverData["servers"])]))
+            serverData["servers"][i_rem] = serverData["servers"][repl_num].copy()
+            del serverData["servers"][repl_num]
         jsStorServer.save(serverData)
         json_storage.JsonStorage.invalidate_cache()
         ampache_connect.AmpacheConnect.invalidate_connection()
