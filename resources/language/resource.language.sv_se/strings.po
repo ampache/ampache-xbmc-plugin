@@ -58,6 +58,10 @@ msgctxt "#30017"
 msgid "Connection timeout (ms)"
 msgstr "Anslutnings_timeout (ms)"
 
+msgctxt "#30018"
+msgid "Maximum rows per list (0 = unlimited)"
+msgstr "Max antal rader per lista (0 = obegränsat)"
+
 msgctxt "#30020"
 msgid "Add Server"
 msgstr "Lägg till server"

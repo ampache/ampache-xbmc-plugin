@@ -42,6 +42,10 @@ msgctxt "#30017"
 msgid "Connection timeout (ms)"
 msgstr "Tiempo de espera de conexión (ms)"
 
+msgctxt "#30018"
+msgid "Maximum rows per list (0 = unlimited)"
+msgstr "Número máximo de filas por lista (0 = ilimitado)"
+
 # empty string with id 32003
 msgctxt "#30012"
 msgid "Api Version"

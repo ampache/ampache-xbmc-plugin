@@ -57,6 +57,10 @@ msgctxt "#30017"
 msgid "Connection timeout (ms)"
 msgstr "Délai de connexion (ms)"
 
+msgctxt "#30018"
+msgid "Maximum rows per list (0 = unlimited)"
+msgstr "Nombre maximum de lignes par liste (0 = illimité)"
+
 msgctxt "#30020"
 msgid "Add Server"
 msgstr "Ajouter un serveur"

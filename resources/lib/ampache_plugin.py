@@ -24,6 +24,10 @@ from resources.lib import art
 #possible to start a song without initialising the plugin
 ampache = xbmcaddon.Addon("plugin.audio.ampache")
 
+#max number of rows shown in a list, to avoid overloading slow hardware
+def get_max_ui_items():
+    return ut.get_int_setting("max-rows", 200)
+
 class AmpMode:
     """Enumeration of all possible modes"""
 
@@ -234,7 +238,8 @@ def precacheArt(elem,elem_type):
         return
 
     threadList = []
-    max_threads = 10
+    max_ui_items = get_max_ui_items()
+    max_threads = 20
     semaphore = threading.Semaphore(max_threads)
 
     def wrapped_get_art(object_id, art_type, image_url):
@@ -263,6 +268,8 @@ def precacheArt(elem,elem_type):
         #daemon threads, so the process can exit without waiting for them
         x.daemon = True
         threadList.append(x)
+        if max_ui_items and len(threadList) >= max_ui_items:
+            break
     for x in threadList:
         x.start()
     #do not join threads: this would block the UI until every image has been
@@ -272,6 +279,7 @@ def addLinks(elem,elem_type,useCacheArt,mode):
 
     image = "DefaultFolder.png"
     it=[]
+    max_ui_items = get_max_ui_items()
     allid = set()
 
     for node in elem.iter(elem_type):
@@ -333,6 +341,8 @@ def addLinks(elem,elem_type,useCacheArt,mode):
         isFolder=True
         tu= (u,liz,isFolder)
         it.append(tu)
+        if max_ui_items and len(it) >= max_ui_items:
+            break
 
     xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(it))
 
@@ -341,6 +351,7 @@ def addLinks(elem,elem_type,useCacheArt,mode):
 def addPlayLinks(elem, elem_type):
    
     it=[]
+    max_ui_items = get_max_ui_items()
 
     #we don't use sort method for track cause songs are already sorted
     #by the server and it make a mess in random playlists
@@ -413,14 +424,19 @@ def addPlayLinks(elem, elem_type):
             liz.setMimeType(node.findtext("mime"))
 
         track_parameters = { "mode": str(AmpMode.END_DIRECTORY), "play_url" : play_url}
+        #pass the album id to load the art on the now playing screen
+        if elem_type == "song" and album_id:
+            track_parameters["album_id"] = album_id
         url = sys.argv[0] + '?' + urllib.parse.urlencode(track_parameters)
         tu= (url,liz)
         it.append(tu)
+        if max_ui_items and len(it) >= max_ui_items:
+            break
 
     xbmcplugin.addDirectoryItems(handle=int(sys.argv[1]),items=it,totalItems=len(it))
 
 #The function that actually plays an Ampache URL by using setResolvedUrl
-def play_track(url):
+def play_track(url, album_id=None):
     if url is None:
         xbmc.log("AmpachePlugin::play_track url null", xbmc.LOGINFO )
         return
@@ -430,6 +446,12 @@ def play_track(url):
 
     liz = xbmcgui.ListItem()
     liz.setPath(url)
+
+    #load the album art (downloading it if needed) so the now playing screen
+    #shows it even when long lists did not precache it
+    if album_id:
+        albumArt = art.get_art(album_id, "album")
+        liz.setArt( art.get_artLabels(albumArt) )
 
     xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True,listitem=liz)
 
@@ -746,6 +768,7 @@ def main_params(plugin_url):
     m_params['title'] = None
     #used only in play tracks
     m_params['play_url'] = None
+    m_params['album_id'] = None
     #used to managed very long lists
     m_params['offset'] = None
 
@@ -774,6 +797,11 @@ def main_params(plugin_url):
     try:
             m_params['play_url']=urllib.parse.unquote_plus(params["play_url"])
             xbmc.log("AmpachePlugin::play_url " + m_params['play_url'], xbmc.LOGDEBUG)
+    except Exception:
+            pass
+    try:
+            m_params['album_id']=params["album_id"]
+            xbmc.log("AmpachePlugin::album_id " + m_params['album_id'], xbmc.LOGDEBUG)
     except Exception:
             pass
     try:
@@ -1168,7 +1196,7 @@ def Main():
     elif mode==AmpMode.END_DIRECTORY:
         #workaround busydialog bug
         xbmc.executebuiltin('Dialog.Close(busydialog)')
-        play_track(m_params['play_url'])
+        play_track(m_params['play_url'], m_params['album_id'])
 
     #change rating
     elif mode==AmpMode.SET_RATINGS:
