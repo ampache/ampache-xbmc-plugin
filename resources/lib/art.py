@@ -50,7 +50,7 @@ def cacheArt(imageID,elem_type,url=None):
     ampacheConnect.type = elem_type
     
     try:
-        if(int(ampache.getSetting("api-version"))) < 400001:
+        if(ut.get_int_setting("api-version", 0)) < 400001:
             #old api version
             headers,contents = ampacheConnect.handle_request(url)
         else:

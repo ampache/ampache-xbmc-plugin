@@ -39,7 +39,7 @@ def otype_to_mode(object_type, object_subtype=None):
     return mode
 
 def mode_to_tags(mode):
-    if(int(ampache.getSetting("api-version"))) < 500000:
+    if(get_int_setting("api-version", 0)) < 500000:
         if mode == 19:
             return "tags","tag_artists"
         if mode == 20:

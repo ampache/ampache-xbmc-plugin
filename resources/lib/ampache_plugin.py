@@ -111,7 +111,7 @@ def searchGui():
         endDir = do_search("songs","live_streams")
     elif ret == 8:
         ret2 = dialog.contextmenu([ut.tString(30112),ut.tString(30113),ut.tString(30114)])
-        if(int(ampache.getSetting("api-version"))) < 500000:
+        if(ut.get_int_setting("api-version", 0)) < 500000:
             if ret2 == 0:
                 endDir = do_search("tags","tag_artists")
             elif ret2 == 1:
@@ -129,7 +129,7 @@ def searchGui():
 
 #necessary due the api changes in 6.0
 def get_name(node,amType):
-    if(int(ampache.getSetting("api-version"))) < 600000:
+    if(ut.get_int_setting("api-version", 0)) < 600000:
         artist_name = str(node.findtext(amType))
     else:
         artist_name = str(getNestedTypeText(node, "name" ,amType))
