@@ -9,6 +9,18 @@
 		<setting id="max-rows" type="number" label="30018" default="200"/>
 		<setting id="auto-fullscreen" type="bool" label="30015" default="false"/>
 		<setting id="clean_art" type="action" label="30016" action="RunPlugin(plugin://plugin.audio.ampache/?mode=400)"/>
+		<!-- runtime settings written by AMPACHECONNECT, hidden from the UI -->
+		<setting id="artists" type="text" default="" visible="false"/>
+		<setting id="albums" type="text" default="" visible="false"/>
+		<setting id="songs" type="text" default="" visible="false"/>
+		<setting id="playlists" type="text" default="" visible="false"/>
+		<setting id="videos" type="text" default="" visible="false"/>
+		<setting id="podcasts" type="text" default="" visible="false"/>
+		<setting id="live_streams" type="text" default="" visible="false"/>
+		<setting id="add" type="text" default="" visible="false"/>
+		<setting id="session_expire" type="text" default="" visible="false"/>
+		<setting id="token" type="text" default="" visible="false"/>
+		<setting id="token-exp" type="text" default="" visible="false"/>
 
 	</category>
   <category label="30002">
