@@ -260,11 +260,13 @@ def precacheArt(elem,elem_type):
         if not object_id or not image_url:
             continue
         x = threading.Thread(target=wrapped_get_art, args=(object_id,art_type,image_url,))
+        #daemon threads, so the process can exit without waiting for them
+        x.daemon = True
         threadList.append(x)
     for x in threadList:
         x.start()
-    for x in threadList:
-        x.join()
+    #do not join threads: this would block the UI until every image has been
+    #downloaded. Let them finish in background while the list is shown.
 
 def addLinks(elem,elem_type,useCacheArt,mode):
 
