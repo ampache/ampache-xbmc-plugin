@@ -161,8 +161,7 @@ class AmpacheConnect(object):
                     xbmc.log("AmpachePlugin::handle_request: HTTPError %d, no retry" % e.code, xbmc.LOGWARNING)
                     raise self.ConnectionError
                 xbmc.log("AmpachePlugin::handle_request: HTTPError %d, retry %d/3" % (e.code, attempt + 1), xbmc.LOGDEBUG)
-                #backoff also for server-side errors (5xx), the server may be overloaded
-                time.sleep(min(2 ** attempt, 8))
+                #no backoff also for server-side errors (5xx), if art is not present, the server send a 550
             except Exception as e:
                 if attempt + 1 < max_retries:
                     xbmc.log("AmpachePlugin::handle_request: Error, retry %d/3: %s" % (attempt + 1, repr(e)), xbmc.LOGDEBUG)
