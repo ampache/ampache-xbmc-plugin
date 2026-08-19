@@ -102,7 +102,11 @@ def get_art(object_id,elem_type,url=None):
     # Check in-memory cache before any file I/O
     with _art_cache_lock:
         if object_id and object_id in _art_cache:
-            return _art_cache[object_id]
+            cached = _art_cache[object_id]
+            if os.path.exists(cached):
+                return cached
+            #file no longer on disk (e.g. expired), discard and re-download
+            del _art_cache[object_id]
 
     try:
         albumArt = cacheArt(object_id,elem_type,url)
