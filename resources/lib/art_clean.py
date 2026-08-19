@@ -43,9 +43,11 @@ def clean_settings():
         ampache.setSetting("api-version", "350001")
 
 
-def is_expired(cache_file_path: str) -> bool:
-    """Check if the cache file has expired (older than one month)."""
-    # Define the current time
+def is_expired(cache_file_path):
+    """Check if the cache file has expired (older than one month).
+
+    :param cache_file_path: path of the cache file to check
+    """
     now = datetime.now()
 
     try:
