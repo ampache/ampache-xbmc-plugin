@@ -157,10 +157,8 @@ class AmpacheConnect(object):
                 response.close()
                 return headers, contents
             except urllib.error.HTTPError as e:
-                if e.code in (400, 401, 403, 404):
-                    xbmc.log("AmpachePlugin::handle_request: HTTPError %d, no retry" % e.code, xbmc.LOGWARNING)
-                    raise self.ConnectionError
-                xbmc.log("AmpachePlugin::handle_request: HTTPError %d, retry %d/3" % (e.code, attempt + 1), xbmc.LOGDEBUG)
+                xbmc.log("AmpachePlugin::handle_request: HTTPError %d, no retry" % e.code, xbmc.LOGWARNING)
+                raise self.ConnectionError
                 #no backoff also for server-side errors (5xx), if art is not present, the server send a 550
             except Exception as e:
                 if attempt + 1 < max_retries:
